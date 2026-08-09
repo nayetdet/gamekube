@@ -1,0 +1,40 @@
+{
+  "name": "gamekube",
+  "image": "ghcr.io/nayetdet/gamekube:devcontainer",
+  "initializeCommand": "bash .devcontainer/scripts/init.sh",
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  "mounts": [
+    "source=${localEnv:HOME}/.codex,target=/home/vscode/.codex,type=bind",
+    "source=${localEnv:HOME}/.kube,target=/home/vscode/.kube,type=bind",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "runArgs": [
+    "--network=host",
+    "--security-opt=label=disable"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "vscjava.vscode-gradle",
+        "vscjava.vscode-java-pack"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "terminal.integrated.cwd": "/workspaces/gamekube",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.autobuild.enabled": true,
+        "java.compile.nullAnalysis.mode": "automatic",
+        "eslint.workingDirectories": [{"mode": "auto"}]
+      }
+    }
+  }
+}

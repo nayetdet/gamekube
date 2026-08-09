@@ -1,0 +1,57 @@
+# Version control
+.git/
+.gitignore
+.github/
+
+# IDE/editor settings
+.idea/
+.vscode/
+.devcontainer/
+*.iml
+
+# Dependencies and build output
+node_modules/
+vendor/
+.pnpm-store/
+.next/
+.nuxt/
+.turbo/
+.vercel/
+build/
+dist/
+out/
+target/
+coverage/
+.gradle/
+
+# Environment, secrets, and local files
+.env
+.env.*
+!.env.example
+*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+tmp/
+temp/
+
+# Local Docker/Kubernetes overrides and secrets
+docker-compose.override.yml
+docker-compose.local.yml
+*.secret.yaml
+*.secret.yml
+*.pem
+*.key
+*.crt
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Documentation and local metadata
+README.md
+*.md
