@@ -35,6 +35,7 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           configFile: .devcontainer/devcontainer-build.json
-          imageName: ghcr.io/${{ github.repository }}:devcontainer
+          imageName: ghcr.io/${{ github.repository }}
+          imageTag: devcontainer
           cacheFrom: ghcr.io/${{ github.repository }}:devcontainer
           push: always
