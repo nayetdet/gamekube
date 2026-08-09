@@ -34,7 +34,7 @@ jobs:
       - name: Build and publish dev container
         uses: devcontainers/ci@v0.3
         with:
-          configFile: .devcontainer/devcontainer-build.json
+          configFile: .devcontainer/build/devcontainer.json
           imageName: ghcr.io/${{ github.repository }}
           imageTag: devcontainer
           cacheFrom: ghcr.io/${{ github.repository }}:devcontainer
