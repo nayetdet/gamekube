@@ -12,6 +12,9 @@
     "--network=host",
     "--security-opt=label=disable"
   ],
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.bun/bin"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
