@@ -24,7 +24,7 @@ public class GameService {
                 .withNewSpec()
                     .withReplicas(1)
                     .withNewSelector()
-                        .addToMatchLabels("app.kubernetes.io/name", "cavestory")
+                        .addToMatchLabels("app", "cavestory")
                     .endSelector()
                     .withNewTemplate()
                         .withNewMetadata()
@@ -46,6 +46,7 @@ public class GameService {
 
         return kubernetesClient.apps()
                 .deployments()
+                .inNamespace("gamekube")
                 .resource(deployment)
                 .create();
     }
