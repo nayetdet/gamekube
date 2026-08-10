@@ -1,0 +1,45 @@
+name: Helm
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/helm.yaml"
+      - "infra/helm/gamekube/**"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      REGISTRY: ghcr.io
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - id: chart
+        name: Read helm chart metadata
+        uses: actions-tools/yaml-outputs@v2
+        with:
+          file-path: infra/helm/gamekube/Chart.yaml
+
+      - name: Publish helm chart
+        uses: appany/helm-oci-chart-releaser@v0.5.0
+        with:
+          name: gamekube
+          path: infra/helm/gamekube
+          tag: ${{ steps.chart.outputs.version }}
+          registry: ${{ env.REGISTRY }}
+          repository: ${{ github.repository_owner }}/charts
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
