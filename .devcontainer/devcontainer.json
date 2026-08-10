@@ -22,11 +22,19 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "tim-koehler.helm-intellisense",
         "redhat.vscode-yaml",
         "vscjava.vscode-gradle",
         "vscjava.vscode-java-pack"
       ],
       "settings": {
+        "files.associations": {
+          "**/infra/kind/**.yaml": "plaintext",
+          "**/templates/*.yaml": "helm",
+          "**/templates/*.yml": "helm",
+          "**/templates/*.tpl": "helm"
+        },
         "editor.formatOnSave": true,
         "terminal.integrated.cwd": "/workspaces/gamekube",
         "editor.codeActionsOnSave": {
