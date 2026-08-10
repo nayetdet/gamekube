@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.service;
 
+import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +13,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
 import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder;
+import io.fabric8.kubernetes.api.model.networking.v1.IngressSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +30,14 @@ public class GameService {
     @Value("${game.domain}")
     private String domain;
 
+    @Value("${game.tls-secret:}")
+    private String tlsSecret;
+
     @Value("${game.readiness-timeout-seconds}")
     private long timeout;
+
+    @Value("${game.protocol}")
+    private String protocol;
 
     public GameResponse createCaveStoryGame() {
         String name = "cavestory-" + UUID.randomUUID().toString().substring(0, 8);
@@ -63,7 +71,7 @@ public class GameService {
             .withName(name)
             .waitUntilReady(timeout, TimeUnit.SECONDS);
 
-        return new GameResponse("http://" + host + "/");
+        return new GameResponse(URI.create(protocol + "://" + host + "/"));
     }
 
     private Deployment getDeployment(String name) {
@@ -92,15 +100,27 @@ public class GameService {
     }
 
     private Ingress getIngress(String name, String host) {
+        IngressSpecBuilder specBuilder = new IngressSpecBuilder()
+            .withIngressClassName("traefik");
+
+        if (tlsSecret != null && !tlsSecret.isBlank()) {
+            specBuilder.addNewTl()
+                .addToHosts(host)
+                .withSecretName(tlsSecret)
+                .endTl();
+        }
+
         return new IngressBuilder()
-                .withNewMetadata().withName(name).endMetadata()
-                .withNewSpec().addNewRule().withHost(host).withNewHttp()
-                    .addNewPath().withPath("/").withPathType("Prefix")
-                        .withNewBackend().withNewService().withName(name)
-                            .withNewPort().withName("http").endPort()
-                        .endService().endBackend()
-                    .endPath()
-                .endHttp().endRule().endSpec().build();
+            .withNewMetadata().withName(name).endMetadata()
+            .withSpec(specBuilder
+                .addNewRule().withHost(host).withNewHttp()
+                .addNewPath().withPath("/").withPathType("Prefix")
+                    .withNewBackend().withNewService().withName(name)
+                        .withNewPort().withName("http").endPort()
+                    .endService().endBackend()
+                .endPath()
+            .endHttp().endRule().build())
+            .build();
     }
 
 }

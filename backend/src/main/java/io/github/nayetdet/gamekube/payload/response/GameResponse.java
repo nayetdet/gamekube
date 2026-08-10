@@ -1,4 +1,6 @@
 package io.github.nayetdet.gamekube.payload.response;
 
-public record GameResponse(String url) {
+import java.net.URI;
+
+public record GameResponse(URI url) {
 }

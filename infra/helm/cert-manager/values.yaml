@@ -1,0 +1,3 @@
+cert-manager-controller:
+  crds:
+    enabled: true
