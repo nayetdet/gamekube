@@ -42,9 +42,20 @@
           "source.organizeImports": "explicit"
         },
         "java.configuration.updateBuildConfiguration": "automatic",
+        "java.import.gradle.projectFolders": [
+          "${workspaceFolder}/backend"
+        ],
+        "java.import.gradle.wrapper.enabled": true,
+        "java.import.gradle.offline.enabled": false,
         "java.autobuild.enabled": true,
         "java.compile.nullAnalysis.mode": "automatic",
-        "eslint.workingDirectories": [{"mode": "auto"}]
+        "eslint.workingDirectories": [
+          {
+            "directory": "${workspaceFolder}/frontend",
+            "changeProcessCWD": true
+          }
+        ],
+        "js/ts.tsdk.path": "${workspaceFolder}/frontend/node_modules/typescript/lib"
       }
     }
   }
