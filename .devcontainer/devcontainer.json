@@ -1,6 +1,7 @@
 {
   "name": "gamekube",
   "image": "ghcr.io/nayetdet/gamekube:devcontainer",
+  "workspaceFolder": "/workspaces/gamekube",
   "initializeCommand": "bash .devcontainer/scripts/init.sh",
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
   "mounts": [
@@ -42,11 +43,18 @@
           "source.organizeImports": "explicit"
         },
         "java.configuration.updateBuildConfiguration": "automatic",
+        "java.import.gradle.enabled": true,
+        "java.import.projectSelection": "automatic",
         "java.import.gradle.projectFolders": [
-          "${workspaceFolder}/backend"
+          "backend"
         ],
         "java.import.gradle.wrapper.enabled": true,
         "java.import.gradle.offline.enabled": false,
+        "java.import.exclusions": [
+          "**/frontend/**",
+          "**/infra/**",
+          "**/node_modules/**"
+        ],
         "java.autobuild.enabled": true,
         "java.compile.nullAnalysis.mode": "automatic",
         "eslint.workingDirectories": [

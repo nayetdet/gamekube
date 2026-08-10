@@ -7,11 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.github.nayetdet.gamekube.controller.docs.GameControllerDocs;
 import io.github.nayetdet.gamekube.service.GameService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/v1/games")
-public class GameController {
+@Tag(name = "Games", description = "Endpoints for managing games")
+public class GameController implements GameControllerDocs {
 
     private final GameService gameService;
 
@@ -19,9 +22,11 @@ public class GameController {
         this.gameService = gameService;
     }
 
+    @Override
     @PostMapping("/cavestory")
     public ResponseEntity<Deployment> createCaveStory() {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(gameService.createCaveStoryDeployment());
     }
+
 }
