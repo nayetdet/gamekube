@@ -2,7 +2,7 @@ package io.github.nayetdet.gamekube.controller.docs;
 
 import org.springframework.http.ResponseEntity;
 
-import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.github.nayetdet.gamekube.payload.response.GameResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,12 +18,12 @@ public interface GameControllerDocs {
                 responseCode = "201",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = Deployment.class)
+                    schema = @Schema(implementation = GameResponse.class)
                 )
             ),
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
         }
     )
-    ResponseEntity<Deployment> createCaveStory();
+    ResponseEntity<GameResponse> createCaveStory();
 
 }

@@ -1,3 +1,6 @@
 spring:
   application:
     name: gamekube
+
+game:
+  url: ${GAME_URL:http://localhost/}
