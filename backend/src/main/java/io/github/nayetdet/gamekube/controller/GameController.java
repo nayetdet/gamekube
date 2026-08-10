@@ -22,9 +22,9 @@ public class GameController implements GameControllerDocs {
 
     @Override
     @PostMapping("/cavestory")
-    public ResponseEntity<GameResponse> createCaveStory() {
+    public ResponseEntity<GameResponse> createCaveStoryGame() {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(gameService.createCaveStoryDeployment());
+                .body(gameService.createCaveStoryGame());
     }
 
 }

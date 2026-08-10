@@ -1,8 +1,8 @@
-.PHONY: run build update
+.PHONY: up build update
 
 GRADLE := ./gradlew
 
-run:
+up:
 	$(GRADLE) bootRun
 
 build:

@@ -1,6 +1,6 @@
-.PHONY: bootstrap
+.PHONY: up down reset
 
-bootstrap:
+up:
 	kind get clusters | grep -qx gamekube || kind create cluster --name gamekube --config kind/config.yaml
 	helm upgrade --install ingress helm/ingress \
 		--namespace ingress \
@@ -10,3 +10,8 @@ bootstrap:
 		--namespace gamekube \
 		--create-namespace \
 		--wait
+
+down:
+	kind get clusters | grep -qx gamekube && kind delete cluster --name gamekube || true
+
+reset: down up

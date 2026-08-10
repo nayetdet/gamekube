@@ -24,6 +24,6 @@ public interface GameControllerDocs {
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
         }
     )
-    ResponseEntity<GameResponse> createCaveStory();
+    ResponseEntity<GameResponse> createCaveStoryGame();
 
 }

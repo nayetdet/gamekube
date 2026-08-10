@@ -3,4 +3,6 @@ spring:
     name: gamekube
 
 game:
-  url: ${GAME_URL:http://localhost/}
+  namespace: gamekube
+  domain: gamekube.localhost
+  readiness-timeout-seconds: 120
