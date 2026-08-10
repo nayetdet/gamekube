@@ -42,6 +42,12 @@
           "source.fixAll.eslint": "explicit",
           "source.organizeImports": "explicit"
         },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/usr/bin/zsh"
+          }
+        },
         "java.configuration.updateBuildConfiguration": "automatic",
         "java.import.gradle.enabled": true,
         "java.import.projectSelection": "automatic",
