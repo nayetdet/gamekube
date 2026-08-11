@@ -1,0 +1,262 @@
+{
+  "info": {
+    "name": "Gamekube — Backend API",
+    "description": "Coleção de requisições para teste end-to-end da API Gamekube (Keycloak + CRUD de Usuários).\n\nOrdem de execução:\n1. 0.1 Obter Token JWT (salva o access_token automaticamente nas variáveis da coleção)\n2. 1.1 Criar Usuário (salva o usuario_id automaticamente)\n3. 1.2 Listar Usuários\n4. 1.3 Buscar Usuário por ID\n5. 1.4 Atualizar Usuário\n6. 1.5 Deletar Usuário\n7. 2.1 Health Check",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8081/v1"
+    },
+    {
+      "key": "keycloak_url",
+      "value": "http://localhost:7000"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "usuario_id",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "0. Autenticação Keycloak",
+      "item": [
+        {
+          "name": "0.1 Obter Token JWT (testuser)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Token retornado', () => pm.expect(r.access_token).to.not.be.empty);",
+                  "pm.collectionVariables.set('access_token', r.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "gamekube-backend",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "testuser",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "testpass",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{keycloak_url}}/realms/gamekube/protocol/openid-connect/token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Módulo de Usuários",
+      "item": [
+        {
+          "name": "1.1 Criar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var r = pm.response.json();",
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('ID retornado', () => pm.expect(r.id).to.not.be.empty);",
+                  "pm.collectionVariables.set('usuario_id', r.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rodrigo\",\n  \"email\": \"rodrigo@example.com\",\n  \"firstName\": \"Rodrigo\",\n  \"lastName\": \"User\",\n  \"keycloakId\": \"a0000000-0000-0000-0000-000000000001\"\n}"
+            },
+            "url": "{{base_url}}/users"
+          }
+        },
+        {
+          "name": "1.2 Listar Usuários",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/users"
+          }
+        },
+        {
+          "name": "1.3 Buscar Usuário por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/users/{{usuario_id}}"
+          }
+        },
+        {
+          "name": "1.4 Atualizar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rodrigo_updated\",\n  \"email\": \"rodrigo.updated@example.com\",\n  \"firstName\": \"Rodrigo\",\n  \"lastName\": \"Updated\",\n  \"active\": true\n}"
+            },
+            "url": "{{base_url}}/users/{{usuario_id}}"
+          }
+        },
+        {
+          "name": "1.5 Deletar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/users/{{usuario_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Diagnósticos",
+      "item": [
+        {
+          "name": "2.1 Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "http://localhost:8081/actuator/health"
+          }
+        },
+        {
+          "name": "2.2 OpenAPI Specs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "http://localhost:8081/v3/api-docs"
+          }
+        }
+      ]
+    }
+  ]
+}
