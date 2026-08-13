@@ -1,9 +1,8 @@
 package io.github.nayetdet.gamekube.payload.response;
 
+import io.github.nayetdet.gamekube.model.User;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import io.github.nayetdet.gamekube.model.User;
 
 public record UserResponse(
     UUID id,
@@ -14,19 +13,17 @@ public record UserResponse(
     String lastName,
     boolean active,
     LocalDateTime createdAt,
-    LocalDateTime updatedAt
-) {
-    public static UserResponse fromEntity(User user) {
-        return new UserResponse(
-            user.getId(),
-            user.getKeycloakId(),
-            user.getUsername(),
-            user.getEmail(),
-            user.getFirstName(),
-            user.getLastName(),
-            user.isActive(),
-            user.getCreatedAt(),
-            user.getUpdatedAt()
-        );
-    }
+    LocalDateTime updatedAt) {
+  public static UserResponse fromEntity(User user) {
+    return new UserResponse(
+        user.getId(),
+        user.getKeycloakId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.isActive(),
+        user.getCreatedAt(),
+        user.getUpdatedAt());
+  }
 }

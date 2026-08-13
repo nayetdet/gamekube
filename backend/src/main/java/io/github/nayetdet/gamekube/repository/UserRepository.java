@@ -1,27 +1,25 @@
 package io.github.nayetdet.gamekube.repository;
 
+import io.github.nayetdet.gamekube.model.User;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import io.github.nayetdet.gamekube.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    Optional<User> findByEmail(String email);
+  Optional<User> findByEmail(String email);
 
-    Optional<User> findByUsername(String username);
+  Optional<User> findByUsername(String username);
 
-    Optional<User> findByKeycloakId(String keycloakId);
+  Optional<User> findByKeycloakId(String keycloakId);
 
-    boolean existsByEmail(String email);
+  boolean existsByEmail(String email);
 
-    boolean existsByUsername(String username);
+  boolean existsByUsername(String username);
 
-    boolean existsByEmailAndIdNot(String email, UUID id);
+  boolean existsByEmailAndIdNot(String email, UUID id);
 
-    boolean existsByUsernameAndIdNot(String username, UUID id);
+  boolean existsByUsernameAndIdNot(String username, UUID id);
 }

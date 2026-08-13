@@ -1,4 +1,4 @@
-.PHONY: up build update
+.PHONY: up build update format check
 
 GRADLE := ./gradlew
 
@@ -10,3 +10,9 @@ build:
 
 update:
 	$(GRADLE) build --refresh-dependencies
+
+format:
+	$(GRADLE) spotlessApply
+
+check:
+	$(GRADLE) spotlessCheck test
