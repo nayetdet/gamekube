@@ -15,7 +15,8 @@ export \
 endif
 
 up:
-	$(GRADLE) bootRun
+	SPRING_OUTPUT_ANSI_ENABLED=always \
+	$(GRADLE) --console=rich bootRun
 
 build:
 	$(GRADLE) build
