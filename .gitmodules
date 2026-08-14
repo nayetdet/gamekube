@@ -1,0 +1,3 @@
+[submodule "infra/keycloak/themes/keywind"]
+	path = infra/keycloak/themes/keywind
+	url = https://github.com/nayetdet/keywind.git

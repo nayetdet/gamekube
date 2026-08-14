@@ -20,3 +20,4 @@ services:
       - "8080:8080"
     volumes:
       - ./infra/keycloak/data/import:/opt/keycloak/data/import:ro
+      - ./infra/keycloak/themes/keywind/theme:/opt/keycloak/themes:ro
