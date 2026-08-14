@@ -1,8 +1,20 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath 'org.flywaydb:flyway-database-postgresql:12.4.0'
+		classpath 'org.postgresql:postgresql:42.7.11'
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.1.0'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.diffplug.spotless' version '7.0.2'
+	id 'org.flywaydb.flyway' version '12.4.0'
 }
 
 group = 'io.github.nayetdet'
@@ -19,19 +31,23 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-flyway'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	implementation 'io.fabric8:kubernetes-client:7.8.0'
-	implementation "org.keycloak:keycloak-admin-client:26.0.11"
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+	implementation 'org.keycloak:keycloak-admin-client:26.0.11'
 	implementation 'io.github.wimdeblauwe:error-handling-spring-boot-starter:5.1.1'
+	implementation 'io.fabric8:kubernetes-client:7.8.0'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+	runtimeOnly 'org.postgresql:postgresql'
 
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
@@ -39,8 +55,12 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.withType(Test).configureEach {
-	useJUnitPlatform()
+flyway {
+	url = System.getenv('SPRING_DATASOURCE_URL')
+	user = System.getenv('SPRING_DATASOURCE_USERNAME')
+	password = System.getenv('SPRING_DATASOURCE_PASSWORD')
+	locations = ['filesystem:src/main/resources/db/migration']
+	baselineOnMigrate = true
 }
 
 spotless {
@@ -50,4 +70,8 @@ spotless {
 		trimTrailingWhitespace()
 		endWithNewline()
 	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
 }

@@ -66,7 +66,7 @@ public interface UserControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<Void> changeEmail(@PathVariable String username);
+  ResponseEntity<Void> updateEmail(@PathVariable String username);
 
   @Operation(
       summary = "Update a user",

@@ -49,7 +49,7 @@ public class UserController implements UserControllerDocs {
   @Override
   @PreAuthorizeUser
   @PostMapping("/{username}/reset-email")
-  public ResponseEntity<Void> changeEmail(@PathVariable String username) {
+  public ResponseEntity<Void> updateEmail(@PathVariable String username) {
     userService.updateEmail(username);
     return ResponseEntity.noContent().build();
   }
