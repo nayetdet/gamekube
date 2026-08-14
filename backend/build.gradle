@@ -60,6 +60,8 @@ flyway {
 	user = System.getenv('SPRING_DATASOURCE_USERNAME')
 	password = System.getenv('SPRING_DATASOURCE_PASSWORD')
 	locations = ['filesystem:src/main/resources/db/migration']
+	schemas = ['gamekube']
+	defaultSchema = 'gamekube'
 	baselineOnMigrate = true
 }
 

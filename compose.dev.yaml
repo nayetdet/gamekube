@@ -18,6 +18,23 @@ services:
       retries: 10
       start_period: 5s
 
+  flyway:
+    image: flyway/flyway:13-alpine
+    container_name: gamekube-flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - -url=jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}
+      - -user=${POSTGRES_USER:?}
+      - -password=${POSTGRES_PASSWORD:?}
+      - -schemas=gamekube,keycloak
+      - -defaultSchema=gamekube
+      - -connectRetries=60
+      - migrate
+    volumes:
+      - ./backend/src/main/resources/db/migration:/flyway/sql:ro
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.7
     container_name: gamekube-keycloak
@@ -25,15 +42,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:?}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?}
+      KC_HEALTH_ENABLED: "true"
       KC_DB: postgres
+      KC_DB_SCHEMA: keycloak
       KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}
       KC_DB_USERNAME: ${POSTGRES_USER:?}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?}
       KC_DB_KIND_APP_STORAGE: postgres
-      KC_DB_URL_FULL_APP_STORAGE: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}
+      KC_DB_URL_FULL_APP_STORAGE: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}?currentSchema=gamekube
       KC_DB_USERNAME_APP_STORAGE: ${POSTGRES_USER:?}
       KC_DB_PASSWORD_APP_STORAGE: ${POSTGRES_PASSWORD:?}
     ports:
@@ -42,6 +63,12 @@ services:
       - ./infra/keycloak/data/import:/opt/keycloak/data/import:ro
       - ./infra/keycloak/providers:/opt/keycloak/providers:ro
       - ./infra/keycloak/themes/keywind/theme:/opt/keycloak/themes:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:9000/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
 volumes:
   postgres-data:
