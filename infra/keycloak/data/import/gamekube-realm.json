@@ -552,6 +552,30 @@
       },
       "notBefore": 0,
       "groups": []
+    },
+    {
+      "id": "d8f6b3c1-2b7e-4d75-9a31-6f2c8e4b1a90",
+      "username": "admin",
+      "email": "admin@gamekube.local",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "secretData": "{\"value\":\"rbLqqfoVLcM8Hy0VaAKglYjD4RSOCNhFsq6RqIswC5U=\",\"salt\":\"AuB+e8vS17UmAep7uiIMxg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-gamekube",
+        "admin",
+        "user"
+      ],
+      "clientRoles": {},
+      "notBefore": 0,
+      "groups": []
     }
   ],
   "scopeMappings": [
