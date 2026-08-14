@@ -1959,12 +1959,7 @@
       }
     ]
   },
-  "internationalizationEnabled": true,
-  "supportedLocales": [
-    "pt",
-    "en"
-  ],
-  "defaultLocale": "pt",
+  "internationalizationEnabled": false,
   "authenticationFlows": [
     {
       "id": "a5cb7117-1a0c-4811-9296-e63c61c2b357",

@@ -2,22 +2,46 @@ services:
   postgres:
     image: postgres:18-alpine
     container_name: gamekube-postgres
+    command: ["postgres", "-c", "max_prepared_transactions=100"]
     environment:
-      POSTGRES_DB: gamekube
-      POSTGRES_USER: gamekube
-      POSTGRES_PASSWORD: gamekube
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?} -d ${POSTGRES_DB:?}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.7
     container_name: gamekube-keycloak
     command: start-dev --import-realm
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:?}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}
+      KC_DB_USERNAME: ${POSTGRES_USER:?}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?}
+      KC_DB_KIND_APP_STORAGE: postgres
+      KC_DB_URL_FULL_APP_STORAGE: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}
+      KC_DB_USERNAME_APP_STORAGE: ${POSTGRES_USER:?}
+      KC_DB_PASSWORD_APP_STORAGE: ${POSTGRES_PASSWORD:?}
     ports:
       - "8080:8080"
     volumes:
       - ./infra/keycloak/data/import:/opt/keycloak/data/import:ro
+      - ./infra/keycloak/providers:/opt/keycloak/providers:ro
       - ./infra/keycloak/themes/keywind/theme:/opt/keycloak/themes:ro
+
+volumes:
+  postgres-data:
