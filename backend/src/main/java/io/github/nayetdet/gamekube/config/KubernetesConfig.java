@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class KubernetesConfig {
 
   @Bean
-  public KubernetesClient kubernetesClient() {
+  KubernetesClient kubernetesClient() {
     return new KubernetesClientBuilder().build();
   }
 }

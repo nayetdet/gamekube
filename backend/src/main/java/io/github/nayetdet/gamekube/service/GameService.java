@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
 import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder;
 import io.fabric8.kubernetes.api.model.networking.v1.IngressSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.github.nayetdet.gamekube.mapper.GameMapper;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
 import java.net.URI;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class GameService {
 
   private final KubernetesClient kubernetesClient;
+  private final GameMapper gameMapper;
 
   @Value("${game.namespace}")
   private String namespace;
@@ -49,7 +51,6 @@ public class GameService {
         .create();
 
     kubernetesClient.services().inNamespace(namespace).resource(getService(name)).create();
-
     kubernetesClient
         .network()
         .v1()
@@ -65,7 +66,7 @@ public class GameService {
         .withName(name)
         .waitUntilReady(timeout, TimeUnit.SECONDS);
 
-    return new GameResponse(URI.create(protocol + "://" + host + "/"));
+    return gameMapper.toResponse(URI.create(protocol + "://" + host + "/"));
   }
 
   private Deployment getDeployment(String name) {

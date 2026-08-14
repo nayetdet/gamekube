@@ -1,9 +1,11 @@
 {
   "name": "gamekube",
   "image": "ghcr.io/nayetdet/gamekube:devcontainer",
-  "workspaceFolder": "/workspaces/gamekube",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+  "workspaceFolder": "${localWorkspaceFolder}",
   "initializeCommand": "bash .devcontainer/scripts/init.sh",
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  "forwardPorts": [3000, 8080, 7000],
   "mounts": [
     "source=${localEnv:HOME}/.codex,target=/home/vscode/.codex,type=bind",
     "source=${localEnv:HOME}/.kube,target=/home/vscode/.kube,type=bind",
@@ -22,14 +24,41 @@
         "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-docker",
+        "josevseb.google-java-format-for-vs-code",
+        "ms-azuretools.vscode-containers",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
-        "tim-koehler.helm-intellisense",
+        "Tim-Koehler.helm-intellisense",
         "redhat.vscode-yaml",
         "vscjava.vscode-gradle",
         "vscjava.vscode-java-pack"
       ],
       "settings": {
+        "[java]": {
+          "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code",
+          "editor.insertSpaces": true,
+          "editor.tabSize": 2
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
         "files.associations": {
           "**/infra/kind/**.yaml": "plaintext",
           "**/templates/*.yaml": "helm",
@@ -37,7 +66,7 @@
           "**/templates/*.tpl": "helm"
         },
         "editor.formatOnSave": true,
-        "terminal.integrated.cwd": "/workspaces/gamekube",
+        "terminal.integrated.cwd": "${workspaceFolder}",
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit",
           "source.organizeImports": "explicit"

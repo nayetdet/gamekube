@@ -1,6 +1,5 @@
-package io.github.nayetdet.gamekube.payload.response;
+package io.github.nayetdet.gamekube.payload.query.page;
 
-import java.net.URI;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,9 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameResponse {
+public class ApplicationPageable {
 
-  private URI url;
+  private Integer pageNumber;
+  private Integer pageSize;
+  private Long total;
 }

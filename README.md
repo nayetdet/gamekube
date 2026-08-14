@@ -1,1 +1,1 @@
-# Gamekube
+# GameKube
