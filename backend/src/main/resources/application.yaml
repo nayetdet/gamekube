@@ -31,8 +31,6 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
-    operations-sorter: method
-    tags-sorter: alpha
 game:
   namespace: gamekube
   domain: gamekube.localhost

@@ -48,6 +48,13 @@ public class UserController implements UserControllerDocs {
 
   @Override
   @PreAuthorizeUser
+  @GetMapping("/me")
+  public ResponseEntity<UserResponse> findSelf() {
+    return userService.findSelf().map(ResponseEntity::ok).orElseThrow(UserNotFoundException::new);
+  }
+
+  @Override
+  @PreAuthorizeUser
   @PostMapping("/{username}/reset-email")
   public ResponseEntity<Void> updateEmail(@PathVariable String username) {
     userService.updateEmail(username);

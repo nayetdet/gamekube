@@ -34,6 +34,13 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
+  public Optional<UserResponse> findSelf() {
+    return userRepository
+        .findByKeycloakId(AuthorizationHelper.getCurrentKeycloakId())
+        .map(userMapper::toResponse);
+  }
+
+  @Transactional(readOnly = true)
   public void updateEmail(String username) {
     User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     AuthorizationHelper.validateResourceAccess(user.getKeycloakId());

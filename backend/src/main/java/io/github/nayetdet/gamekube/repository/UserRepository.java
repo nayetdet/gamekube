@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   Page<User> search(@Param("query") UserQuery query, Pageable pageable);
 
   Optional<User> findByUsername(String username);
+
+  Optional<User> findByKeycloakId(UUID keycloakId);
 }

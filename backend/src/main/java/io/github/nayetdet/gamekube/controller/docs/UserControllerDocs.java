@@ -36,6 +36,23 @@ public interface UserControllerDocs {
   ResponseEntity<ApplicationPage<UserResponse>> search(@ParameterObject UserQuery query);
 
   @Operation(
+      summary = "Find the currently authenticated user",
+      security = @SecurityRequirement(name = "bearerAuth"),
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Ok",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content)
+      })
+  ResponseEntity<UserResponse> findSelf();
+
+  @Operation(
       summary = "Find a user by username",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {

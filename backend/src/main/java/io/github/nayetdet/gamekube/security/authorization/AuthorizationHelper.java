@@ -28,6 +28,10 @@ public class AuthorizationHelper {
     validateResourceAccess(expectedKeycloakId, UserModificationForbiddenException::new);
   }
 
+  public static UUID getCurrentKeycloakId() {
+    return UUID.fromString(getJwt().getSubject());
+  }
+
   private static Jwt getJwt() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null
