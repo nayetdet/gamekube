@@ -53,10 +53,10 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}
       KC_DB_USERNAME: ${POSTGRES_USER:?}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?}
-      KC_DB_KIND_APP_STORAGE: postgres
-      KC_DB_URL_FULL_APP_STORAGE: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}?currentSchema=gamekube
-      KC_DB_USERNAME_APP_STORAGE: ${POSTGRES_USER:?}
-      KC_DB_PASSWORD_APP_STORAGE: ${POSTGRES_PASSWORD:?}
+      KC_DB_KIND_APPLICATION: postgres
+      KC_DB_URL_FULL_APPLICATION: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?}?currentSchema=gamekube
+      KC_DB_USERNAME_APPLICATION: ${POSTGRES_USER:?}
+      KC_DB_PASSWORD_APPLICATION: ${POSTGRES_PASSWORD:?}
     ports:
       - "8080:8080"
     volumes:
@@ -64,7 +64,7 @@ services:
       - ./infra/keycloak/providers:/opt/keycloak/providers:ro
       - ./infra/keycloak/themes/keywind/theme:/opt/keycloak/themes:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail --silent http://localhost:9000/health/ready"]
+      test: ["CMD-SHELL", "{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep -q 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"]
       interval: 10s
       timeout: 5s
       retries: 12
