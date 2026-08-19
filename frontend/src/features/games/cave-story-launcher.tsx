@@ -78,7 +78,7 @@ export function CaveStoryLauncher() {
             )}
           </div>
         </div>
-        <div className="relative min-h-60 overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,_#1d4d6a,_#0b1c38_48%,_#301d57)] p-6">
+        <div className="relative min-h-60 overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,#1d4d6a,#0b1c38_48%,#301d57)] p-6">
           <div className="absolute inset-x-0 top-0 h-px bg-cyan-100/50" />
           <div className="grid h-full place-items-center">
             <div className="text-center">

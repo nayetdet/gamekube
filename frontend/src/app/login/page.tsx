@@ -13,7 +13,7 @@ export default function LoginPage() {
     if (status === 'authenticated') router.replace('/dashboard');
   }, [router, status]);
   return (
-    <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_top,_#153e69,_transparent_45%),#07111f] px-5">
+    <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_top,#153e69,transparent_45%),#07111f] px-5">
       <section className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950/40 p-8 shadow-2xl shadow-slate-950/40">
         <Link href="/" className="flex items-center gap-3 font-semibold">
           <span className="grid size-9 place-items-center rounded-xl bg-cyan-300 text-slate-950">

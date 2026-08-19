@@ -33,7 +33,7 @@ export function AuthCallback() {
 
   return (
     <main className="grid min-h-screen place-items-center bg-slate-950 px-5 text-slate-100">
-      <section className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center">
+      <section className="w-full max-w-md rounded-2xl border border-white/10 bg-white/4 p-8 text-center">
         {displayedError ? (
           <>
             <p className="text-sm font-semibold text-rose-200">

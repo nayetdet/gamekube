@@ -4,10 +4,10 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Feedback } from '@/components/ui/async-states';
 import { usersService } from '@/services/users-service';
-import type { User } from '@/types/api';
+import type { UserResponse } from '@/types/payload/response/user-response';
 
 interface UserFormProps {
-  user: User;
+  user: UserResponse;
   onSaved: (updatedUsername: string) => Promise<void> | void;
 }
 

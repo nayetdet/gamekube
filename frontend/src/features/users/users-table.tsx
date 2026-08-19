@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import { EmptyState } from '@/components/ui/async-states';
 import { formatDateTime } from '@/lib/format';
-import type { PageResponse, User } from '@/types/api';
+import type { PageResponse } from '@/types/utils/page';
+import type { UserResponse } from '@/types/payload/response/user-response';
 
 export function UsersTable({
   page,
   onPrevious,
   onNext,
 }: {
-  page: PageResponse<User>;
+  page: PageResponse<UserResponse>;
   onPrevious: () => void;
   onNext: () => void;
 }) {
@@ -32,7 +33,7 @@ export function UsersTable({
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/30">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-white/10 bg-white/[0.03] text-xs uppercase tracking-wider text-slate-400">
+          <thead className="border-b border-white/10 bg-white/3 text-xs uppercase tracking-wider text-slate-400">
             <tr>
               <th className="px-5 py-4 font-medium">Usuário</th>
               <th className="px-5 py-4 font-medium">Nome</th>
@@ -44,7 +45,7 @@ export function UsersTable({
           </thead>
           <tbody className="divide-y divide-white/5">
             {page.content.map((user) => (
-              <tr key={user.id} className="transition hover:bg-white/[0.03]">
+              <tr key={user.id} className="transition hover:bg-white/3">
                 <td className="px-5 py-4 font-medium text-slate-100">
                   {user.username}
                 </td>

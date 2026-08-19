@@ -68,7 +68,7 @@ export function UserActions({
   return (
     <div className="space-y-5">
       {feedback && <Feedback type={feedback.type}>{feedback.message}</Feedback>}
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <section className="rounded-2xl border border-white/10 bg-white/3 p-5">
         <h3 className="font-semibold">E-mail de acesso</h3>
         <p className="mt-1 text-sm leading-6 text-slate-400">
           O e-mail é gerenciado pelo Keycloak. Solicite o envio das instruções
@@ -84,7 +84,7 @@ export function UserActions({
           Solicitar atualização de e-mail
         </Button>
       </section>
-      <section className="rounded-2xl border border-rose-300/15 bg-rose-300/[0.04] p-5">
+      <section className="rounded-2xl border border-rose-300/15 bg-rose-300/4 p-5">
         <h3 className="font-semibold text-rose-100">Zona de perigo</h3>
         <p className="mt-1 text-sm leading-6 text-slate-400">
           A exclusão remove o usuário da aplicação e do provedor de identidade.

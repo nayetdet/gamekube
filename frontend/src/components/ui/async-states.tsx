@@ -51,7 +51,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
+    <section className="rounded-2xl border border-dashed border-white/15 bg-white/3 p-10 text-center">
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
         {description}
