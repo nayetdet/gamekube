@@ -1,4 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GameKube frontend
+
+## Configuração
+
+O frontend usa o cliente OIDC `frontend-client` já importado no Keycloak. Por
+padrão, assume os serviços locais configurados no projeto. Caso necessário,
+crie `frontend/.env.local`:
+
+```env
+GAMEKUBE_API_URL=http://localhost:8081
+NEXT_PUBLIC_KEYCLOAK_URL=http://localhost:8080
+NEXT_PUBLIC_KEYCLOAK_REALM=gamekube
+NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=frontend-client
+```
+
+`GAMEKUBE_API_URL` é lido apenas pelo proxy do servidor Next; os demais valores
+configuram o redirecionamento OIDC no navegador.
+
+## Desenvolvimento
 
 ## Getting Started
 
