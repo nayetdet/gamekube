@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 export default function Home() {
   const { status, login } = useAuth();
   return (
-    <main className="flex min-h-screen items-center overflow-hidden bg-[radial-gradient(circle_at_78%_20%,_#175987_0,_transparent_22%),radial-gradient(circle_at_12%_85%,_#4c2d77_0,_transparent_25%),linear-gradient(135deg,_#07111f,_#0b1930)] px-5 py-12 text-slate-100 sm:px-8">
+    <main className="flex min-h-screen items-center overflow-hidden bg-[radial-gradient(circle_at_78%_20%,#175987_0,transparent_22%),radial-gradient(circle_at_12%_85%,#4c2d77_0,transparent_25%),linear-gradient(135deg,#07111f,#0b1930)] px-5 py-12 text-slate-100 sm:px-8">
       <div className="mx-auto grid w-full max-w-6xl gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <section>
           <div className="flex items-center gap-3 font-semibold">
@@ -55,14 +55,14 @@ export default function Home() {
               Acesse com sua conta protegida pelo Keycloak.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+          <div className="rounded-2xl border border-white/10 bg-white/4 p-6">
             <span className="text-2xl">02</span>
             <h2 className="mt-5 text-xl font-semibold">Escolha um jogo</h2>
             <p className="mt-2 leading-6 text-slate-300">
               Solicite uma instância para sua sessão de jogo.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+          <div className="rounded-2xl border border-white/10 bg-white/4 p-6">
             <span className="text-2xl">03</span>
             <h2 className="mt-5 text-xl font-semibold">Jogue</h2>
             <p className="mt-2 leading-6 text-slate-300">

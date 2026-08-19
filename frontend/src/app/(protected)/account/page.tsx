@@ -39,7 +39,7 @@ export default function AccountPage() {
           />
         </section>
         <aside className="space-y-5">
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm">
+          <section className="rounded-2xl border border-white/10 bg-white/3 p-5 text-sm">
             <h2 className="font-semibold text-slate-100">
               Informações da conta
             </h2>

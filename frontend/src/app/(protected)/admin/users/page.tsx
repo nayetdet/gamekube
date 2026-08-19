@@ -55,7 +55,7 @@ export default function UsersPage() {
       </div>
       <form
         onSubmit={search}
-        className="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 md:grid-cols-2 xl:grid-cols-[1fr_1fr_0.8fr_0.8fr_1fr_auto]"
+        className="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/3 p-5 md:grid-cols-2 xl:grid-cols-[1fr_1fr_0.8fr_0.8fr_1fr_auto]"
       >
         <label className="grid gap-2 text-sm text-slate-300">
           Nome de usuário
