@@ -5,7 +5,7 @@ import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { Button } from '@/components/ui/button';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { usersService } from '@/services/users-service';
-import type { UserSearchQuery } from '@/types/api';
+import type { UserSearchQuery } from '@/types/payload/query/user-query';
 import { UsersTable } from '@/features/users/users-table';
 
 const initialQuery: UserSearchQuery = {
