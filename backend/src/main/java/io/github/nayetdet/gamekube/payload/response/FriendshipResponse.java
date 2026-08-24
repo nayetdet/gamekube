@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.payload.response;
 
-import io.github.nayetdet.gamekube.model.PresenceStatus;
+import io.github.nayetdet.gamekube.model.FriendshipStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -14,16 +14,12 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class FriendshipResponse {
 
   private UUID id;
-  private UUID keycloakId;
-  private String username;
-  private String name;
-  private String description;
-  private PresenceStatus status;
-  private LocalDateTime lastSeenAt;
-  private String currentGame;
+  private UserResponse requester;
+  private UserResponse addressee;
+  private FriendshipStatus status;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 }
