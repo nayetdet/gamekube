@@ -9,12 +9,18 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
   public UserResponse toResponse(User user) {
+    if (user == null) {
+      return null;
+    }
     return UserResponse.builder()
         .id(user.getId())
         .keycloakId(user.getKeycloakId())
         .username(user.getUsername())
         .name(user.getName())
         .description(user.getDescription())
+        .status(user.getStatus())
+        .lastSeenAt(user.getLastSeenAt())
+        .currentGame(user.getCurrentGame())
         .createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt())
         .build();

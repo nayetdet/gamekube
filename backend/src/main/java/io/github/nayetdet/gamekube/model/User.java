@@ -2,7 +2,10 @@ package io.github.nayetdet.gamekube.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +27,14 @@ public class User extends BaseModel {
 
   @Column(length = 1000)
   private String description;
+
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20, nullable = false)
+  private PresenceStatus status = PresenceStatus.OFFLINE;
+
+  @Column(name = "last_seen_at")
+  private LocalDateTime lastSeenAt;
+
+  @Column(name = "current_game", length = 100)
+  private String currentGame;
 }
