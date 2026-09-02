@@ -1,0 +1,43 @@
+/* Semantic tokens consumed by every component. Light only, by design. */
+:root {
+  color-scheme: light;
+
+  --background: var(--ink-50);
+  --foreground: var(--ink-900);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink-900);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink-900);
+
+  --primary: var(--brand-600);
+  --primary-foreground: oklch(0.99 0.005 300);
+  --secondary: var(--brand-50);
+  --secondary-foreground: var(--brand-700);
+  --muted: var(--ink-100);
+  --muted-foreground: var(--ink-500);
+  --accent: var(--brand-100);
+  --accent-foreground: var(--brand-700);
+  --destructive: var(--signal-danger);
+  --destructive-foreground: oklch(0.99 0.005 300);
+
+  --border: var(--ink-200);
+  --input: var(--ink-300);
+  --ring: var(--brand-500);
+  --radius: 0.875rem;
+
+  /* The rail sits a step below the page so it reads as a separate surface. */
+  --sidebar: var(--ink-100);
+  --sidebar-foreground: var(--ink-900);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-primary-foreground: oklch(0.99 0.005 300);
+  --sidebar-accent: var(--brand-100);
+  --sidebar-accent-foreground: var(--brand-800);
+  --sidebar-border: var(--ink-300);
+  --sidebar-ring: var(--brand-400);
+
+  --chart-1: var(--brand-600);
+  --chart-2: var(--brand-400);
+  --chart-3: var(--brand-300);
+  --chart-4: var(--brand-800);
+  --chart-5: var(--brand-200);
+}
