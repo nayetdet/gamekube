@@ -22,6 +22,17 @@ public class SecurityConfig {
         .formLogin(formLogin -> formLogin.disable())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        "/ws/**",
+                        "/ws-sockjs/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html")
+                    .permitAll()
+                    .anyRequest()
+                    .permitAll())
         .oauth2ResourceServer(
             oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
         .build();

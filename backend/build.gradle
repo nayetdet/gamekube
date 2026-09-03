@@ -22,7 +22,7 @@ version = '0.1.0'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -37,6 +37,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 	implementation 'org.keycloak:keycloak-admin-client:26.0.11'
