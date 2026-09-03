@@ -7,6 +7,7 @@ import io.github.nayetdet.gamekube.payload.request.UserPresenceRequest;
 import io.github.nayetdet.gamekube.payload.response.UserPresenceResponse;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.authorization.AuthorizationHelper;
+import io.github.nayetdet.gamekube.service.presence.UserPresenceTracker;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserPresenceService {
 
   private final UserRepository userRepository;
+  private final UserPresenceTracker presenceTracker;
 
   @Transactional
   public UserPresenceResponse updateSelfPresence(UserPresenceRequest request) {
@@ -46,9 +48,11 @@ public class UserPresenceService {
   @Transactional(readOnly = true)
   public UserPresenceResponse getPresenceByUsername(String username) {
     User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    PresenceStatus liveStatus =
+        presenceTracker.isUserOnline(username) ? PresenceStatus.ONLINE : user.getStatus();
 
     return UserPresenceResponse.builder()
-        .status(user.getStatus())
+        .status(liveStatus)
         .lastSeenAt(user.getLastSeenAt())
         .currentGame(user.getCurrentGame())
         .build();
