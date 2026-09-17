@@ -1,9 +1,14 @@
+import com.tngtech.archunit.core.importer.ClassFileImporter
+
+import static com.tngtech.archunit.library.Architectures.layeredArchitecture
+
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 
 	dependencies {
+		classpath 'com.tngtech.archunit:archunit:1.5.0'
 		classpath 'org.flywaydb:flyway-database-postgresql:12.4.0'
 		classpath 'org.postgresql:postgresql:42.7.11'
 	}
@@ -77,4 +82,37 @@ spotless {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('classes')
+	notCompatibleWithConfigurationCache('Architecture rules access source sets during execution')
+
+	doLast {
+		def basePackage = 'io.github.nayetdet.gamekube'
+
+		layeredArchitecture()
+				.consideringAllDependencies()
+				.layer('Controller').definedBy("${basePackage}.controller..")
+				.layer('Service').definedBy("${basePackage}.service..")
+				.layer('Repository').definedBy("${basePackage}.repository..")
+				.layer('Mapper').definedBy("${basePackage}.mapper..")
+				.layer('Security').definedBy("${basePackage}.security..")
+				.layer('Config').definedBy("${basePackage}.config..")
+				.layer('Payload').definedBy("${basePackage}.payload..")
+				.layer('Model').definedBy("${basePackage}.model..")
+				.layer('Enums').definedBy("${basePackage}.enums..")
+				.layer('Exception').definedBy("${basePackage}.exception..")
+				.whereLayer('Controller').mayNotBeAccessedByAnyLayer()
+				.whereLayer('Service').mayOnlyBeAccessedByLayers('Controller')
+				.whereLayer('Repository').mayOnlyBeAccessedByLayers('Service', 'Security')
+				.whereLayer('Mapper').mayOnlyBeAccessedByLayers('Service', 'Mapper')
+				.whereLayer('Security').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Config', 'Security')
+				.whereLayer('Config').mayNotBeAccessedByAnyLayer()
+				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload')
+				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')
+				.whereLayer('Enums').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Model', 'Payload', 'Enums')
+				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Exception')
+				.check(new ClassFileImporter().importPaths(project.sourceSets.main.output.classesDirs.files.collect { it.toPath() }))
+	}
 }

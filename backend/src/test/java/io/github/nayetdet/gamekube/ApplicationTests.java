@@ -2,7 +2,7 @@ package io.github.nayetdet.gamekube;
 
 import org.junit.jupiter.api.Test;
 
-class ApplicationTests {
+public class ApplicationTests {
 
   @Test
   void contextLoads() {}
