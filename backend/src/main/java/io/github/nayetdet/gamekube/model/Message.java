@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.model;
 
+import io.github.nayetdet.gamekube.enums.MessageStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,8 +16,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "chat_messages")
-public class ChatMessage extends BaseModel {
+@Table(name = "messages")
+public class Message extends BaseModel {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "sender_id", nullable = false)
@@ -31,7 +32,7 @@ public class ChatMessage extends BaseModel {
 
   @Enumerated(EnumType.STRING)
   @Column(length = 20, nullable = false)
-  private ChatMessageStatus status = ChatMessageStatus.SENT;
+  private MessageStatus status = MessageStatus.SENT;
 
   @Column(name = "read_at")
   private LocalDateTime readAt;

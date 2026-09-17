@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessageRequest {
+public class MessageRequest {
 
   @NotBlank
   @Size(min = 3, max = 50)

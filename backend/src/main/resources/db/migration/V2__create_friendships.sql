@@ -1,8 +1,3 @@
-ALTER TABLE users
-  ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'OFFLINE',
-  ADD COLUMN last_seen_at TIMESTAMP,
-  ADD COLUMN current_game VARCHAR(100);
-
 CREATE TABLE friendships (
   id UUID NOT NULL,
   requester_id UUID NOT NULL,

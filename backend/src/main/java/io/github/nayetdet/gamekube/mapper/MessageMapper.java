@@ -1,17 +1,17 @@
 package io.github.nayetdet.gamekube.mapper;
 
-import io.github.nayetdet.gamekube.model.ChatMessage;
-import io.github.nayetdet.gamekube.payload.response.ChatMessageResponse;
+import io.github.nayetdet.gamekube.model.Message;
+import io.github.nayetdet.gamekube.payload.response.MessageResponse;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChatMessageMapper {
+public class MessageMapper {
 
-  public ChatMessageResponse toResponse(ChatMessage message) {
+  public MessageResponse toResponse(Message message) {
     if (message == null) {
       return null;
     }
-    return ChatMessageResponse.builder()
+    return MessageResponse.builder()
         .id(message.getId())
         .senderUsername(message.getSender().getUsername())
         .recipientUsername(message.getRecipient().getUsername())

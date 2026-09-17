@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.repository;
 
+import io.github.nayetdet.gamekube.enums.FriendshipStatus;
 import io.github.nayetdet.gamekube.model.Friendship;
-import io.github.nayetdet.gamekube.model.FriendshipStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

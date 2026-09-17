@@ -1,4 +1,4 @@
-package io.github.nayetdet.gamekube.security.authorization.annotation;
+package io.github.nayetdet.gamekube.security.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -4,15 +4,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class InvalidFriendshipRequestException extends BaseException {
+public class FriendshipNotPendingException extends BaseException {
 
-  private static final String DEFAULT_ERROR_MESSAGE = "Invalid friendship request";
+  private static final String DEFAULT_ERROR_MESSAGE = "Friendship request is not pending";
 
-  public InvalidFriendshipRequestException() {
+  public FriendshipNotPendingException() {
     super(DEFAULT_ERROR_MESSAGE);
   }
 
-  public InvalidFriendshipRequestException(String message) {
+  public FriendshipNotPendingException(String message) {
     super(message);
   }
 }

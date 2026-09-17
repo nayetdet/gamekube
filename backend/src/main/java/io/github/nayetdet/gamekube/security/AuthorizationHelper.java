@@ -1,4 +1,4 @@
-package io.github.nayetdet.gamekube.security.authorization;
+package io.github.nayetdet.gamekube.security;
 
 import io.github.nayetdet.gamekube.exception.UserModificationForbiddenException;
 import io.github.nayetdet.gamekube.exception.UserUnauthorizedException;

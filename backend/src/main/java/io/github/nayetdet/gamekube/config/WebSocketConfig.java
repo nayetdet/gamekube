@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.config;
 
-import io.github.nayetdet.gamekube.security.websocket.WebSocketSecurityInterceptor;
+import io.github.nayetdet.gamekube.security.messaging.StompAuthenticationInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -14,7 +14,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  private final WebSocketSecurityInterceptor webSocketSecurityInterceptor;
+  private final StompAuthenticationInterceptor stompAuthenticationInterceptor;
 
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -31,6 +31,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {
-    registration.interceptors(webSocketSecurityInterceptor);
+    registration.interceptors(stompAuthenticationInterceptor);
   }
 }

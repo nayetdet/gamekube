@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.model;
 
+import io.github.nayetdet.gamekube.enums.FriendshipStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

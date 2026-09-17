@@ -1,6 +1,5 @@
 package io.github.nayetdet.gamekube.payload.response;
 
-import io.github.nayetdet.gamekube.model.PresenceStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -21,9 +20,6 @@ public class UserResponse {
   private String username;
   private String name;
   private String description;
-  private PresenceStatus status;
-  private LocalDateTime lastSeenAt;
-  private String currentGame;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 }

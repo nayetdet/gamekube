@@ -1,6 +1,7 @@
 package io.github.nayetdet.gamekube.controller.docs;
 
 import io.github.nayetdet.gamekube.payload.request.FriendshipRequestPayload;
+import io.github.nayetdet.gamekube.payload.request.FriendshipStatusRequest;
 import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,10 +37,10 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<FriendshipResponse> sendFriendRequest(@Valid FriendshipRequestPayload payload);
+  ResponseEntity<FriendshipResponse> create(@Valid FriendshipRequestPayload payload);
 
   @Operation(
-      summary = "Accept a friend request",
+      summary = "Update friendship status",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -55,26 +56,8 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<FriendshipResponse> acceptFriendRequest(@PathVariable UUID id);
-
-  @Operation(
-      summary = "Reject a friend request",
-      security = @SecurityRequirement(name = "bearerAuth"),
-      responses = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Ok",
-            content = @Content(schema = @Schema(implementation = FriendshipResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
-        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
-        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content)
-      })
-  ResponseEntity<FriendshipResponse> rejectFriendRequest(@PathVariable UUID id);
+  ResponseEntity<FriendshipResponse> update(
+      @PathVariable UUID id, @Valid FriendshipStatusRequest request);
 
   @Operation(
       summary = "Remove a friend",
@@ -88,7 +71,7 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<Void> removeFriendship(@PathVariable String username);
+  ResponseEntity<Void> delete(@PathVariable String username);
 
   @Operation(
       summary = "List current user friends",
@@ -106,7 +89,7 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<UserResponse>> listFriends();
+  ResponseEntity<List<UserResponse>> findAcceptedFriends();
 
   @Operation(
       summary = "List received pending friend requests",
@@ -125,7 +108,7 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<FriendshipResponse>> listReceivedRequests();
+  ResponseEntity<List<FriendshipResponse>> findPendingReceivedRequests();
 
   @Operation(
       summary = "List sent pending friend requests",
@@ -144,5 +127,5 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<FriendshipResponse>> listSentRequests();
+  ResponseEntity<List<FriendshipResponse>> findPendingSentRequests();
 }

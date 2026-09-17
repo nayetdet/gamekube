@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.config;
 
-import io.github.nayetdet.gamekube.security.authentication.JwtAuthenticationConverter;
+import io.github.nayetdet.gamekube.security.jwt.JwtAuthenticationConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;

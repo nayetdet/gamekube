@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.payload.response;
 
-import io.github.nayetdet.gamekube.model.FriendshipStatus;
+import io.github.nayetdet.gamekube.enums.FriendshipStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
