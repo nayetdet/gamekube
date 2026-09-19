@@ -1,6 +1,6 @@
-name: Cave Story
-description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
-image: /images/cavestory.png
+name: Sonic Triple Trouble
+description: While Dr. Robotnik tests an ultimate weapon, an accident scatters five Chaos Emeralds across Mobius. Sonic and Tails set out to recover them, racing against Knuckles and Nack the Weasel through six zones and five bonus rounds.
+image: /images/sonic-triple-trouble.png
 resources:
   - apiVersion: apps/v1
     kind: Deployment
@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              image: ghcr.io/nayetdet/sonic-triple-trouble-nx-docker:latest
               ports:
                 - name: http
                   containerPort: 3000

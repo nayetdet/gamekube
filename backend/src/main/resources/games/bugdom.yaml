@@ -1,6 +1,6 @@
-name: Cave Story
-description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
-image: /images/cavestory.png
+name: Bugdom
+description: Bugdom was once ruled peacefully by the Rollie Pollies and Lady Bugs, until the Fire Ants captured the Lady Bugs and crowned King Thorax. As Rollie McFly, travel from the lawn to the Ant Hill, defeat the Fire Ants, and restore peace to the Bugdom.
+image: /images/bugdom.png
 resources:
   - apiVersion: apps/v1
     kind: Deployment
@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              image: ghcr.io/nayetdet/bugdom-nx-docker:latest
               ports:
                 - name: http
                   containerPort: 3000

@@ -1,6 +1,6 @@
-name: Cave Story
-description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
-image: /images/cavestory.png
+name: Legend of Princess
+description: Legend of Princess is a one-level arcade-style action game inspired by The Legend of Zelda, in which the hero battles through a compact dungeon to rescue the princess.
+image: /images/loprincess.png
 resources:
   - apiVersion: apps/v1
     kind: Deployment
@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              image: ghcr.io/nayetdet/loprincess-nx-docker:latest
               ports:
                 - name: http
                   containerPort: 3000

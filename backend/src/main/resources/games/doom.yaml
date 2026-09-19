@@ -1,6 +1,6 @@
-name: Cave Story
-description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
-image: /images/cavestory.png
+name: DOOM
+description: A space marine is sent to Mars after assaulting a superior officer who ordered civilians killed. When the UAC's teleportation experiments open a gateway to Hell and overrun the bases on Phobos and Deimos, he must fight through the demon invasion alone.
+image: /images/doom.png
 resources:
   - apiVersion: apps/v1
     kind: Deployment
@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              image: ghcr.io/nayetdet/doom-nx-docker:latest
               ports:
                 - name: http
                   containerPort: 3000

@@ -1,6 +1,6 @@
-name: Cave Story
-description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
-image: /images/cavestory.png
+name: Yume Nikki
+description: Yume Nikki is a surreal, dialogue-free exploration game in which the reclusive Madotsuki sleeps in her room and wanders through a network of strange, interconnected dream worlds, collecting effects and interpreting what she sees.
+image: /images/yume-nikki.png
 resources:
   - apiVersion: apps/v1
     kind: Deployment
@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              image: ghcr.io/nayetdet/yume-nikki-nx-docker:latest
               ports:
                 - name: http
                   containerPort: 3000

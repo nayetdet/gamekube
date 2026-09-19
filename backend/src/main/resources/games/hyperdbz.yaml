@@ -1,6 +1,6 @@
-name: Cave Story
-description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
-image: /images/cavestory.png
+name: Hyper Dragon Ball Z
+description: Hyper Dragon Ball Z is a free fan-made fighting game built with the M.U.G.E.N engine by Team Z2, featuring original character art, animations, and a combat system inspired by the Dragon Ball Z anime.
+image: /images/hyperdbz.png
 resources:
   - apiVersion: apps/v1
     kind: Deployment
@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              image: ghcr.io/nayetdet/hyperdbz-nx-docker:latest
               ports:
                 - name: http
                   containerPort: 3000
