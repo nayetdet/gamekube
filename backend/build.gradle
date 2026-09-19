@@ -112,7 +112,7 @@ tasks.named('check') {
 				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload')
 				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')
 				.whereLayer('Enums').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Model', 'Payload', 'Enums')
-				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Exception')
+				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Config', 'Exception')
 				.check(new ClassFileImporter().importPaths(project.sourceSets.main.output.classesDirs.files.collect { it.toPath() }))
 	}
 }

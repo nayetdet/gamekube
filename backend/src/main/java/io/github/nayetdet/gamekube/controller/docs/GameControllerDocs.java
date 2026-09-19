@@ -7,12 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Games", description = "Endpoints for managing games")
 public interface GameControllerDocs {
 
   @Operation(
-      summary = "Create a Cave Story game instance",
+      summary = "Create a game instance",
       responses = {
         @ApiResponse(
             description = "Created",
@@ -26,5 +27,5 @@ public interface GameControllerDocs {
             responseCode = "500",
             content = @Content)
       })
-  ResponseEntity<GameResponse> createCaveStoryGame();
+  ResponseEntity<GameResponse> createGame(@PathVariable("gameId") String gameId);
 }

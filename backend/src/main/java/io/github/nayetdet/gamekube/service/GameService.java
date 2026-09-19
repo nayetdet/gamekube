@@ -1,28 +1,35 @@
 package io.github.nayetdet.gamekube.service;
 
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
-import io.fabric8.kubernetes.api.model.networking.v1.Ingress;
-import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder;
-import io.fabric8.kubernetes.api.model.networking.v1.IngressSpecBuilder;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.FieldValidateable;
+import io.fabric8.kubernetes.client.utils.Serialization;
+import io.github.nayetdet.gamekube.exception.GameDeploymentException;
+import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.GameNotFoundException;
 import io.github.nayetdet.gamekube.mapper.GameMapper;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-@org.springframework.stereotype.Service
+@Service
 @RequiredArgsConstructor
 public class GameService {
 
   private final KubernetesClient kubernetesClient;
   private final GameMapper gameMapper;
+
+  @Autowired
+  @Qualifier("gameSpecs")
+  private Map<String, List<HasMetadata>> gameSpecs;
 
   @Value("${game.namespace}")
   private String namespace;
@@ -33,119 +40,93 @@ public class GameService {
   @Value("${game.tls-secret:}")
   private String tlsSecret;
 
-  @Value("${game.readiness-timeout-seconds}")
-  private long timeout;
-
   @Value("${game.protocol}")
   private String protocol;
 
-  public GameResponse createCaveStoryGame() {
-    String name = "cavestory-" + UUID.randomUUID().toString().substring(0, 8);
-    String host = name + "." + domain;
-
-    kubernetesClient
-        .apps()
-        .deployments()
-        .inNamespace(namespace)
-        .resource(getDeployment(name))
-        .create();
-
-    kubernetesClient.services().inNamespace(namespace).resource(getService(name)).create();
-    kubernetesClient
-        .network()
-        .v1()
-        .ingresses()
-        .inNamespace(namespace)
-        .resource(getIngress(name, host))
-        .create();
-
-    kubernetesClient
-        .apps()
-        .deployments()
-        .inNamespace(namespace)
-        .withName(name)
-        .waitUntilReady(timeout, TimeUnit.SECONDS);
-
-    return gameMapper.toResponse(URI.create(protocol + "://" + host + "/"));
-  }
-
-  private Deployment getDeployment(String name) {
-    return new DeploymentBuilder()
-        .withNewMetadata()
-        .withName(name)
-        .addToLabels("app", name)
-        .endMetadata()
-        .withNewSpec()
-        .withReplicas(1)
-        .withNewSelector()
-        .addToMatchLabels("app", name)
-        .endSelector()
-        .withNewTemplate()
-        .withNewMetadata()
-        .addToLabels("app", name)
-        .endMetadata()
-        .withNewSpec()
-        .addNewContainer()
-        .withName("cavestory")
-        .withImage("ghcr.io/nayetdet/cavestory-nx-docker:latest")
-        .addNewPort()
-        .withName("http")
-        .withContainerPort(3000)
-        .endPort()
-        .endContainer()
-        .endSpec()
-        .endTemplate()
-        .endSpec()
-        .build();
-  }
-
-  private Service getService(String name) {
-    return new ServiceBuilder()
-        .withNewMetadata()
-        .withName(name)
-        .endMetadata()
-        .withNewSpec()
-        .addToSelector("app", name)
-        .addNewPort()
-        .withName("http")
-        .withPort(3000)
-        .withTargetPort(new IntOrString("http"))
-        .endPort()
-        .endSpec()
-        .build();
-  }
-
-  private Ingress getIngress(String name, String host) {
-    IngressSpecBuilder specBuilder = new IngressSpecBuilder().withIngressClassName("traefik");
-
-    if (tlsSecret != null && !tlsSecret.isBlank()) {
-      specBuilder.addNewTl().addToHosts(host).withSecretName(tlsSecret).endTl();
+  public GameResponse startGame(String gameId) {
+    List<HasMetadata> game = gameSpecs.get(gameId);
+    if (game == null) {
+      throw new GameNotFoundException();
     }
 
-    return new IngressBuilder()
-        .withNewMetadata()
-        .withName(name)
-        .endMetadata()
-        .withSpec(
-            specBuilder
-                .addNewRule()
-                .withHost(host)
-                .withNewHttp()
-                .addNewPath()
-                .withPath("/")
-                .withPathType("Prefix")
-                .withNewBackend()
-                .withNewService()
-                .withName(name)
-                .withNewPort()
-                .withName("http")
-                .endPort()
-                .endService()
-                .endBackend()
-                .endPath()
-                .endHttp()
-                .endRule()
-                .build())
-        .build();
+    String instance = gameId + "-" + UUID.randomUUID().toString().substring(0, 8);
+    String host = instance + "." + domain;
+    List<HasMetadata> resources;
+
+    try {
+      resources =
+          game.stream()
+              .map(Serialization::asYaml)
+              .map(
+                  manifest ->
+                      manifest
+                          .replace("${GAME_ID}", gameId)
+                          .replace("${GAME_NAME}", instance)
+                          .replace("${GAME_HOST}", host)
+                          .replace("${GAME_NAMESPACE}", namespace)
+                          .replace("${GAME_TLS_SECRET}", tlsSecret))
+              .peek(
+                  manifest -> {
+                    if (manifest.contains("${")) {
+                      throw new GameInvalidException();
+                    }
+                  })
+              .flatMap(
+                  manifest ->
+                      kubernetesClient
+                          .load(
+                              new java.io.ByteArrayInputStream(
+                                  manifest.getBytes(StandardCharsets.UTF_8)))
+                          .items()
+                          .stream())
+              .toList();
+    } catch (RuntimeException exception) {
+      throw new GameInvalidException(exception);
+    }
+
+    if (resources.isEmpty()) {
+      throw new GameInvalidException();
+    }
+
+    for (HasMetadata resource : resources) {
+      if (resource.getApiVersion() == null
+          || resource.getApiVersion().isBlank()
+          || resource.getKind() == null
+          || resource.getKind().isBlank()
+          || resource.getMetadata() == null
+          || resource.getMetadata().getName() == null
+          || resource.getMetadata().getName().isBlank()
+          || !namespace.equals(resource.getMetadata().getNamespace())) {
+        throw new GameInvalidException();
+      }
+    }
+
+    try {
+      for (HasMetadata resource : resources) {
+        kubernetesClient
+            .resource(resource)
+            .inNamespace(namespace)
+            .dryRun()
+            .fieldValidation(FieldValidateable.Validation.STRICT)
+            .fieldManager("gamekube")
+            .serverSideApply();
+      }
+    } catch (RuntimeException exception) {
+      throw new GameInvalidException(exception);
+    }
+
+    try {
+      for (HasMetadata resource : resources) {
+        kubernetesClient
+            .resource(resource)
+            .inNamespace(namespace)
+            .fieldManager("gamekube")
+            .serverSideApply();
+      }
+    } catch (RuntimeException exception) {
+      throw new GameDeploymentException(exception);
+    }
+
+    return gameMapper.toResponse(URI.create(protocol + "://" + host + "/"));
   }
 }
