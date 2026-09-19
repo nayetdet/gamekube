@@ -59,7 +59,7 @@ public class ChatController implements ChatControllerDocs {
 
   @Override
   @PreAuthorizeUser
-  @GetMapping("/unread-count")
+  @GetMapping("/messages/unread/count")
   public ResponseEntity<Map<String, Long>> countUnread(Principal principal) {
     return ResponseEntity.ok(Map.of("unreadCount", chatService.countUnread(principal.getName())));
   }
