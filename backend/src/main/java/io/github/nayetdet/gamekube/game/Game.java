@@ -14,12 +14,13 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameSpec implements Serializable {
+public class Game implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
   private String id;
   private String name;
   private String description;
+  private String image;
   private List<Map<String, Object>> resources;
 }

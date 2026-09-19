@@ -11,6 +11,7 @@ public class MessageMapper {
     if (message == null) {
       return null;
     }
+
     return MessageResponse.builder()
         .id(message.getId())
         .senderUsername(message.getSender().getUsername())

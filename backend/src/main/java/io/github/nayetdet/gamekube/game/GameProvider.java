@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GameSpecProvider {
+public class GameProvider {
 
   private static final String GAME_MANIFEST_PATTERN = "classpath*:games/*.{yaml,yml}";
   private static final Pattern GAME_ID_PATTERN = Pattern.compile("[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
@@ -33,16 +33,16 @@ public class GameSpecProvider {
   private final KubernetesClient kubernetesClient;
 
   @Cacheable(cacheNames = "gameSpec", unless = "#result == null")
-  public GameSpec find(String gameId) {
+  public Game find(String gameId) {
     return findAll().stream().filter(game -> game.getId().equals(gameId)).findFirst().orElse(null);
   }
 
   @Cacheable(cacheNames = "gameSpecs")
-  public List<GameSpec> findAll() {
+  public List<Game> findAll() {
     return load();
   }
 
-  private List<GameSpec> load() {
+  private List<Game> load() {
     try {
       Resource[] manifests =
           new PathMatchingResourcePatternResolver().getResources(GAME_MANIFEST_PATTERN);
@@ -54,10 +54,10 @@ public class GameSpecProvider {
                       resource -> resource.getFilename() == null ? "" : resource.getFilename()))
               .toList();
 
-      List<GameSpec> games = new ArrayList<>();
+      List<Game> games = new ArrayList<>();
       Set<String> gameIds = new HashSet<>();
       for (Resource resource : sortedManifests) {
-        GameSpec game = load(resource);
+        Game game = load(resource);
         if (!gameIds.add(game.getId())) {
           throw new GameInvalidException("Game ID is duplicated");
         }
@@ -75,10 +75,10 @@ public class GameSpecProvider {
     }
   }
 
-  private GameSpec load(Resource resource) {
+  private Game load(Resource resource) {
     String gameId = extractGameId(resource);
     try (InputStream inputStream = resource.getInputStream()) {
-      GameSpec game = new YAMLMapper().readValue(inputStream, GameSpec.class);
+      Game game = new YAMLMapper().readValue(inputStream, Game.class);
       game.setId(gameId);
       validate(game);
       return game;
@@ -105,7 +105,7 @@ public class GameSpecProvider {
     return gameId;
   }
 
-  private void validate(GameSpec game) {
+  private void validate(Game game) {
     if (game.getName() == null || game.getName().isBlank()) {
       throw new GameInvalidException("Game name is required");
     }

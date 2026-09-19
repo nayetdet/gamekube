@@ -114,7 +114,7 @@ tasks.named('check') {
 				.whereLayer('Mapper').mayOnlyBeAccessedByLayers('Service', 'Mapper')
 				.whereLayer('Security').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Config', 'Security')
 				.whereLayer('Config').mayNotBeAccessedByAnyLayer()
-				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload')
+				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload', 'Game')
 				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')
 				.whereLayer('Enums').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Model', 'Payload', 'Enums')
 				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Config', 'Game', 'Exception')

@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.payload.response;
 
+import java.net.URI;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,10 +12,9 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameResponse {
+public class GameInstanceResponse {
 
-  private String id;
   private String name;
-  private String description;
-  private String image;
+  private String host;
+  private URI url;
 }

@@ -1,11 +1,13 @@
 package io.github.nayetdet.gamekube.service;
 
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
+import io.github.nayetdet.gamekube.game.Game;
 import io.github.nayetdet.gamekube.game.GameInstanceProvider;
-import io.github.nayetdet.gamekube.game.GameSpec;
-import io.github.nayetdet.gamekube.game.GameSpecProvider;
+import io.github.nayetdet.gamekube.game.GameProvider;
 import io.github.nayetdet.gamekube.mapper.GameMapper;
+import io.github.nayetdet.gamekube.payload.response.GameInstanceResponse;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +16,19 @@ import org.springframework.stereotype.Service;
 public class GameService {
 
   private final GameMapper gameMapper;
-  private final GameSpecProvider gameSpecProvider;
+  private final GameProvider gameProvider;
   private final GameInstanceProvider gameInstanceProvider;
 
-  public GameResponse start(String gameId) {
-    GameSpec game = gameSpecProvider.find(gameId);
+  public List<GameResponse> findAll() {
+    return gameProvider.findAll().stream().map(gameMapper::toResponse).toList();
+  }
+
+  public GameInstanceResponse deploy(String gameId) {
+    Game game = gameProvider.find(gameId);
     if (game == null) {
       throw new GameNotFoundException();
     }
 
-    return gameMapper.toResponse(game, gameInstanceProvider.deploy(game));
+    return gameMapper.toResponse(gameInstanceProvider.deploy(game));
   }
 }

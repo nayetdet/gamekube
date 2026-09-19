@@ -1,5 +1,6 @@
 name: Cave Story
 description: An action adventure game in which players assume the role of a tiny boy who traverses through caverns to save rabbit-like creatures called "Mimigas."
+image: /games/cavestory.jpg
 resources:
   - apiVersion: apps/v1
     kind: Deployment

@@ -15,6 +15,7 @@ public class FriendshipMapper {
     if (friendship == null) {
       return null;
     }
+
     return FriendshipResponse.builder()
         .id(friendship.getId())
         .requester(userMapper.toResponse(friendship.getRequester()))

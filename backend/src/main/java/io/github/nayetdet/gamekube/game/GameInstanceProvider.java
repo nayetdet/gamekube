@@ -33,8 +33,8 @@ public class GameInstanceProvider {
   @Value("${game.protocol}")
   private String protocol;
 
-  public URI deploy(GameSpec spec) {
-    String instanceName = spec.getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
+  public GameInstance deploy(Game game) {
+    String instanceName = game.getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
     String host = instanceName + "." + domain;
     GameInstance instance =
         GameInstance.builder()
@@ -43,22 +43,22 @@ public class GameInstanceProvider {
             .url(URI.create(protocol + "://" + host + "/"))
             .build();
 
-    List<HasMetadata> resources = load(spec, instance);
+    List<HasMetadata> resources = load(game, instance);
     validate(resources);
     apply(resources);
-    return instance.getUrl();
+    return instance;
   }
 
-  private List<HasMetadata> load(GameSpec spec, GameInstance instance) {
+  private List<HasMetadata> load(Game game, GameInstance instance) {
     try {
       List<HasMetadata> resources =
-          spec.getResources().stream()
+          game.getResources().stream()
               .map(Serialization::asYaml)
               .map(
                   manifest -> {
                     String resolvedManifest =
                         manifest
-                            .replace("${GAME_ID}", spec.getId())
+                            .replace("${GAME_ID}", game.getId())
                             .replace("${GAME_NAME}", instance.getName())
                             .replace("${GAME_HOST}", instance.getHost())
                             .replace("${GAME_NAMESPACE}", namespace)
