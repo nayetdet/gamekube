@@ -33,6 +33,7 @@ public class GameController implements GameControllerDocs {
     return ResponseEntity.ok(gameService.findAll());
   }
 
+  @Override
   @PreAuthorizeUser
   @PostMapping("/{gameId}")
   public ResponseEntity<GameInstanceResponse> deploy(@PathVariable String gameId) {
