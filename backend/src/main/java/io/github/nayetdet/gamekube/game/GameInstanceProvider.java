@@ -11,6 +11,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,9 @@ public class GameInstanceProvider {
   @Value("${game.protocol}")
   private String protocol;
 
+  @Value("${game.deployment-timeout-seconds:120}")
+  private long deploymentTimeoutSeconds;
+
   public GameInstance deploy(Game game) {
     String instanceName = game.getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
     String host = instanceName + "." + domain;
@@ -46,7 +50,21 @@ public class GameInstanceProvider {
     List<HasMetadata> resources = load(game, instance);
     validate(resources);
     apply(resources);
+    waitUntilReady(instance);
     return instance;
+  }
+
+  private void waitUntilReady(GameInstance instance) {
+    try {
+      kubernetesClient
+          .apps()
+          .deployments()
+          .inNamespace(namespace)
+          .withName(instance.getName())
+          .waitUntilReady(deploymentTimeoutSeconds, TimeUnit.SECONDS);
+    } catch (RuntimeException exception) {
+      throw new GameDeploymentException(exception);
+    }
   }
 
   private List<HasMetadata> load(Game game, GameInstance instance) {
