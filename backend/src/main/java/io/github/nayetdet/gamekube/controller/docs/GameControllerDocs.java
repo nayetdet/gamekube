@@ -18,7 +18,6 @@ public interface GameControllerDocs {
 
   @Operation(
       summary = "List available games",
-      security = @SecurityRequirement(name = "bearerAuth"),
       responses =
           @ApiResponse(
               description = "Games",
@@ -31,7 +30,6 @@ public interface GameControllerDocs {
 
   @Operation(
       summary = "Deploy a game instance",
-      security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
             description = "Created",

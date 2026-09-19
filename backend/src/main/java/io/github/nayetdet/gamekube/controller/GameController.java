@@ -28,7 +28,6 @@ public class GameController implements GameControllerDocs {
   private final GameService gameService;
 
   @Override
-  @PreAuthorizeUser
   @GetMapping
   public ResponseEntity<List<GameResponse>> findAll() {
     return ResponseEntity.ok(gameService.findAll());
@@ -41,7 +40,6 @@ public class GameController implements GameControllerDocs {
   }
 
   @Override
-  @PreAuthorizeUser
   @GetMapping(value = "/{gameId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<byte[]> image(@PathVariable String gameId) {
     return ResponseEntity.ok()
