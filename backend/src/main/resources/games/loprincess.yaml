@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/loprincess-nx-docker:latest
+              image: ghcr.io/nayetdet/loprincess-docker:latest
               ports:
                 - name: http
                   containerPort: 3000

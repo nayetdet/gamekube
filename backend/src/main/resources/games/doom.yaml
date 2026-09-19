@@ -23,7 +23,7 @@ resources:
         spec:
           containers:
             - name: ${GAME_ID}
-              image: ghcr.io/nayetdet/doom-nx-docker:latest
+              image: ghcr.io/nayetdet/gzdoom-docker:latest
               ports:
                 - name: http
                   containerPort: 3000
