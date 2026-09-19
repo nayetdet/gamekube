@@ -1,8 +1,6 @@
 package io.github.nayetdet.gamekube.game;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import java.net.URI;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,12 +12,9 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameSpec implements Serializable {
+public class GameInstance {
 
-  private static final long serialVersionUID = 1L;
-
-  private String id;
   private String name;
-  private String description;
-  private List<Map<String, Object>> specs;
+  private String host;
+  private URI url;
 }

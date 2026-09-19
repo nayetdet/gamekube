@@ -22,7 +22,7 @@ public class GameController implements GameControllerDocs {
 
   @Override
   @PostMapping("/{gameId}")
-  public ResponseEntity<GameResponse> startGame(@PathVariable("gameId") String gameId) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(gameService.startGame(gameId));
+  public ResponseEntity<GameResponse> start(@PathVariable("gameId") String gameId) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(gameService.start(gameId));
   }
 }
