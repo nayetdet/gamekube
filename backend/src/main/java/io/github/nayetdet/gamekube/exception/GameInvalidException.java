@@ -6,13 +6,21 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class GameInvalidException extends BaseException {
 
-  private static final String MESSAGE = "Invalid game manifest";
+  private static final String DEFAULT_ERROR_MESSAGE = "Invalid game manifest";
 
   public GameInvalidException() {
-    super(MESSAGE);
+    super(DEFAULT_ERROR_MESSAGE);
+  }
+
+  public GameInvalidException(String message) {
+    super(message);
   }
 
   public GameInvalidException(Throwable cause) {
-    super(MESSAGE, cause);
+    super(DEFAULT_ERROR_MESSAGE, cause);
+  }
+
+  public GameInvalidException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

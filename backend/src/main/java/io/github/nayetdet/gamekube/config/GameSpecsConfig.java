@@ -2,13 +2,8 @@ package io.github.nayetdet.gamekube.config;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.github.nayetdet.gamekube.exception.DuplicateIdGameException;
-import io.github.nayetdet.gamekube.exception.EmptyManifestGameException;
-import io.github.nayetdet.gamekube.exception.InvalidFilenameGameException;
-import io.github.nayetdet.gamekube.exception.InvalidIdGameException;
-import io.github.nayetdet.gamekube.exception.NoConfiguredGameException;
-import io.github.nayetdet.gamekube.exception.UnparseableManifestGameException;
-import io.github.nayetdet.gamekube.exception.UnreadableManifestGameException;
+import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.GameUnreadableManifestException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -40,40 +35,40 @@ public class GameSpecsConfig {
       for (Resource resource : manifests) {
         String filename = resource.getFilename();
         if (filename == null || !(filename.endsWith(".yaml") || filename.endsWith(".yml"))) {
-          throw new InvalidFilenameGameException();
+          throw new GameInvalidException("Game manifest filename is invalid");
         }
 
         String id = filename.substring(0, filename.lastIndexOf('.'));
         if (!GAME_ID_PATTERN.matcher(id).matches()) {
-          throw new InvalidIdGameException();
+          throw new GameInvalidException("Game ID is invalid");
         }
 
         if (games.containsKey(id)) {
-          throw new DuplicateIdGameException();
+          throw new GameInvalidException("Game ID is duplicated");
         }
 
         try (var inputStream = resource.getInputStream()) {
           List<HasMetadata> resources = kubernetesClient.load(inputStream).items();
           if (resources.isEmpty()) {
-            throw new EmptyManifestGameException();
+            throw new GameInvalidException("Game manifest is empty");
           }
           games.put(id, resources);
         } catch (IOException exception) {
-          throw new UnreadableManifestGameException(exception);
-        } catch (EmptyManifestGameException exception) {
+          throw new GameUnreadableManifestException(exception);
+        } catch (GameInvalidException exception) {
           throw exception;
         } catch (RuntimeException exception) {
-          throw new UnparseableManifestGameException(exception);
+          throw new GameInvalidException("Game manifest could not be parsed", exception);
         }
       }
 
       if (games.isEmpty()) {
-        throw new NoConfiguredGameException();
+        throw new GameInvalidException("No games are configured");
       }
 
       return Map.copyOf(games);
     } catch (IOException exception) {
-      throw new UnreadableManifestGameException(exception);
+      throw new GameUnreadableManifestException(exception);
     }
   }
 }

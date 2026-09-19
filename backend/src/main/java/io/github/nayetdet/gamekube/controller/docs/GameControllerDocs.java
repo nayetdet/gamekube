@@ -27,5 +27,5 @@ public interface GameControllerDocs {
             responseCode = "500",
             content = @Content)
       })
-  ResponseEntity<GameResponse> createGame(@PathVariable("gameId") String gameId);
+  ResponseEntity<GameResponse> startGame(@PathVariable("gameId") String gameId);
 }
