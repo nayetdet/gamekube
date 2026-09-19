@@ -23,6 +23,15 @@ public class GameService {
     return gameProvider.findAll().stream().map(gameMapper::toResponse).toList();
   }
 
+  public byte[] image(String gameId) {
+    Game game = gameProvider.find(gameId);
+    if (game == null) {
+      throw new GameNotFoundException();
+    }
+
+    return gameProvider.image(game);
+  }
+
   public GameInstanceResponse deploy(String gameId) {
     Game game = gameProvider.find(gameId);
     if (game == null) {

@@ -41,5 +41,5 @@ public interface GameControllerDocs {
             responseCode = "500",
             content = @Content)
       })
-  ResponseEntity<GameInstanceResponse> deploy(@PathVariable("gameId") String gameId);
+  ResponseEntity<GameInstanceResponse> deploy(@PathVariable String gameId);
 }

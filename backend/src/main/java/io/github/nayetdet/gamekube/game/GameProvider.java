@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.GameNotFoundException;
 import io.github.nayetdet.gamekube.exception.GameUnreadableManifestException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -32,14 +34,34 @@ public class GameProvider {
 
   private final KubernetesClient kubernetesClient;
 
-  @Cacheable(cacheNames = "gameSpec", unless = "#result == null")
+  @Cacheable(cacheNames = "game-by-id", unless = "#result == null")
   public Game find(String gameId) {
     return findAll().stream().filter(game -> game.getId().equals(gameId)).findFirst().orElse(null);
   }
 
-  @Cacheable(cacheNames = "gameSpecs")
+  @Cacheable(cacheNames = "games")
   public List<Game> findAll() {
     return load();
+  }
+
+  @Cacheable(cacheNames = "game-images", key = "#game.id", unless = "#result == null")
+  public byte[] image(Game game) {
+    String imagePath = game.getImage();
+    if (imagePath == null || imagePath.isBlank()) {
+      throw new GameNotFoundException();
+    }
+
+    String resourcePath = imagePath.startsWith("/") ? imagePath.substring(1) : imagePath;
+    Resource resource = new ClassPathResource(resourcePath);
+    if (!resource.exists()) {
+      throw new GameNotFoundException();
+    }
+
+    try {
+      return resource.getContentAsByteArray();
+    } catch (IOException exception) {
+      throw new GameNotFoundException();
+    }
   }
 
   private List<Game> load() {

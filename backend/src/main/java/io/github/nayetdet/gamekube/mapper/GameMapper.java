@@ -14,7 +14,7 @@ public class GameMapper {
         .id(game.getId())
         .name(game.getName())
         .description(game.getDescription())
-        .image(game.getImage())
+        .image("/v1/games/" + game.getId() + "/image")
         .build();
   }
 
