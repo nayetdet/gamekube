@@ -6,11 +6,13 @@ import io.fabric8.kubernetes.client.dsl.FieldValidateable;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameDeploymentException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,23 +30,24 @@ public class GameInstanceProvider {
   @Value("${game.domain}")
   private String domain;
 
-  @Value("${game.tls-secret:}")
+  @Value("${game.tls-secret}")
   private String tlsSecret;
 
   @Value("${game.protocol}")
   private String protocol;
 
-  @Value("${game.deployment-timeout-seconds:120}")
-  private long deploymentTimeoutSeconds;
+  @Value("${game.readiness-timeout}")
+  private Duration readinessTimeout;
 
   public GameInstance deploy(Game game) {
-    String instanceName = game.getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
-    String host = instanceName + "." + domain;
+    String username = AuthenticationHelper.getUsername().toLowerCase(Locale.ROOT);
+    String instanceName = game.getId() + "-" + username;
+    String instanceHost = username + "." + game.getId() + "." + domain;
     GameInstance instance =
         GameInstance.builder()
             .name(instanceName)
-            .host(host)
-            .url(URI.create(protocol + "://" + host + "/"))
+            .host(instanceHost)
+            .url(URI.create(protocol + "://" + instanceHost + "/"))
             .build();
 
     List<HasMetadata> resources = load(game, instance);
@@ -61,7 +64,7 @@ public class GameInstanceProvider {
           .deployments()
           .inNamespace(namespace)
           .withName(instance.getName())
-          .waitUntilReady(deploymentTimeoutSeconds, TimeUnit.SECONDS);
+          .waitUntilReady(readinessTimeout.toSeconds(), TimeUnit.SECONDS);
     } catch (RuntimeException exception) {
       throw new GameDeploymentException(exception);
     }

@@ -19,10 +19,6 @@ public class GameMapper {
   }
 
   public GameInstanceResponse toResponse(GameInstance instance) {
-    return GameInstanceResponse.builder()
-        .name(instance.getName())
-        .host(instance.getHost())
-        .url(instance.getUrl())
-        .build();
+    return GameInstanceResponse.builder().url(instance.getUrl()).build();
   }
 }

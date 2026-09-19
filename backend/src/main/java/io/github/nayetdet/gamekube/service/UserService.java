@@ -8,6 +8,7 @@ import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.UserRepository;
+import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import io.github.nayetdet.gamekube.security.AuthorizationHelper;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class UserService {
   @Transactional(readOnly = true)
   public Optional<UserResponse> findSelf() {
     return userRepository
-        .findByKeycloakId(AuthorizationHelper.getCurrentKeycloakId())
+        .findByKeycloakId(AuthenticationHelper.getKeycloakId())
         .map(userMapper::toResponse);
   }
 

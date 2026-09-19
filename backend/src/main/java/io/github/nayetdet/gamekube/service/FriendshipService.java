@@ -16,7 +16,7 @@ import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.FriendshipRepository;
 import io.github.nayetdet.gamekube.repository.UserRepository;
-import io.github.nayetdet.gamekube.security.AuthorizationHelper;
+import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -145,7 +145,7 @@ public class FriendshipService {
 
   private User getCurrentUser() {
     return userRepository
-        .findByKeycloakId(AuthorizationHelper.getCurrentKeycloakId())
+        .findByKeycloakId(AuthenticationHelper.getKeycloakId())
         .orElseThrow(UserNotFoundException::new);
   }
 }
