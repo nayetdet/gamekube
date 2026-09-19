@@ -3,6 +3,7 @@ package io.github.nayetdet.gamekube.controller;
 import io.github.nayetdet.gamekube.controller.docs.GameControllerDocs;
 import io.github.nayetdet.gamekube.payload.response.GameInstanceResponse;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
+import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
 import io.github.nayetdet.gamekube.service.GameService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Duration;
@@ -27,16 +28,20 @@ public class GameController implements GameControllerDocs {
   private final GameService gameService;
 
   @Override
+  @PreAuthorizeUser
   @GetMapping
   public ResponseEntity<List<GameResponse>> findAll() {
     return ResponseEntity.ok(gameService.findAll());
   }
 
+  @PreAuthorizeUser
   @PostMapping("/{gameId}")
   public ResponseEntity<GameInstanceResponse> deploy(@PathVariable String gameId) {
     return ResponseEntity.status(HttpStatus.CREATED).body(gameService.deploy(gameId));
   }
 
+  @Override
+  @PreAuthorizeUser
   @GetMapping(value = "/{gameId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<byte[]> image(@PathVariable String gameId) {
     return ResponseEntity.ok()

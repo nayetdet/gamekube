@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -16,6 +18,7 @@ public interface GameControllerDocs {
 
   @Operation(
       summary = "List available games",
+      security = @SecurityRequirement(name = "bearerAuth"),
       responses =
           @ApiResponse(
               description = "Games",
@@ -28,6 +31,7 @@ public interface GameControllerDocs {
 
   @Operation(
       summary = "Deploy a game instance",
+      security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
             description = "Created",
@@ -42,4 +46,20 @@ public interface GameControllerDocs {
             content = @Content)
       })
   ResponseEntity<GameInstanceResponse> deploy(@PathVariable String gameId);
+
+  @Operation(
+      summary = "Get a game's image",
+      security = @SecurityRequirement(name = "bearerAuth"),
+      responses = {
+        @ApiResponse(
+            description = "Game image",
+            responseCode = "200",
+            content =
+                @Content(
+                    mediaType = MediaType.IMAGE_JPEG_VALUE,
+                    schema = @Schema(type = "string", format = "binary"))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
+      })
+  ResponseEntity<byte[]> image(@PathVariable String gameId);
 }
