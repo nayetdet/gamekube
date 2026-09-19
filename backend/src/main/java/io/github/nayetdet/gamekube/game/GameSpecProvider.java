@@ -1,0 +1,136 @@
+package io.github.nayetdet.gamekube.game;
+
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.utils.Serialization;
+import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.GameUnreadableManifestException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class GameSpecProvider {
+
+  private static final String GAME_MANIFEST_PATTERN = "classpath*:games/*.{yaml,yml}";
+  private static final Pattern GAME_ID_PATTERN = Pattern.compile("[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
+
+  private final KubernetesClient kubernetesClient;
+
+  @Cacheable(cacheNames = "gameSpec", unless = "#result == null")
+  public GameSpec find(String gameId) {
+    return findAll().stream().filter(game -> game.getId().equals(gameId)).findFirst().orElse(null);
+  }
+
+  @Cacheable(cacheNames = "gameSpecs")
+  public List<GameSpec> findAll() {
+    return load();
+  }
+
+  private List<GameSpec> load() {
+    try {
+      Resource[] manifests =
+          new PathMatchingResourcePatternResolver().getResources(GAME_MANIFEST_PATTERN);
+
+      List<Resource> sortedManifests =
+          Arrays.stream(manifests)
+              .sorted(
+                  Comparator.comparing(
+                      resource -> resource.getFilename() == null ? "" : resource.getFilename()))
+              .toList();
+
+      List<GameSpec> games = new ArrayList<>();
+      Set<String> gameIds = new HashSet<>();
+      for (Resource resource : sortedManifests) {
+        GameSpec game = load(resource);
+        if (!gameIds.add(game.getId())) {
+          throw new GameInvalidException("Game ID is duplicated");
+        }
+
+        games.add(game);
+      }
+
+      if (games.isEmpty()) {
+        throw new GameInvalidException("No games are configured");
+      }
+
+      return List.copyOf(games);
+    } catch (IOException exception) {
+      throw new GameUnreadableManifestException(exception);
+    }
+  }
+
+  private GameSpec load(Resource resource) {
+    String gameId = extractGameId(resource);
+    try (InputStream inputStream = resource.getInputStream()) {
+      GameSpec game = new YAMLMapper().readValue(inputStream, GameSpec.class);
+      game.setId(gameId);
+      validate(game);
+      return game;
+    } catch (IOException exception) {
+      throw new GameUnreadableManifestException(exception);
+    } catch (GameInvalidException exception) {
+      throw exception;
+    } catch (RuntimeException exception) {
+      throw new GameInvalidException("Game manifest could not be parsed", exception);
+    }
+  }
+
+  private String extractGameId(Resource resource) {
+    String filename = resource.getFilename();
+    if (filename == null || !(filename.endsWith(".yaml") || filename.endsWith(".yml"))) {
+      throw new GameInvalidException("Game manifest filename is invalid");
+    }
+
+    String gameId = filename.substring(0, filename.lastIndexOf('.'));
+    if (!GAME_ID_PATTERN.matcher(gameId).matches()) {
+      throw new GameInvalidException("Game ID is invalid");
+    }
+
+    return gameId;
+  }
+
+  private void validate(GameSpec game) {
+    if (game.getName() == null || game.getName().isBlank()) {
+      throw new GameInvalidException("Game name is required");
+    }
+
+    if (game.getDescription() == null || game.getDescription().isBlank()) {
+      throw new GameInvalidException("Game description is required");
+    }
+
+    if (game.getSpecs() == null || game.getSpecs().isEmpty()) {
+      throw new GameInvalidException("Game specs are empty");
+    }
+
+    List<HasMetadata> resources =
+        game.getSpecs().stream()
+            .map(Serialization::asYaml)
+            .flatMap(
+                manifest ->
+                    kubernetesClient
+                        .load(new ByteArrayInputStream(manifest.getBytes(StandardCharsets.UTF_8)))
+                        .items()
+                        .stream())
+            .toList();
+
+    if (resources.isEmpty()) {
+      throw new GameInvalidException("Game specs are empty");
+    }
+  }
+}

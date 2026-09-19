@@ -1,65 +1,66 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ${GAME_NAME}
-  namespace: ${GAME_NAMESPACE}
-  labels:
-    app: ${GAME_NAME}
-    game: ${GAME_ID}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ${GAME_NAME}
-  template:
+name: Cave Story
+description: A classic adventure game running in the browser.
+specs:
+  - apiVersion: apps/v1
+    kind: Deployment
     metadata:
+      name: ${GAME_NAME}
+      namespace: ${GAME_NAMESPACE}
       labels:
         app: ${GAME_NAME}
         game: ${GAME_ID}
     spec:
-      containers:
-        - name: ${GAME_ID}
-          image: ghcr.io/nayetdet/cavestory-nx-docker:latest
-          ports:
-            - name: http
-              containerPort: 3000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ${GAME_NAME}
-  namespace: ${GAME_NAMESPACE}
-  labels:
-    game: ${GAME_ID}
-spec:
-  selector:
-    app: ${GAME_NAME}
-  ports:
-    - name: http
-      port: 3000
-      targetPort: http
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ${GAME_NAME}
-  namespace: ${GAME_NAMESPACE}
-  labels:
-    game: ${GAME_ID}
-spec:
-  ingressClassName: traefik
-  tls:
-    - hosts:
-        - ${GAME_HOST}
-      secretName: ${GAME_TLS_SECRET}
-  rules:
-    - host: ${GAME_HOST}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: ${GAME_NAME}
-                port:
-                  name: http
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ${GAME_NAME}
+      template:
+        metadata:
+          labels:
+            app: ${GAME_NAME}
+            game: ${GAME_ID}
+        spec:
+          containers:
+            - name: ${GAME_ID}
+              image: ghcr.io/nayetdet/cavestory-nx-docker:latest
+              ports:
+                - name: http
+                  containerPort: 3000
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${GAME_NAME}
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    spec:
+      selector:
+        app: ${GAME_NAME}
+      ports:
+        - name: http
+          port: 3000
+          targetPort: http
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: ${GAME_NAME}
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    spec:
+      ingressClassName: traefik
+      tls:
+        - hosts:
+            - ${GAME_HOST}
+          secretName: ${GAME_TLS_SECRET}
+      rules:
+        - host: ${GAME_HOST}
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: ${GAME_NAME}
+                    port:
+                      name: http

@@ -14,5 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GameResponse {
 
+  private String id;
+  private String name;
+  private String description;
   private URI url;
 }

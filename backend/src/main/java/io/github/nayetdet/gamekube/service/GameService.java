@@ -7,16 +7,15 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameDeploymentException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
+import io.github.nayetdet.gamekube.game.GameSpec;
+import io.github.nayetdet.gamekube.game.GameSpecProvider;
 import io.github.nayetdet.gamekube.mapper.GameMapper;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +25,7 @@ public class GameService {
 
   private final KubernetesClient kubernetesClient;
   private final GameMapper gameMapper;
-
-  @Autowired
-  @Qualifier("gameSpecs")
-  private Map<String, List<HasMetadata>> gameSpecs;
+  private final GameSpecProvider gameSpecProvider;
 
   @Value("${game.namespace}")
   private String namespace;
@@ -44,7 +40,7 @@ public class GameService {
   private String protocol;
 
   public GameResponse startGame(String gameId) {
-    List<HasMetadata> game = gameSpecs.get(gameId);
+    GameSpec game = gameSpecProvider.find(gameId);
     if (game == null) {
       throw new GameNotFoundException();
     }
@@ -55,7 +51,7 @@ public class GameService {
 
     try {
       resources =
-          game.stream()
+          game.getSpecs().stream()
               .map(Serialization::asYaml)
               .map(
                   manifest ->
@@ -127,6 +123,6 @@ public class GameService {
       throw new GameDeploymentException(exception);
     }
 
-    return gameMapper.toResponse(URI.create(protocol + "://" + host + "/"));
+    return gameMapper.toResponse(game, URI.create(protocol + "://" + host + "/"));
   }
 }

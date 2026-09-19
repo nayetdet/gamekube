@@ -36,7 +36,9 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-flyway'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -45,6 +47,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 	implementation 'org.keycloak:keycloak-admin-client:26.0.11'
 	implementation 'io.github.wimdeblauwe:error-handling-spring-boot-starter:5.1.1'
 	implementation 'io.fabric8:kubernetes-client:7.8.0'
@@ -94,6 +97,7 @@ tasks.named('check') {
 		layeredArchitecture()
 				.consideringAllDependencies()
 				.layer('Controller').definedBy("${basePackage}.controller..")
+				.layer('Game').definedBy("${basePackage}.game..")
 				.layer('Service').definedBy("${basePackage}.service..")
 				.layer('Repository').definedBy("${basePackage}.repository..")
 				.layer('Mapper').definedBy("${basePackage}.mapper..")
@@ -105,6 +109,7 @@ tasks.named('check') {
 				.layer('Exception').definedBy("${basePackage}.exception..")
 				.whereLayer('Controller').mayNotBeAccessedByAnyLayer()
 				.whereLayer('Service').mayOnlyBeAccessedByLayers('Controller')
+				.whereLayer('Game').mayOnlyBeAccessedByLayers('Service', 'Mapper', 'Game')
 				.whereLayer('Repository').mayOnlyBeAccessedByLayers('Service', 'Security')
 				.whereLayer('Mapper').mayOnlyBeAccessedByLayers('Service', 'Mapper')
 				.whereLayer('Security').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Config', 'Security')
@@ -112,7 +117,7 @@ tasks.named('check') {
 				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload')
 				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')
 				.whereLayer('Enums').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Model', 'Payload', 'Enums')
-				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Config', 'Exception')
+				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Config', 'Game', 'Exception')
 				.check(new ClassFileImporter().importPaths(project.sourceSets.main.output.classesDirs.files.collect { it.toPath() }))
 	}
 }
