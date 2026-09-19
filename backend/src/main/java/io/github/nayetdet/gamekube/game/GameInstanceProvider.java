@@ -52,7 +52,7 @@ public class GameInstanceProvider {
   private List<HasMetadata> load(GameSpec spec, GameInstance instance) {
     try {
       List<HasMetadata> resources =
-          spec.getSpecs().stream()
+          spec.getResources().stream()
               .map(Serialization::asYaml)
               .map(
                   manifest -> {

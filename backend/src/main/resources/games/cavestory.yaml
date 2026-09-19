@@ -1,6 +1,6 @@
 name: Cave Story
-description: A classic adventure game running in the browser.
-specs:
+description: An action adventure game in which players assume the role of a tiny boy who traverses through caverns to save rabbit-like creatures called "Mimigas."
+resources:
   - apiVersion: apps/v1
     kind: Deployment
     metadata:

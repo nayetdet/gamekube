@@ -21,5 +21,5 @@ public class GameSpec implements Serializable {
   private String id;
   private String name;
   private String description;
-  private List<Map<String, Object>> specs;
+  private List<Map<String, Object>> resources;
 }

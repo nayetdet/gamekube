@@ -114,12 +114,12 @@ public class GameSpecProvider {
       throw new GameInvalidException("Game description is required");
     }
 
-    if (game.getSpecs() == null || game.getSpecs().isEmpty()) {
-      throw new GameInvalidException("Game specs are empty");
+    if (game.getResources() == null || game.getResources().isEmpty()) {
+      throw new GameInvalidException("Game resources are empty");
     }
 
     List<HasMetadata> resources =
-        game.getSpecs().stream()
+        game.getResources().stream()
             .map(Serialization::asYaml)
             .flatMap(
                 manifest ->
@@ -130,7 +130,7 @@ public class GameSpecProvider {
             .toList();
 
     if (resources.isEmpty()) {
-      throw new GameInvalidException("Game specs are empty");
+      throw new GameInvalidException("Game resources are empty");
     }
   }
 }
