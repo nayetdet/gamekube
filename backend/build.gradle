@@ -107,6 +107,7 @@ tasks.named('check') {
 				.layer('Model').definedBy("${basePackage}.model..")
 				.layer('Enums').definedBy("${basePackage}.enums..")
 				.layer('Exception').definedBy("${basePackage}.exception..")
+				.layer('Cache').definedBy("${basePackage}.cache..")
 				.whereLayer('Controller').mayNotBeAccessedByAnyLayer()
 				.whereLayer('Service').mayOnlyBeAccessedByLayers('Controller')
 				.whereLayer('Game').mayOnlyBeAccessedByLayers('Service', 'Mapper', 'Game')
@@ -118,6 +119,7 @@ tasks.named('check') {
 				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')
 				.whereLayer('Enums').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Model', 'Payload', 'Enums')
 				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Config', 'Game', 'Exception')
+				.whereLayer('Cache').mayOnlyBeAccessedByLayers('Service', 'Game', 'Cache')
 				.check(new ClassFileImporter().importPaths(project.sourceSets.main.output.classesDirs.files.collect { it.toPath() }))
 	}
 }
