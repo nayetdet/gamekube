@@ -11,5 +11,5 @@ public class CacheRegistry {
   public static final String GAME_IMAGE = "game:image";
 
   // Presence
-  public static final String PRESENCE = "presence:username:%s";
+  public static final String PRESENCE = "presence:%s";
 }
