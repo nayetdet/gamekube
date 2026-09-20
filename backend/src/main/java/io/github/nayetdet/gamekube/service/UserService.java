@@ -5,7 +5,7 @@ import io.github.nayetdet.gamekube.mapper.UserMapper;
 import io.github.nayetdet.gamekube.model.User;
 import io.github.nayetdet.gamekube.payload.query.UserQuery;
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
-import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
+import io.github.nayetdet.gamekube.payload.request.UserRequest;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
@@ -73,7 +73,7 @@ public class UserService {
   }
 
   @Transactional
-  public void update(String username, UserUpdateRequest request) {
+  public void update(String username, UserRequest request) {
     User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     AuthorizationHelper.validateResourceAccess(user.getKeycloakId());
     userMapper.update(user, request);

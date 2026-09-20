@@ -81,14 +81,13 @@ public class ChatService {
   }
 
   @Transactional
-  public MessageResponse create(String senderUsername, MessageRequest request) {
+  public MessageResponse create(
+      String senderUsername, String recipientUsername, MessageRequest request) {
     User sender =
         userRepository.findByUsername(senderUsername).orElseThrow(UserNotFoundException::new);
 
     User recipient =
-        userRepository
-            .findByUsername(request.getRecipientUsername())
-            .orElseThrow(UserNotFoundException::new);
+        userRepository.findByUsername(recipientUsername).orElseThrow(UserNotFoundException::new);
 
     if (sender.getId().equals(recipient.getId())) {
       throw new MessageSelfReferenceException();

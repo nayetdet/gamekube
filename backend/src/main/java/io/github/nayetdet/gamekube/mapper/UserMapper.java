@@ -2,7 +2,7 @@ package io.github.nayetdet.gamekube.mapper;
 
 import io.github.nayetdet.gamekube.enums.PresenceStatus;
 import io.github.nayetdet.gamekube.model.User;
-import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
+import io.github.nayetdet.gamekube.payload.request.UserRequest;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class UserMapper {
         .build();
   }
 
-  public void update(User user, UserUpdateRequest request) {
+  public void update(User user, UserRequest request) {
     user.setUsername(request.getUsername());
     user.setName(request.getName());
     user.setDescription(request.getDescription());

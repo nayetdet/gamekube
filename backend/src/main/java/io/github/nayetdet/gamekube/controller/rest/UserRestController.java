@@ -4,7 +4,7 @@ import io.github.nayetdet.gamekube.controller.rest.docs.UserRestControllerDocs;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.payload.query.UserQuery;
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
-import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
+import io.github.nayetdet.gamekube.payload.request.UserRequest;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeAdmin;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
@@ -15,8 +15,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,7 +55,7 @@ public class UserRestController implements UserRestControllerDocs {
 
   @Override
   @PreAuthorizeUser
-  @PostMapping("/{username}/reset-email")
+  @PatchMapping("/{username}/email")
   public ResponseEntity<Void> updateEmail(@PathVariable String username) {
     userService.updateEmail(username);
     return ResponseEntity.noContent().build();
@@ -65,7 +65,7 @@ public class UserRestController implements UserRestControllerDocs {
   @PreAuthorizeUser
   @PutMapping("/{username}")
   public ResponseEntity<Void> update(
-      @PathVariable String username, @RequestBody @Valid UserUpdateRequest request) {
+      @PathVariable String username, @RequestBody @Valid UserRequest request) {
     userService.update(username, request);
     return ResponseEntity.noContent().build();
   }

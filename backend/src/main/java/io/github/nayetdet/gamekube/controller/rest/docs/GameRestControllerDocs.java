@@ -13,11 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@Tag(name = "Games", description = "Endpoints for managing games")
+@Tag(name = "Games", description = "Game catalog and the authenticated user's game instance")
 public interface GameRestControllerDocs {
 
   @Operation(
-      summary = "List available games",
+      summary = "List the available games",
       responses =
           @ApiResponse(
               description = "Games",
@@ -29,7 +29,7 @@ public interface GameRestControllerDocs {
   ResponseEntity<List<GameResponse>> search();
 
   @Operation(
-      summary = "Provision a game instance",
+      summary = "Create the authenticated user's instance for a game",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -47,7 +47,7 @@ public interface GameRestControllerDocs {
   ResponseEntity<GameInstanceResponse> provision(@PathVariable String gameId);
 
   @Operation(
-      summary = "Destroy the current user's game instance",
+      summary = "Delete the authenticated user's instance for a game",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(description = "Destroyed", responseCode = "204", content = @Content),
@@ -59,7 +59,7 @@ public interface GameRestControllerDocs {
   ResponseEntity<Void> destroy(@PathVariable String gameId);
 
   @Operation(
-      summary = "Get a game's image",
+      summary = "Get a game's cover image",
       responses = {
         @ApiResponse(
             description = "Game image",

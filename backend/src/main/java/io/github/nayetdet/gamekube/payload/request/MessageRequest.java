@@ -15,7 +15,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class MessageRequest {
 
-  @NotBlank
   @Size(min = 3, max = 50)
   private String recipientUsername;
 

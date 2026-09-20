@@ -1,7 +1,6 @@
 package io.github.nayetdet.gamekube.controller.rest.docs;
 
-import io.github.nayetdet.gamekube.payload.request.FriendshipRequestPayload;
-import io.github.nayetdet.gamekube.payload.request.FriendshipStatusRequest;
+import io.github.nayetdet.gamekube.payload.request.FriendshipRequest;
 import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -22,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface FriendshipRestControllerDocs {
 
   @Operation(
-      summary = "Send a friend request",
+      summary = "Create a friendship request for an addressee",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -38,18 +36,20 @@ public interface FriendshipRestControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<FriendshipResponse> create(
-      @Valid FriendshipRequestPayload payload, Principal principal);
+  ResponseEntity<FriendshipResponse> create(@Valid FriendshipRequest payload, Principal principal);
 
   @Operation(
-      summary = "Update friendship status",
+      summary = "Accept a pending friendship request",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "Ok",
             content = @Content(schema = @Schema(implementation = FriendshipResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Request is not pending",
+            content = @Content),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
         @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
         @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
@@ -58,11 +58,32 @@ public interface FriendshipRestControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<FriendshipResponse> update(
-      @PathVariable UUID id, @Valid FriendshipStatusRequest request, Principal principal);
+  ResponseEntity<FriendshipResponse> accept(@PathVariable String username, Principal principal);
 
   @Operation(
-      summary = "Remove a friend",
+      summary = "Reject a pending friendship request",
+      security = @SecurityRequirement(name = "bearerAuth"),
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Friendship request rejected",
+            content = @Content(schema = @Schema(implementation = FriendshipResponse.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Request is not pending",
+            content = @Content),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content)
+      })
+  ResponseEntity<FriendshipResponse> reject(@PathVariable String username, Principal principal);
+
+  @Operation(
+      summary = "Delete a friendship or pending request by friend username",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(responseCode = "204", description = "No Content", content = @Content),
@@ -76,7 +97,7 @@ public interface FriendshipRestControllerDocs {
   ResponseEntity<Void> delete(@PathVariable String username, Principal principal);
 
   @Operation(
-      summary = "List current user friends",
+      summary = "List the authenticated user's accepted friendships",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -94,7 +115,7 @@ public interface FriendshipRestControllerDocs {
   ResponseEntity<List<UserResponse>> findAcceptedFriends(Principal principal);
 
   @Operation(
-      summary = "List received pending friend requests",
+      summary = "List pending friendship requests received by the authenticated user",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -113,7 +134,7 @@ public interface FriendshipRestControllerDocs {
   ResponseEntity<List<FriendshipResponse>> findPendingReceivedRequests(Principal principal);
 
   @Operation(
-      summary = "List sent pending friend requests",
+      summary = "List pending friendship requests sent by the authenticated user",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(

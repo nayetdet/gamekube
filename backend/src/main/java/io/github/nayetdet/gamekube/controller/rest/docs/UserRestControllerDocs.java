@@ -2,7 +2,7 @@ package io.github.nayetdet.gamekube.controller.rest.docs;
 
 import io.github.nayetdet.gamekube.payload.query.UserQuery;
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
-import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
+import io.github.nayetdet.gamekube.payload.request.UserRequest;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,11 +15,11 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@Tag(name = "Users", description = "Endpoints for managing users")
+@Tag(name = "Users", description = "User discovery, profile management and account actions")
 public interface UserRestControllerDocs {
 
   @Operation(
-      summary = "Search all users",
+      summary = "List users with optional filters and pagination",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -36,7 +36,7 @@ public interface UserRestControllerDocs {
   ResponseEntity<ApplicationPage<UserResponse>> search(@ParameterObject UserQuery query);
 
   @Operation(
-      summary = "Find the currently authenticated user",
+      summary = "Get the authenticated user's profile",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -53,7 +53,7 @@ public interface UserRestControllerDocs {
   ResponseEntity<UserResponse> findSelf();
 
   @Operation(
-      summary = "Find a user by username",
+      summary = "Get a user by username",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -71,7 +71,7 @@ public interface UserRestControllerDocs {
   ResponseEntity<UserResponse> find(@PathVariable String username);
 
   @Operation(
-      summary = "Reset user email",
+      summary = "Request an email update for a user",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(responseCode = "204", description = "No Content", content = @Content),
@@ -91,7 +91,7 @@ public interface UserRestControllerDocs {
       requestBody =
           @io.swagger.v3.oas.annotations.parameters.RequestBody(
               required = true,
-              content = @Content(schema = @Schema(implementation = UserUpdateRequest.class))),
+              content = @Content(schema = @Schema(implementation = UserRequest.class))),
       responses = {
         @ApiResponse(responseCode = "204", description = "No Content", content = @Content),
         @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
@@ -103,7 +103,7 @@ public interface UserRestControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<Void> update(@PathVariable String username, @Valid UserUpdateRequest request);
+  ResponseEntity<Void> update(@PathVariable String username, @Valid UserRequest request);
 
   @Operation(
       summary = "Delete a user by username",

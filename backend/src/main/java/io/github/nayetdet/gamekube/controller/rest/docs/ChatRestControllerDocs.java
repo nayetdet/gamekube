@@ -15,11 +15,11 @@ import java.util.Map;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
-@Tag(name = "Chat", description = "Endpoints for 1:1 chat messages, history and unread status")
+@Tag(name = "Chats", description = "Private conversations, messages and read state")
 public interface ChatRestControllerDocs {
 
   @Operation(
-      summary = "Get paginated message history with a friend",
+      summary = "List messages in a conversation",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -37,12 +37,12 @@ public interface ChatRestControllerDocs {
       String username, Pageable pageable, Principal principal);
 
   @Operation(
-      summary = "Send a message to a friend (REST fallback)",
+      summary = "Create a message in a conversation",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Ok",
+            responseCode = "201",
+            description = "Message created",
             content = @Content(schema = @Schema(implementation = MessageResponse.class))),
         @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
@@ -56,10 +56,11 @@ public interface ChatRestControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<MessageResponse> create(@Valid MessageRequest request, Principal principal);
+  ResponseEntity<MessageResponse> create(
+      String username, @Valid MessageRequest request, Principal principal);
 
   @Operation(
-      summary = "Mark messages from a friend as read",
+      summary = "Mark a conversation's unread messages as read",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(responseCode = "204", description = "No Content", content = @Content),
@@ -73,7 +74,7 @@ public interface ChatRestControllerDocs {
   ResponseEntity<Void> markAsRead(String username, Principal principal);
 
   @Operation(
-      summary = "Get total unread messages count for current user",
+      summary = "Get the authenticated user's unread message count",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(responseCode = "200", description = "Ok", content = @Content),

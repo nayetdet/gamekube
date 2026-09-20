@@ -11,14 +11,13 @@ import io.github.nayetdet.gamekube.mapper.FriendshipMapper;
 import io.github.nayetdet.gamekube.mapper.UserMapper;
 import io.github.nayetdet.gamekube.model.Friendship;
 import io.github.nayetdet.gamekube.model.User;
-import io.github.nayetdet.gamekube.payload.request.FriendshipRequestPayload;
+import io.github.nayetdet.gamekube.payload.request.FriendshipRequest;
 import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.FriendshipRepository;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,13 +73,13 @@ public class FriendshipService {
   }
 
   @Transactional
-  public FriendshipResponse create(String requesterUsername, FriendshipRequestPayload payload) {
+  public FriendshipResponse create(String requesterUsername, FriendshipRequest payload) {
     User requester =
         userRepository.findByUsername(requesterUsername).orElseThrow(UserNotFoundException::new);
 
     User addressee =
         userRepository
-            .findByUsername(payload.getUsername())
+            .findByUsername(payload.getAddresseeUsername())
             .orElseThrow(UserNotFoundException::new);
 
     if (requester.getId().equals(addressee.getId())) {
@@ -116,24 +115,27 @@ public class FriendshipService {
   }
 
   @Transactional
-  public FriendshipResponse update(
-      String currentUsername, UUID requestId, FriendshipStatus status) {
+  public FriendshipResponse decide(String currentUsername, String friendUsername, boolean accept) {
     User currentUser =
         userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
 
+    User friend =
+        userRepository.findByUsername(friendUsername).orElseThrow(UserNotFoundException::new);
+
     Friendship friendship =
-        friendshipRepository.findById(requestId).orElseThrow(FriendshipNotFoundException::new);
+        friendshipRepository
+            .findBetweenUsers(currentUser.getId(), friend.getId())
+            .orElseThrow(FriendshipNotFoundException::new);
 
     if (!friendship.getAddressee().getId().equals(currentUser.getId())) {
       throw new UserModificationForbiddenException();
     }
 
-    if (friendship.getStatus() != FriendshipStatus.PENDING
-        || (status != FriendshipStatus.ACCEPTED && status != FriendshipStatus.REJECTED)) {
+    if (friendship.getStatus() != FriendshipStatus.PENDING) {
       throw new FriendshipNotPendingException();
     }
 
-    friendship.setStatus(status);
+    friendship.setStatus(accept ? FriendshipStatus.ACCEPTED : FriendshipStatus.REJECTED);
     return friendshipMapper.toResponse(friendshipRepository.save(friendship));
   }
 

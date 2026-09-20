@@ -24,7 +24,7 @@ public class ChatWebSocketController {
       throw new UserUnauthorizedException();
     }
 
-    return chatService.create(principal.getName(), request);
+    return chatService.create(principal.getName(), request.getRecipientUsername(), request);
   }
 
   @MessageMapping("/chat.read")

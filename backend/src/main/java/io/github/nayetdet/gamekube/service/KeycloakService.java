@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.service;
 
 import io.github.nayetdet.gamekube.exception.strategy.KeycloakExceptionStrategy;
-import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
+import io.github.nayetdet.gamekube.payload.request.UserRequest;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +27,7 @@ public class KeycloakService {
     }
   }
 
-  public void update(UUID keycloakId, UserUpdateRequest request) {
+  public void update(UUID keycloakId, UserRequest request) {
     try {
       UserRepresentation userRepresentation = new UserRepresentation();
       userRepresentation.setUsername(request.getUsername());

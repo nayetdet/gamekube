@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/games")
 @RequiredArgsConstructor
-@Tag(name = "Games", description = "Endpoints for managing games")
+@Tag(name = "Games", description = "Game catalog and the authenticated user's game instance")
 public class GameRestController implements GameRestControllerDocs {
 
   private final GameService gameService;
@@ -35,26 +35,26 @@ public class GameRestController implements GameRestControllerDocs {
   }
 
   @Override
-  @PreAuthorizeUser
-  @PostMapping("/{gameId}")
-  public ResponseEntity<GameInstanceResponse> provision(@PathVariable String gameId) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(gameService.provision(gameId));
-  }
-
-  @Override
-  @PreAuthorizeUser
-  @DeleteMapping("/{gameId}")
-  public ResponseEntity<Void> destroy(@PathVariable String gameId) {
-    gameService.destroy(gameId);
-    return ResponseEntity.noContent().build();
-  }
-
-  @Override
   @GetMapping(value = "/{gameId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<byte[]> image(@PathVariable String gameId) {
     return ResponseEntity.ok()
         .contentType(MediaType.IMAGE_JPEG)
         .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic())
         .body(gameService.image(gameId));
+  }
+
+  @Override
+  @PreAuthorizeUser
+  @PostMapping("/{gameId}/instance")
+  public ResponseEntity<GameInstanceResponse> provision(@PathVariable String gameId) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(gameService.provision(gameId));
+  }
+
+  @Override
+  @PreAuthorizeUser
+  @DeleteMapping("/{gameId}/instance")
+  public ResponseEntity<Void> destroy(@PathVariable String gameId) {
+    gameService.destroy(gameId);
+    return ResponseEntity.noContent().build();
   }
 }

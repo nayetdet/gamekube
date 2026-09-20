@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserUpdateRequest {
+public class UserRequest {
 
   @NotBlank
   @Size(min = 3, max = 50)
