@@ -10,8 +10,11 @@ import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import io.github.nayetdet.gamekube.security.AuthorizationHelper;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,25 +23,46 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   private final KeycloakService keycloakService;
+  private final PresenceService presenceService;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
   public ApplicationPage<UserResponse> search(UserQuery query) {
+    if (query.getPresenceStatus() == null) {
+      return new ApplicationPage<>(
+          userRepository
+              .search(query, query.getPageable())
+              .map(
+                  user -> userMapper.toResponse(user, presenceService.status(user.getUsername()))));
+    }
+
+    List<UserResponse> responses =
+        userRepository.search(query, Pageable.unpaged()).stream()
+            .map(user -> userMapper.toResponse(user, presenceService.status(user.getUsername())))
+            .filter(user -> user.getPresenceStatus() == query.getPresenceStatus())
+            .toList();
+
+    Pageable pageable = query.getPageable();
     return new ApplicationPage<>(
-        userRepository.search(query, query.getPageable()).map(userMapper::toResponse));
+        new PageImpl<>(
+            responses.stream().skip(pageable.getOffset()).limit(pageable.getPageSize()).toList(),
+            pageable,
+            responses.size()));
   }
 
   @Transactional(readOnly = true)
   public Optional<UserResponse> find(String username) {
-    return userRepository.findByUsername(username).map(userMapper::toResponse);
+    return userRepository
+        .findByUsername(username)
+        .map(user -> userMapper.toResponse(user, presenceService.status(user.getUsername())));
   }
 
   @Transactional(readOnly = true)
   public Optional<UserResponse> findSelf() {
     return userRepository
         .findByKeycloakId(AuthenticationHelper.getKeycloakId())
-        .map(userMapper::toResponse);
+        .map(user -> userMapper.toResponse(user, presenceService.status(user.getUsername())));
   }
 
   @Transactional(readOnly = true)

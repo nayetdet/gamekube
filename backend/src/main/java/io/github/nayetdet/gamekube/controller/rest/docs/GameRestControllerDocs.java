@@ -1,4 +1,4 @@
-package io.github.nayetdet.gamekube.controller.docs;
+package io.github.nayetdet.gamekube.controller.rest.docs;
 
 import io.github.nayetdet.gamekube.payload.response.GameInstanceResponse;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Games", description = "Endpoints for managing games")
-public interface GameControllerDocs {
+public interface GameRestControllerDocs {
 
   @Operation(
       summary = "List available games",
@@ -26,7 +26,7 @@ public interface GameControllerDocs {
                   @Content(
                       mediaType = "application/json",
                       schema = @Schema(implementation = GameResponse.class))))
-  ResponseEntity<List<GameResponse>> findAll();
+  ResponseEntity<List<GameResponse>> search();
 
   @Operation(
       summary = "Deploy a game instance",

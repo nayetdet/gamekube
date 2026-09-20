@@ -12,15 +12,7 @@ public class GameInvalidException extends BaseException {
     super(DEFAULT_ERROR_MESSAGE);
   }
 
-  public GameInvalidException(String message) {
-    super(message);
-  }
-
   public GameInvalidException(Throwable cause) {
     super(DEFAULT_ERROR_MESSAGE, cause);
-  }
-
-  public GameInvalidException(String message, Throwable cause) {
-    super(message, cause);
   }
 }

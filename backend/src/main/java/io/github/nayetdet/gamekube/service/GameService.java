@@ -19,7 +19,7 @@ public class GameService {
   private final GameProvider gameProvider;
   private final GameInstanceProvider gameInstanceProvider;
 
-  public List<GameResponse> findAll() {
+  public List<GameResponse> search() {
     return gameProvider.findAll().stream().map(gameMapper::toResponse).toList();
   }
 

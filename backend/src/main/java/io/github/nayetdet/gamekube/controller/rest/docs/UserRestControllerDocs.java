@@ -1,4 +1,4 @@
-package io.github.nayetdet.gamekube.controller.docs;
+package io.github.nayetdet.gamekube.controller.rest.docs;
 
 import io.github.nayetdet.gamekube.payload.query.UserQuery;
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Users", description = "Endpoints for managing users")
-public interface UserControllerDocs {
+public interface UserRestControllerDocs {
 
   @Operation(
       summary = "Search all users",

@@ -3,9 +3,9 @@ package io.github.nayetdet.gamekube.service;
 import io.github.nayetdet.gamekube.enums.FriendshipStatus;
 import io.github.nayetdet.gamekube.enums.MessageStatus;
 import io.github.nayetdet.gamekube.exception.FriendshipRequiredException;
+import io.github.nayetdet.gamekube.exception.MessageSelfReferenceException;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.mapper.MessageMapper;
-import io.github.nayetdet.gamekube.model.Friendship;
 import io.github.nayetdet.gamekube.model.Message;
 import io.github.nayetdet.gamekube.model.User;
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
@@ -39,14 +39,10 @@ public class ChatService {
   public ApplicationPage<MessageResponse> findConversation(
       String currentUsername, String friendUsername, Pageable pageable) {
     User currentUser =
-        userRepository
-            .findByUsername(currentUsername)
-            .orElseThrow(() -> new UserNotFoundException("User not found: " + currentUsername));
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
 
     User friend =
-        userRepository
-            .findByUsername(friendUsername)
-            .orElseThrow(() -> new UserNotFoundException("User not found: " + friendUsername));
+        userRepository.findByUsername(friendUsername).orElseThrow(UserNotFoundException::new);
 
     return new ApplicationPage<>(
         messageRepository
@@ -57,14 +53,10 @@ public class ChatService {
   @Transactional
   public void updateReadStatus(String currentUsername, String senderUsername) {
     User recipient =
-        userRepository
-            .findByUsername(currentUsername)
-            .orElseThrow(() -> new UserNotFoundException("User not found: " + currentUsername));
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
 
     User sender =
-        userRepository
-            .findByUsername(senderUsername)
-            .orElseThrow(() -> new UserNotFoundException("User not found: " + senderUsername));
+        userRepository.findByUsername(senderUsername).orElseThrow(UserNotFoundException::new);
 
     List<Message> unreadMessages =
         messageRepository.findMessagesBySenderAndRecipientAndStatusNot(
@@ -91,47 +83,38 @@ public class ChatService {
   @Transactional
   public MessageResponse create(String senderUsername, MessageRequest request) {
     User sender =
-        userRepository
-            .findByUsername(senderUsername)
-            .orElseThrow(() -> new UserNotFoundException("Sender not found: " + senderUsername));
+        userRepository.findByUsername(senderUsername).orElseThrow(UserNotFoundException::new);
 
     User recipient =
         userRepository
             .findByUsername(request.getRecipientUsername())
-            .orElseThrow(
-                () ->
-                    new UserNotFoundException(
-                        "Recipient not found: " + request.getRecipientUsername()));
+            .orElseThrow(UserNotFoundException::new);
 
     if (sender.getId().equals(recipient.getId())) {
-      throw new IllegalArgumentException("Cannot send message to yourself");
+      throw new MessageSelfReferenceException();
     }
 
-    Friendship friendship =
-        friendshipRepository
-            .findBetweenUsers(sender.getId(), recipient.getId())
-            .orElseThrow(
-                () -> new FriendshipRequiredException("You can only message accepted friends"));
+    friendshipRepository
+        .findBetweenUsers(sender.getId(), recipient.getId())
+        .filter(friendship -> friendship.getStatus() == FriendshipStatus.ACCEPTED)
+        .orElseThrow(FriendshipRequiredException::new);
 
-    if (friendship.getStatus() != FriendshipStatus.ACCEPTED) {
-      throw new FriendshipRequiredException("You can only message accepted friends");
-    }
-
-    Message message = new Message();
-    message.setSender(sender);
-    message.setRecipient(recipient);
-    message.setContent(request.getContent());
-    message.setStatus(MessageStatus.SENT);
-
-    Message savedMessage = messageRepository.save(message);
-    MessageResponse response = messageMapper.toResponse(savedMessage);
+    MessageResponse response =
+        messageMapper.toResponse(
+            messageRepository.save(
+                Message.builder()
+                    .sender(sender)
+                    .recipient(recipient)
+                    .content(request.getContent())
+                    .status(MessageStatus.SENT)
+                    .build()));
 
     messagingTemplate.convertAndSendToUser(recipient.getUsername(), "/queue/messages", response);
     messagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/messages", response);
 
     log.info(
         "Chat message {} dispatched from {} to {}",
-        savedMessage.getId(),
+        response.getId(),
         senderUsername,
         recipient.getUsername());
 
@@ -141,10 +124,7 @@ public class ChatService {
   @Transactional(readOnly = true)
   public long countUnread(String currentUsername) {
     User user =
-        userRepository
-            .findByUsername(currentUsername)
-            .orElseThrow(() -> new UserNotFoundException("User not found: " + currentUsername));
-
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
     return messageRepository.countByRecipientIdAndStatusNot(user.getId(), MessageStatus.READ);
   }
 }

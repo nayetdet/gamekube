@@ -23,12 +23,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   @Override
   public AbstractAuthenticationToken convert(Jwt source) {
     UUID keycloakId = UUID.fromString(source.getSubject());
-    User user =
-        userRepository
-            .findByKeycloakId(keycloakId)
-            .orElseThrow(
-                () -> new UserNotFoundException("User not found for Keycloak ID: " + keycloakId));
-
+    User user = userRepository.findByKeycloakId(keycloakId).orElseThrow(UserNotFoundException::new);
     Map<String, List<String>> realmAccess = source.getClaim("realm_access");
     List<SimpleGrantedAuthority> grantedAuthorities =
         realmAccess == null || realmAccess.get("roles") == null

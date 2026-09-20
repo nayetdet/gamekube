@@ -1,4 +1,4 @@
-package io.github.nayetdet.gamekube.controller.docs;
+package io.github.nayetdet.gamekube.controller.rest.docs;
 
 import io.github.nayetdet.gamekube.payload.request.FriendshipRequestPayload;
 import io.github.nayetdet.gamekube.payload.request.FriendshipStatusRequest;
@@ -12,13 +12,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Friendships", description = "Endpoints for managing user friendships and requests")
-public interface FriendshipControllerDocs {
+public interface FriendshipRestControllerDocs {
 
   @Operation(
       summary = "Send a friend request",
@@ -37,7 +38,8 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<FriendshipResponse> create(@Valid FriendshipRequestPayload payload);
+  ResponseEntity<FriendshipResponse> create(
+      @Valid FriendshipRequestPayload payload, Principal principal);
 
   @Operation(
       summary = "Update friendship status",
@@ -57,7 +59,7 @@ public interface FriendshipControllerDocs {
             content = @Content)
       })
   ResponseEntity<FriendshipResponse> update(
-      @PathVariable UUID id, @Valid FriendshipStatusRequest request);
+      @PathVariable UUID id, @Valid FriendshipStatusRequest request, Principal principal);
 
   @Operation(
       summary = "Remove a friend",
@@ -71,7 +73,7 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<Void> delete(@PathVariable String username);
+  ResponseEntity<Void> delete(@PathVariable String username, Principal principal);
 
   @Operation(
       summary = "List current user friends",
@@ -89,7 +91,7 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<UserResponse>> findAcceptedFriends();
+  ResponseEntity<List<UserResponse>> findAcceptedFriends(Principal principal);
 
   @Operation(
       summary = "List received pending friend requests",
@@ -108,7 +110,7 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<FriendshipResponse>> findPendingReceivedRequests();
+  ResponseEntity<List<FriendshipResponse>> findPendingReceivedRequests(Principal principal);
 
   @Operation(
       summary = "List sent pending friend requests",
@@ -127,5 +129,5 @@ public interface FriendshipControllerDocs {
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<FriendshipResponse>> findPendingSentRequests();
+  ResponseEntity<List<FriendshipResponse>> findPendingSentRequests(Principal principal);
 }

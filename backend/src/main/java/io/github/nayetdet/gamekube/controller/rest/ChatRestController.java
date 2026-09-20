@@ -1,6 +1,6 @@
-package io.github.nayetdet.gamekube.controller;
+package io.github.nayetdet.gamekube.controller.rest;
 
-import io.github.nayetdet.gamekube.controller.docs.ChatControllerDocs;
+import io.github.nayetdet.gamekube.controller.rest.docs.ChatRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.request.MessageRequest;
 import io.github.nayetdet.gamekube.payload.response.MessageResponse;
@@ -14,8 +14,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/chats")
 @RequiredArgsConstructor
-public class ChatController implements ChatControllerDocs {
+public class ChatRestController implements ChatRestControllerDocs {
 
   private final ChatService chatService;
 
@@ -62,27 +60,5 @@ public class ChatController implements ChatControllerDocs {
   @GetMapping("/messages/unread/count")
   public ResponseEntity<Map<String, Long>> countUnread(Principal principal) {
     return ResponseEntity.ok(Map.of("unreadCount", chatService.countUnread(principal.getName())));
-  }
-
-  @MessageMapping("/chat.send")
-  public MessageResponse handleSendMessage(
-      Principal principal, @Payload @Valid MessageRequest request) {
-    if (principal == null) {
-      throw new IllegalArgumentException("Unauthenticated WebSocket session");
-    }
-
-    return chatService.create(principal.getName(), request);
-  }
-
-  @MessageMapping("/chat.read")
-  public void handleMarkAsRead(Principal principal, @Payload Map<String, String> payload) {
-    if (principal == null) {
-      throw new IllegalArgumentException("Unauthenticated WebSocket session");
-    }
-
-    String senderUsername = payload.get("senderUsername");
-    if (senderUsername != null && !senderUsername.isBlank()) {
-      chatService.updateReadStatus(principal.getName(), senderUsername);
-    }
   }
 }

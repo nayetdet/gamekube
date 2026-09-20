@@ -11,8 +11,4 @@ public class FriendshipRequiredException extends BaseException {
   public FriendshipRequiredException() {
     super(DEFAULT_ERROR_MESSAGE);
   }
-
-  public FriendshipRequiredException(String message) {
-    super(message);
-  }
 }

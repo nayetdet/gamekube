@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.security.messaging;
 
+import io.github.nayetdet.gamekube.exception.UserUnauthorizedException;
 import io.github.nayetdet.gamekube.security.jwt.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
@@ -29,7 +30,7 @@ public class StompAuthenticationInterceptor implements ChannelInterceptor {
     if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
       String token = extractToken(accessor);
       if (token == null) {
-        throw new IllegalArgumentException("Missing Authorization header");
+        throw new UserUnauthorizedException();
       }
 
       try {
@@ -37,7 +38,7 @@ public class StompAuthenticationInterceptor implements ChannelInterceptor {
         AbstractAuthenticationToken authentication = jwtAuthenticationConverter.convert(jwt);
         accessor.setUser(authentication);
       } catch (JwtException e) {
-        throw new IllegalArgumentException("Invalid JWT token", e);
+        throw new UserUnauthorizedException();
       }
     }
 

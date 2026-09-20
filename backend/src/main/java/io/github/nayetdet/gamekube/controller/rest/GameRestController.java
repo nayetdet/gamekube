@@ -1,6 +1,6 @@
-package io.github.nayetdet.gamekube.controller;
+package io.github.nayetdet.gamekube.controller.rest;
 
-import io.github.nayetdet.gamekube.controller.docs.GameControllerDocs;
+import io.github.nayetdet.gamekube.controller.rest.docs.GameRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.response.GameInstanceResponse;
 import io.github.nayetdet.gamekube.payload.response.GameResponse;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/games")
 @RequiredArgsConstructor
 @Tag(name = "Games", description = "Endpoints for managing games")
-public class GameController implements GameControllerDocs {
+public class GameRestController implements GameRestControllerDocs {
 
   private final GameService gameService;
 
   @Override
   @GetMapping
-  public ResponseEntity<List<GameResponse>> findAll() {
-    return ResponseEntity.ok(gameService.findAll());
+  public ResponseEntity<List<GameResponse>> search() {
+    return ResponseEntity.ok(gameService.search());
   }
 
   @Override

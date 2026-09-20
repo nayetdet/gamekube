@@ -10,12 +10,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "messages")
 public class Message extends BaseModel {
 
@@ -30,6 +36,7 @@ public class Message extends BaseModel {
   @Column(length = 2000, nullable = false)
   private String content;
 
+  @Builder.Default
   @Enumerated(EnumType.STRING)
   @Column(length = 20, nullable = false)
   private MessageStatus status = MessageStatus.SENT;

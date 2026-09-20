@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
+import io.github.nayetdet.gamekube.cache.CacheRegistry;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
 import io.github.nayetdet.gamekube.exception.GameUnreadableManifestException;
@@ -34,17 +35,17 @@ public class GameProvider {
 
   private final KubernetesClient kubernetesClient;
 
-  @Cacheable(cacheNames = "game-by-id", unless = "#result == null")
+  @Cacheable(cacheNames = CacheRegistry.GAME, unless = "#result == null")
   public Game find(String gameId) {
     return findAll().stream().filter(game -> game.getId().equals(gameId)).findFirst().orElse(null);
   }
 
-  @Cacheable(cacheNames = "games")
+  @Cacheable(cacheNames = CacheRegistry.GAME_COLLECTION)
   public List<Game> findAll() {
     return load();
   }
 
-  @Cacheable(cacheNames = "game-images", key = "#game.id", unless = "#result == null")
+  @Cacheable(cacheNames = CacheRegistry.GAME_IMAGE, key = "#game.id", unless = "#result == null")
   public byte[] image(Game game) {
     String imagePath = game.getImage();
     if (imagePath == null || imagePath.isBlank()) {
@@ -81,14 +82,14 @@ public class GameProvider {
       for (Resource resource : sortedManifests) {
         Game game = load(resource);
         if (!gameIds.add(game.getId())) {
-          throw new GameInvalidException("Game ID is duplicated");
+          throw new GameInvalidException();
         }
 
         games.add(game);
       }
 
       if (games.isEmpty()) {
-        throw new GameInvalidException("No games are configured");
+        throw new GameInvalidException();
       }
 
       return List.copyOf(games);
@@ -109,19 +110,19 @@ public class GameProvider {
     } catch (GameInvalidException exception) {
       throw exception;
     } catch (RuntimeException exception) {
-      throw new GameInvalidException("Game manifest could not be parsed", exception);
+      throw new GameInvalidException(exception);
     }
   }
 
   private String extractGameId(Resource resource) {
     String filename = resource.getFilename();
     if (filename == null || !(filename.endsWith(".yaml") || filename.endsWith(".yml"))) {
-      throw new GameInvalidException("Game manifest filename is invalid");
+      throw new GameInvalidException();
     }
 
     String gameId = filename.substring(0, filename.lastIndexOf('.'));
     if (!GAME_ID_PATTERN.matcher(gameId).matches()) {
-      throw new GameInvalidException("Game ID is invalid");
+      throw new GameInvalidException();
     }
 
     return gameId;
@@ -129,15 +130,15 @@ public class GameProvider {
 
   private void validate(Game game) {
     if (game.getName() == null || game.getName().isBlank()) {
-      throw new GameInvalidException("Game name is required");
+      throw new GameInvalidException();
     }
 
     if (game.getDescription() == null || game.getDescription().isBlank()) {
-      throw new GameInvalidException("Game description is required");
+      throw new GameInvalidException();
     }
 
     if (game.getResources() == null || game.getResources().isEmpty()) {
-      throw new GameInvalidException("Game resources are empty");
+      throw new GameInvalidException();
     }
 
     List<HasMetadata> resources =
@@ -152,7 +153,7 @@ public class GameProvider {
             .toList();
 
     if (resources.isEmpty()) {
-      throw new GameInvalidException("Game resources are empty");
+      throw new GameInvalidException();
     }
   }
 }

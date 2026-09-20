@@ -1,4 +1,4 @@
-package io.github.nayetdet.gamekube.controller.docs;
+package io.github.nayetdet.gamekube.controller.rest.docs;
 
 import io.github.nayetdet.gamekube.payload.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.request.MessageRequest;
@@ -16,7 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Chat", description = "Endpoints for 1:1 chat messages, history and unread status")
-public interface ChatControllerDocs {
+public interface ChatRestControllerDocs {
 
   @Operation(
       summary = "Get paginated message history with a friend",

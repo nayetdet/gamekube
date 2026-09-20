@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.payload.query;
 
+import io.github.nayetdet.gamekube.enums.PresenceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class UserQuery extends BaseQuery {
 
   private String username;
   private String name;
+  private PresenceStatus presenceStatus;
 
   @Override
   @Schema(

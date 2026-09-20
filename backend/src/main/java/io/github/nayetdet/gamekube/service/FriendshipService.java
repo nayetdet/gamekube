@@ -16,7 +16,6 @@ import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.FriendshipRepository;
 import io.github.nayetdet.gamekube.repository.UserRepository;
-import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,8 +33,10 @@ public class FriendshipService {
   private final UserMapper userMapper;
 
   @Transactional(readOnly = true)
-  public List<UserResponse> findAcceptedFriends() {
-    User currentUser = getCurrentUser();
+  public List<UserResponse> findAcceptedFriends(String currentUsername) {
+    User currentUser =
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
+
     List<Friendship> friendships =
         friendshipRepository.findAllByUserIdAndStatus(
             currentUser.getId(), FriendshipStatus.ACCEPTED);
@@ -53,29 +54,34 @@ public class FriendshipService {
   }
 
   @Transactional(readOnly = true)
-  public List<FriendshipResponse> findPendingReceivedRequests() {
-    User currentUser = getCurrentUser();
+  public List<FriendshipResponse> findPendingReceivedRequests(String currentUsername) {
+    User currentUser =
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
+
     return friendshipRepository.findPendingReceivedRequests(currentUser.getId()).stream()
         .map(friendshipMapper::toResponse)
         .toList();
   }
 
   @Transactional(readOnly = true)
-  public List<FriendshipResponse> findPendingSentRequests() {
-    User currentUser = getCurrentUser();
+  public List<FriendshipResponse> findPendingSentRequests(String currentUsername) {
+    User currentUser =
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
+
     return friendshipRepository.findPendingSentRequests(currentUser.getId()).stream()
         .map(friendshipMapper::toResponse)
         .toList();
   }
 
   @Transactional
-  public FriendshipResponse create(FriendshipRequestPayload payload) {
-    User requester = getCurrentUser();
+  public FriendshipResponse create(String requesterUsername, FriendshipRequestPayload payload) {
+    User requester =
+        userRepository.findByUsername(requesterUsername).orElseThrow(UserNotFoundException::new);
+
     User addressee =
         userRepository
             .findByUsername(payload.getUsername())
-            .orElseThrow(
-                () -> new UserNotFoundException("User not found: " + payload.getUsername()));
+            .orElseThrow(UserNotFoundException::new);
 
     if (requester.getId().equals(addressee.getId())) {
       throw new FriendshipSelfReferenceException();
@@ -87,12 +93,11 @@ public class FriendshipService {
     if (existingFriendship.isPresent()) {
       Friendship friendship = existingFriendship.get();
       if (friendship.getStatus() == FriendshipStatus.ACCEPTED) {
-        throw new FriendshipAlreadyExistsException("You are already friends with this user");
+        throw new FriendshipAlreadyExistsException();
       }
 
       if (friendship.getStatus() == FriendshipStatus.PENDING) {
-        throw new FriendshipAlreadyExistsException(
-            "A friend request is already pending between you");
+        throw new FriendshipAlreadyExistsException();
       }
 
       friendship.setRequester(requester);
@@ -101,16 +106,21 @@ public class FriendshipService {
       return friendshipMapper.toResponse(friendshipRepository.save(friendship));
     }
 
-    Friendship friendship = new Friendship();
-    friendship.setRequester(requester);
-    friendship.setAddressee(addressee);
-    friendship.setStatus(FriendshipStatus.PENDING);
-    return friendshipMapper.toResponse(friendshipRepository.save(friendship));
+    return friendshipMapper.toResponse(
+        friendshipRepository.save(
+            Friendship.builder()
+                .requester(requester)
+                .addressee(addressee)
+                .status(FriendshipStatus.PENDING)
+                .build()));
   }
 
   @Transactional
-  public FriendshipResponse update(UUID requestId, FriendshipStatus status) {
-    User currentUser = getCurrentUser();
+  public FriendshipResponse update(
+      String currentUsername, UUID requestId, FriendshipStatus status) {
+    User currentUser =
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
+
     Friendship friendship =
         friendshipRepository.findById(requestId).orElseThrow(FriendshipNotFoundException::new);
 
@@ -128,12 +138,12 @@ public class FriendshipService {
   }
 
   @Transactional
-  public void delete(String username) {
-    User currentUser = getCurrentUser();
+  public void delete(String currentUsername, String username) {
+    User currentUser =
+        userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
+
     User targetUser =
-        userRepository
-            .findByUsername(username)
-            .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+        userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
     Friendship friendship =
         friendshipRepository
@@ -141,11 +151,5 @@ public class FriendshipService {
             .orElseThrow(FriendshipNotFoundException::new);
 
     friendshipRepository.delete(friendship);
-  }
-
-  private User getCurrentUser() {
-    return userRepository
-        .findByKeycloakId(AuthenticationHelper.getKeycloakId())
-        .orElseThrow(UserNotFoundException::new);
   }
 }

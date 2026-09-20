@@ -24,19 +24,19 @@ public class GameInstanceProvider {
 
   private final KubernetesClient kubernetesClient;
 
-  @Value("${game.namespace}")
+  @Value("${gamekube.game.namespace}")
   private String namespace;
 
-  @Value("${game.domain}")
+  @Value("${gamekube.game.domain}")
   private String domain;
 
-  @Value("${game.tls-secret}")
+  @Value("${gamekube.game.tls-secret}")
   private String tlsSecret;
 
-  @Value("${game.protocol}")
+  @Value("${gamekube.game.protocol}")
   private String protocol;
 
-  @Value("${game.readiness-timeout}")
+  @Value("${gamekube.game.readiness-timeout}")
   private Duration readinessTimeout;
 
   public GameInstance deploy(Game game) {
@@ -84,9 +84,11 @@ public class GameInstanceProvider {
                             .replace("${GAME_HOST}", instance.getHost())
                             .replace("${GAME_NAMESPACE}", namespace)
                             .replace("${GAME_TLS_SECRET}", tlsSecret);
+
                     if (resolvedManifest.contains("${")) {
                       throw new GameInvalidException();
                     }
+
                     return resolvedManifest;
                   })
               .flatMap(
