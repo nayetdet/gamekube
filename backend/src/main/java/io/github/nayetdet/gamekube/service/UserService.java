@@ -1,8 +1,9 @@
 package io.github.nayetdet.gamekube.service;
 
-import io.github.nayetdet.gamekube.cache.CacheRegistry;
+import io.github.nayetdet.gamekube.cache.UserCacheRegistry;
 import io.github.nayetdet.gamekube.enums.PresenceStatus;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
+import io.github.nayetdet.gamekube.game.GameInstanceLifecycleProvider;
 import io.github.nayetdet.gamekube.mapper.UserMapper;
 import io.github.nayetdet.gamekube.model.User;
 import io.github.nayetdet.gamekube.payload.query.UserQuery;
@@ -29,10 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
+  private final GameInstanceLifecycleProvider gameInstanceLifecycleProvider;
   private final KeycloakService keycloakService;
-  private final StringRedisTemplate redisTemplate;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
+  private final StringRedisTemplate redisTemplate;
 
   @Value("${gamekube.presence.heartbeat-timeout}")
   private Duration heartbeatTimeout;
@@ -43,12 +45,26 @@ public class UserService {
       return new ApplicationPage<>(
           userRepository
               .search(query, query.getPageable())
-              .map(user -> userMapper.toResponse(user, status(user.getUsername()))));
+              .map(
+                  user ->
+                      userMapper.toResponse(
+                          user,
+                          status(user.getUsername()),
+                          gameInstanceLifecycleProvider
+                              .findCurrentGameId(user.getUsername())
+                              .orElse(null))));
     }
 
     List<UserResponse> responses =
         userRepository.search(query, Pageable.unpaged()).stream()
-            .map(user -> userMapper.toResponse(user, status(user.getUsername())))
+            .map(
+                user ->
+                    userMapper.toResponse(
+                        user,
+                        status(user.getUsername()),
+                        gameInstanceLifecycleProvider
+                            .findCurrentGameId(user.getUsername())
+                            .orElse(null)))
             .filter(user -> user.getStatus() == query.getStatus())
             .toList();
 
@@ -64,14 +80,28 @@ public class UserService {
   public Optional<UserResponse> find(String username) {
     return userRepository
         .findByUsername(username)
-        .map(user -> userMapper.toResponse(user, status(user.getUsername())));
+        .map(
+            user ->
+                userMapper.toResponse(
+                    user,
+                    status(user.getUsername()),
+                    gameInstanceLifecycleProvider
+                        .findCurrentGameId(user.getUsername())
+                        .orElse(null)));
   }
 
   @Transactional(readOnly = true)
   public Optional<UserResponse> findSelf() {
     return userRepository
         .findByKeycloakId(AuthenticationHelper.getKeycloakId())
-        .map(user -> userMapper.toResponse(user, status(user.getUsername())));
+        .map(
+            user ->
+                userMapper.toResponse(
+                    user,
+                    status(user.getUsername()),
+                    gameInstanceLifecycleProvider
+                        .findCurrentGameId(user.getUsername())
+                        .orElse(null)));
   }
 
   @Transactional(readOnly = true)
@@ -99,7 +129,7 @@ public class UserService {
   }
 
   public void markAsOnline(String username, String sessionId) {
-    String cacheKey = String.format(CacheRegistry.PRESENCE, username);
+    String cacheKey = UserCacheRegistry.presenceKey(username);
     long expiresAt = System.currentTimeMillis() + heartbeatTimeout.toMillis();
     redisTemplate.opsForZSet().add(cacheKey, sessionId, expiresAt);
     redisTemplate.expire(cacheKey, heartbeatTimeout);
@@ -107,7 +137,7 @@ public class UserService {
 
   @Transactional
   public void markAsOffline(String username, String sessionId) {
-    String cacheKey = String.format(CacheRegistry.PRESENCE, username);
+    String cacheKey = UserCacheRegistry.presenceKey(username);
     long currentTime = System.currentTimeMillis();
     redisTemplate.opsForZSet().remove(cacheKey, sessionId);
     redisTemplate.opsForZSet().removeRangeByScore(cacheKey, 0, currentTime);
@@ -122,7 +152,7 @@ public class UserService {
   }
 
   private PresenceStatus status(String username) {
-    String cacheKey = String.format(CacheRegistry.PRESENCE, username);
+    String cacheKey = UserCacheRegistry.presenceKey(username);
     long currentTime = System.currentTimeMillis();
     redisTemplate.opsForZSet().removeRangeByScore(cacheKey, 0, currentTime);
     return Objects.requireNonNullElse(

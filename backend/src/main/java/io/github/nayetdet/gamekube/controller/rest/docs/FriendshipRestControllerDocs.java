@@ -44,12 +44,9 @@ public interface FriendshipRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Ok",
+            description = "OK",
             content = @Content(schema = @Schema(implementation = FriendshipResponse.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Request is not pending",
-            content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
         @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
         @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
@@ -66,12 +63,9 @@ public interface FriendshipRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Friendship request rejected",
+            description = "OK",
             content = @Content(schema = @Schema(implementation = FriendshipResponse.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Request is not pending",
-            content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
         @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
         @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
@@ -102,7 +96,7 @@ public interface FriendshipRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Ok",
+            description = "OK",
             content =
                 @Content(
                     array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))),
@@ -120,7 +114,7 @@ public interface FriendshipRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Ok",
+            description = "OK",
             content =
                 @Content(
                     array =
@@ -139,7 +133,7 @@ public interface FriendshipRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Ok",
+            description = "OK",
             content =
                 @Content(
                     array =

@@ -20,7 +20,7 @@ public interface GameRestControllerDocs {
       summary = "List the available games",
       responses =
           @ApiResponse(
-              description = "Games",
+              description = "OK",
               responseCode = "200",
               content =
                   @Content(
@@ -39,10 +39,11 @@ public interface GameRestControllerDocs {
                 @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = GameInstanceResponse.class))),
-        @ApiResponse(
-            description = "Internal Server Error",
-            responseCode = "502",
-            content = @Content)
+        @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+        @ApiResponse(description = "Forbidden", responseCode = "403", content = @Content),
+        @ApiResponse(description = "Conflict", responseCode = "409", content = @Content),
+        @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+        @ApiResponse(description = "Bad Gateway", responseCode = "502", content = @Content)
       })
   ResponseEntity<GameInstanceResponse> provision(@PathVariable String gameId);
 
@@ -50,11 +51,11 @@ public interface GameRestControllerDocs {
       summary = "Delete the authenticated user's instance for a game",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
-        @ApiResponse(description = "Destroyed", responseCode = "204", content = @Content),
-        @ApiResponse(
-            description = "Internal Server Error",
-            responseCode = "502",
-            content = @Content)
+        @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+        @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+        @ApiResponse(description = "Forbidden", responseCode = "403", content = @Content),
+        @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+        @ApiResponse(description = "Bad Gateway", responseCode = "502", content = @Content)
       })
   ResponseEntity<Void> destroy(@PathVariable String gameId);
 
@@ -62,7 +63,7 @@ public interface GameRestControllerDocs {
       summary = "Get a game's cover image",
       responses = {
         @ApiResponse(
-            description = "Game image",
+            description = "OK",
             responseCode = "200",
             content =
                 @Content(

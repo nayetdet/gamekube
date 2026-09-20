@@ -45,7 +45,7 @@ gamekube:
       protocol: https
       readiness-timeout: 120s
     instance:
-      idle-timeout: 1m
+      idle-timeout: 5m
       cleanup:
         interval: 15s
         lock-timeout: 30s

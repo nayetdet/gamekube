@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.service;
 
+import io.github.nayetdet.gamekube.exception.GameInstanceAlreadyActiveException;
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
 import io.github.nayetdet.gamekube.game.Game;
 import io.github.nayetdet.gamekube.game.GameInstance;
@@ -42,11 +43,18 @@ public class GameService {
     }
 
     GameInstance instance = gameInstanceProvider.instance(game);
-    gameInstanceLifecycleProvider.provision(instance);
+    boolean claimed = false;
     try {
+      claimed = gameInstanceLifecycleProvider.provision(instance);
+      if (!claimed) {
+        throw new GameInstanceAlreadyActiveException();
+      }
+
       return gameMapper.toResponse(gameInstanceProvider.provision(game));
     } catch (RuntimeException exception) {
-      gameInstanceLifecycleProvider.destroy(instance);
+      if (claimed) {
+        gameInstanceLifecycleProvider.destroy(instance);
+      }
       throw exception;
     }
   }
@@ -58,8 +66,13 @@ public class GameService {
     }
 
     GameInstance instance = gameInstanceProvider.instance(game);
-    gameInstanceProvider.destroy(game);
-    gameInstanceLifecycleProvider.destroy(instance);
+    if (gameInstanceLifecycleProvider
+        .findCurrentGameId(instance.getUsername())
+        .filter(gameId::equals)
+        .isPresent()) {
+      gameInstanceProvider.destroy(game, instance);
+      gameInstanceLifecycleProvider.destroy(instance);
+    }
   }
 
   public void heartbeat(String gameId, String username) {

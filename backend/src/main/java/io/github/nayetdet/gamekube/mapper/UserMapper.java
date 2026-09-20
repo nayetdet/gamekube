@@ -14,6 +14,10 @@ public class UserMapper {
   }
 
   public UserResponse toResponse(User user, PresenceStatus status) {
+    return toResponse(user, status, null);
+  }
+
+  public UserResponse toResponse(User user, PresenceStatus status, String currentGame) {
     if (user == null) {
       return null;
     }
@@ -25,6 +29,7 @@ public class UserMapper {
         .name(user.getName())
         .description(user.getDescription())
         .status(status)
+        .currentGame(currentGame)
         .lastSeenAt(user.getLastSeenAt())
         .createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt())

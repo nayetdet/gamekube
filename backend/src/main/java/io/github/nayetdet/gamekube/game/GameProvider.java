@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
-import io.github.nayetdet.gamekube.cache.CacheRegistry;
+import io.github.nayetdet.gamekube.cache.GameCacheRegistry;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
 import io.github.nayetdet.gamekube.exception.GameUnreadableManifestException;
@@ -35,17 +35,20 @@ public class GameProvider {
 
   private final KubernetesClient kubernetesClient;
 
-  @Cacheable(cacheNames = CacheRegistry.GAME, unless = "#result == null")
+  @Cacheable(cacheNames = GameCacheRegistry.GAME, unless = "#result == null")
   public Game find(String gameId) {
     return findAll().stream().filter(game -> game.getId().equals(gameId)).findFirst().orElse(null);
   }
 
-  @Cacheable(cacheNames = CacheRegistry.GAME_COLLECTION)
+  @Cacheable(cacheNames = GameCacheRegistry.GAME_COLLECTION)
   public List<Game> findAll() {
     return load();
   }
 
-  @Cacheable(cacheNames = CacheRegistry.GAME_IMAGE, key = "#game.id", unless = "#result == null")
+  @Cacheable(
+      cacheNames = GameCacheRegistry.GAME_IMAGE,
+      key = "#game.id",
+      unless = "#result == null")
   public byte[] image(Game game) {
     String imagePath = game.getImage();
     if (imagePath == null || imagePath.isBlank()) {

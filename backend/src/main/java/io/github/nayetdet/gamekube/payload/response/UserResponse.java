@@ -24,6 +24,10 @@ public class UserResponse {
   private String username;
   private String name;
   private String description;
+
+  @Getter(AccessLevel.NONE)
+  private String currentGame;
+
   private PresenceStatus status;
 
   @Getter(AccessLevel.NONE)
@@ -31,6 +35,12 @@ public class UserResponse {
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
+
+  @JsonGetter("currentGame")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getCurrentGameForSerialization() {
+    return status == PresenceStatus.ONLINE ? currentGame : null;
+  }
 
   @JsonGetter("lastSeenAt")
   @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -24,7 +24,7 @@ public interface ChatRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Ok",
+            description = "OK",
             content = @Content(schema = @Schema(implementation = ApplicationPage.class))),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
         @ApiResponse(responseCode = "404", description = "Not Found", content = @Content),
@@ -42,7 +42,7 @@ public interface ChatRestControllerDocs {
       responses = {
         @ApiResponse(
             responseCode = "201",
-            description = "Message created",
+            description = "Created",
             content = @Content(schema = @Schema(implementation = MessageResponse.class))),
         @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
@@ -77,7 +77,7 @@ public interface ChatRestControllerDocs {
       summary = "Get the authenticated user's unread message count",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
-        @ApiResponse(responseCode = "200", description = "Ok", content = @Content),
+        @ApiResponse(responseCode = "200", description = "OK", content = @Content),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
         @ApiResponse(
             responseCode = "500",
