@@ -25,23 +25,23 @@ public class GameInstanceProvider {
 
   private final KubernetesClient kubernetesClient;
 
-  @Value("${gamekube.game.namespace}")
+  @Value("${gamekube.game.infra.namespace}")
   private String namespace;
 
-  @Value("${gamekube.game.domain}")
+  @Value("${gamekube.game.infra.domain}")
   private String domain;
 
-  @Value("${gamekube.game.tls-secret}")
+  @Value("${gamekube.game.infra.tls-secret}")
   private String tlsSecret;
 
-  @Value("${gamekube.game.protocol}")
+  @Value("${gamekube.game.infra.protocol}")
   private String protocol;
 
-  @Value("${gamekube.game.readiness-timeout}")
+  @Value("${gamekube.game.infra.readiness-timeout}")
   private Duration readinessTimeout;
 
   public GameInstance provision(Game game) {
-    GameInstance instance = buildInstance(game);
+    GameInstance instance = instance(game);
     List<HasMetadata> resources = load(game, instance);
     validate(resources);
     apply(resources);
@@ -50,7 +50,10 @@ public class GameInstanceProvider {
   }
 
   public void destroy(Game game) {
-    GameInstance instance = buildInstance(game);
+    destroy(game, instance(game));
+  }
+
+  public void destroy(Game game, GameInstance instance) {
     List<HasMetadata> resources = load(game, instance);
 
     try {
@@ -62,11 +65,13 @@ public class GameInstanceProvider {
     }
   }
 
-  private GameInstance buildInstance(Game game) {
+  public GameInstance instance(Game game) {
     String username = AuthenticationHelper.getUsername().toLowerCase(Locale.ROOT);
     String name = game.getId() + "-" + username;
     String host = username + "." + game.getId() + "." + domain;
     return GameInstance.builder()
+        .gameId(game.getId())
+        .username(username)
         .name(name)
         .host(host)
         .url(URI.create(protocol + "://" + host + "/"))

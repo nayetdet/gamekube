@@ -38,11 +38,17 @@ springdoc:
     tags-sorter: alpha
 gamekube:
   game:
-    namespace: gamekube
-    domain: gamekube.localhost
-    tls-secret: gamekube-tls
-    protocol: https
-    readiness-timeout: 120s
+    infra:
+      namespace: gamekube
+      domain: gamekube.localhost
+      tls-secret: gamekube-tls
+      protocol: https
+      readiness-timeout: 120s
+    instance:
+      idle-timeout: 1m
+      cleanup:
+        interval: 15s
+        lock-timeout: 30s
   keycloak:
     server-url: ${KEYCLOAK_SERVER_URL}
     realm: ${KEYCLOAK_REALM}

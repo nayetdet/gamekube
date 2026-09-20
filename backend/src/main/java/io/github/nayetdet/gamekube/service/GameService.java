@@ -2,6 +2,8 @@ package io.github.nayetdet.gamekube.service;
 
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
 import io.github.nayetdet.gamekube.game.Game;
+import io.github.nayetdet.gamekube.game.GameInstance;
+import io.github.nayetdet.gamekube.game.GameInstanceLifecycleProvider;
 import io.github.nayetdet.gamekube.game.GameInstanceProvider;
 import io.github.nayetdet.gamekube.game.GameProvider;
 import io.github.nayetdet.gamekube.mapper.GameMapper;
@@ -18,6 +20,7 @@ public class GameService {
   private final GameMapper gameMapper;
   private final GameProvider gameProvider;
   private final GameInstanceProvider gameInstanceProvider;
+  private final GameInstanceLifecycleProvider gameInstanceLifecycleProvider;
 
   public List<GameResponse> search() {
     return gameProvider.findAll().stream().map(gameMapper::toResponse).toList();
@@ -38,7 +41,14 @@ public class GameService {
       throw new GameNotFoundException();
     }
 
-    return gameMapper.toResponse(gameInstanceProvider.provision(game));
+    GameInstance instance = gameInstanceProvider.instance(game);
+    gameInstanceLifecycleProvider.provision(instance);
+    try {
+      return gameMapper.toResponse(gameInstanceProvider.provision(game));
+    } catch (RuntimeException exception) {
+      gameInstanceLifecycleProvider.destroy(instance);
+      throw exception;
+    }
   }
 
   public void destroy(String gameId) {
@@ -47,6 +57,13 @@ public class GameService {
       throw new GameNotFoundException();
     }
 
+    GameInstance instance = gameInstanceProvider.instance(game);
     gameInstanceProvider.destroy(game);
+    gameInstanceLifecycleProvider.destroy(instance);
+  }
+
+  public void heartbeat(String gameId, String username) {
+    gameInstanceLifecycleProvider.renew(
+        GameInstance.builder().gameId(gameId).username(username).build());
   }
 }
