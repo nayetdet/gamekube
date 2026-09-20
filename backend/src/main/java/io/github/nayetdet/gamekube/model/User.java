@@ -3,6 +3,7 @@ package io.github.nayetdet.gamekube.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,4 +31,7 @@ public class User extends BaseModel {
 
   @Column(length = 1000)
   private String description;
+
+  @Column(name = "last_seen_at")
+  private LocalDateTime lastSeenAt;
 }

@@ -13,7 +13,7 @@ public class UserMapper {
     return toResponse(user, null);
   }
 
-  public UserResponse toResponse(User user, PresenceStatus presenceStatus) {
+  public UserResponse toResponse(User user, PresenceStatus status) {
     if (user == null) {
       return null;
     }
@@ -24,7 +24,8 @@ public class UserMapper {
         .username(user.getUsername())
         .name(user.getName())
         .description(user.getDescription())
-        .presenceStatus(presenceStatus)
+        .status(status)
+        .lastSeenAt(user.getLastSeenAt())
         .createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt())
         .build();

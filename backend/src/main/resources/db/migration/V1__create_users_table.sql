@@ -4,6 +4,7 @@ CREATE TABLE users (
   username VARCHAR(50) NOT NULL,
   name VARCHAR(100),
   description VARCHAR(1000),
+  last_seen_at TIMESTAMP,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
   CONSTRAINT pk_users PRIMARY KEY (id),

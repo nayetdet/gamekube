@@ -29,7 +29,7 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public ApplicationPage<UserResponse> search(UserQuery query) {
-    if (query.getPresenceStatus() == null) {
+    if (query.getStatus() == null) {
       return new ApplicationPage<>(
           userRepository
               .search(query, query.getPageable())
@@ -40,7 +40,7 @@ public class UserService {
     List<UserResponse> responses =
         userRepository.search(query, Pageable.unpaged()).stream()
             .map(user -> userMapper.toResponse(user, presenceService.status(user.getUsername())))
-            .filter(user -> user.getPresenceStatus() == query.getPresenceStatus())
+            .filter(user -> user.getStatus() == query.getStatus())
             .toList();
 
     Pageable pageable = query.getPageable();
