@@ -29,7 +29,7 @@ public interface GameRestControllerDocs {
   ResponseEntity<List<GameResponse>> search();
 
   @Operation(
-      summary = "Deploy a game instance",
+      summary = "Provision a game instance",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {
         @ApiResponse(
@@ -41,10 +41,22 @@ public interface GameRestControllerDocs {
                     schema = @Schema(implementation = GameInstanceResponse.class))),
         @ApiResponse(
             description = "Internal Server Error",
-            responseCode = "500",
+            responseCode = "502",
             content = @Content)
       })
-  ResponseEntity<GameInstanceResponse> deploy(@PathVariable String gameId);
+  ResponseEntity<GameInstanceResponse> provision(@PathVariable String gameId);
+
+  @Operation(
+      summary = "Destroy the current user's game instance",
+      security = @SecurityRequirement(name = "bearerAuth"),
+      responses = {
+        @ApiResponse(description = "Destroyed", responseCode = "204", content = @Content),
+        @ApiResponse(
+            description = "Internal Server Error",
+            responseCode = "502",
+            content = @Content)
+      })
+  ResponseEntity<Void> destroy(@PathVariable String gameId);
 
   @Operation(
       summary = "Get a game's image",

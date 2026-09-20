@@ -4,7 +4,8 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.FieldValidateable;
 import io.fabric8.kubernetes.client.utils.Serialization;
-import io.github.nayetdet.gamekube.exception.GameDeploymentException;
+import io.github.nayetdet.gamekube.exception.GameInstanceDestroyException;
+import io.github.nayetdet.gamekube.exception.GameInstanceProvisionException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.io.ByteArrayInputStream;
@@ -39,38 +40,40 @@ public class GameInstanceProvider {
   @Value("${gamekube.game.readiness-timeout}")
   private Duration readinessTimeout;
 
-  public GameInstance deploy(Game game) {
-    String username = AuthenticationHelper.getUsername().toLowerCase(Locale.ROOT);
-    String instanceName = game.getId() + "-" + username;
-    String instanceHost = username + "." + game.getId() + "." + domain;
-    GameInstance instance =
-        GameInstance.builder()
-            .name(instanceName)
-            .host(instanceHost)
-            .url(URI.create(protocol + "://" + instanceHost + "/"))
-            .build();
-
+  public GameInstance provision(Game game) {
+    GameInstance instance = buildInstance(game);
     List<HasMetadata> resources = load(game, instance);
     validate(resources);
     apply(resources);
-    waitUntilReady(instance);
+    wait(instance);
     return instance;
   }
 
-  private void waitUntilReady(GameInstance instance) {
+  public void destroy(Game game) {
+    GameInstance instance = buildInstance(game);
+    List<HasMetadata> resources = load(game, instance);
+
     try {
-      kubernetesClient
-          .apps()
-          .deployments()
-          .inNamespace(namespace)
-          .withName(instance.getName())
-          .waitUntilReady(readinessTimeout.toSeconds(), TimeUnit.SECONDS);
+      for (HasMetadata resource : resources.reversed()) {
+        kubernetesClient.resource(resource).inNamespace(namespace).delete();
+      }
     } catch (RuntimeException exception) {
-      throw new GameDeploymentException(exception);
+      throw new GameInstanceDestroyException(exception);
     }
   }
 
-  private List<HasMetadata> load(Game game, GameInstance instance) {
+  private GameInstance buildInstance(Game game) {
+    String username = AuthenticationHelper.getUsername().toLowerCase(Locale.ROOT);
+    String name = game.getId() + "-" + username;
+    String host = username + "." + game.getId() + "." + domain;
+    return GameInstance.builder()
+        .name(name)
+        .host(host)
+        .url(URI.create(protocol + "://" + host + "/"))
+        .build();
+  }
+
+  private List<HasMetadata> load(Game game, GameInstance gameInstance) {
     try {
       List<HasMetadata> resources =
           game.getResources().stream()
@@ -80,8 +83,8 @@ public class GameInstanceProvider {
                     String resolvedManifest =
                         manifest
                             .replace("${GAME_ID}", game.getId())
-                            .replace("${GAME_NAME}", instance.getName())
-                            .replace("${GAME_HOST}", instance.getHost())
+                            .replace("${GAME_NAME}", gameInstance.getName())
+                            .replace("${GAME_HOST}", gameInstance.getHost())
                             .replace("${GAME_NAMESPACE}", namespace)
                             .replace("${GAME_TLS_SECRET}", tlsSecret);
 
@@ -149,7 +152,20 @@ public class GameInstanceProvider {
             .serverSideApply();
       }
     } catch (RuntimeException exception) {
-      throw new GameDeploymentException(exception);
+      throw new GameInstanceProvisionException(exception);
+    }
+  }
+
+  private void wait(GameInstance gameInstance) {
+    try {
+      kubernetesClient
+          .apps()
+          .deployments()
+          .inNamespace(namespace)
+          .withName(gameInstance.getName())
+          .waitUntilReady(readinessTimeout.toSeconds(), TimeUnit.SECONDS);
+    } catch (RuntimeException exception) {
+      throw new GameInstanceProvisionException(exception);
     }
   }
 }

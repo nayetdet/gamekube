@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_GATEWAY)
-public class GameDeploymentException extends BaseException {
+public class GameInstanceProvisionException extends BaseException {
 
-  private static final String MESSAGE = "Could not deploy game resources";
+  private static final String MESSAGE = "Could not provision game instance";
 
-  public GameDeploymentException(Throwable cause) {
+  public GameInstanceProvisionException(Throwable cause) {
     super(MESSAGE, cause);
   }
 }

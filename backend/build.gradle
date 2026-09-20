@@ -112,7 +112,7 @@ tasks.named('check') {
 				.whereLayer('Game').mayOnlyBeAccessedByLayers('Service', 'Mapper', 'Game')
 				.whereLayer('Repository').mayOnlyBeAccessedByLayers('Service', 'Security')
 				.whereLayer('Mapper').mayOnlyBeAccessedByLayers('Service', 'Mapper')
-				.whereLayer('Security').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Config', 'Security')
+				.whereLayer('Security').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Game', 'Config', 'Security')
 				.whereLayer('Config').mayNotBeAccessedByAnyLayer()
 				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload', 'Game')
 				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')

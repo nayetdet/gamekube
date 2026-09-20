@@ -32,12 +32,21 @@ public class GameService {
     return gameProvider.image(game);
   }
 
-  public GameInstanceResponse deploy(String gameId) {
+  public GameInstanceResponse provision(String gameId) {
     Game game = gameProvider.find(gameId);
     if (game == null) {
       throw new GameNotFoundException();
     }
 
-    return gameMapper.toResponse(gameInstanceProvider.deploy(game));
+    return gameMapper.toResponse(gameInstanceProvider.provision(game));
+  }
+
+  public void destroy(String gameId) {
+    Game game = gameProvider.find(gameId);
+    if (game == null) {
+      throw new GameNotFoundException();
+    }
+
+    gameInstanceProvider.destroy(game);
   }
 }
