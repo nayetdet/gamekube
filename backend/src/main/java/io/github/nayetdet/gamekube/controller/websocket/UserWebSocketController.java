@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.controller.websocket;
 
 import io.github.nayetdet.gamekube.exception.UserUnauthorizedException;
-import io.github.nayetdet.gamekube.service.PresenceService;
+import io.github.nayetdet.gamekube.service.UserService;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -12,17 +12,17 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Controller
 @RequiredArgsConstructor
-public class PresenceWebSocketController {
+public class UserWebSocketController {
 
-  private final PresenceService presenceService;
+  private final UserService userService;
 
-  @MessageMapping("/presence.heartbeat")
+  @MessageMapping("/user.heartbeat")
   public void markAsOnline(Principal principal, SimpMessageHeaderAccessor headers) {
     if (principal == null || headers.getSessionId() == null) {
       throw new UserUnauthorizedException();
     }
 
-    presenceService.markAsOnline(principal.getName(), headers.getSessionId());
+    userService.markAsOnline(principal.getName(), headers.getSessionId());
   }
 
   @EventListener
@@ -31,6 +31,6 @@ public class PresenceWebSocketController {
       return;
     }
 
-    presenceService.markAsOffline(event.getUser().getName(), event.getSessionId());
+    userService.markAsOffline(event.getUser().getName(), event.getSessionId());
   }
 }
