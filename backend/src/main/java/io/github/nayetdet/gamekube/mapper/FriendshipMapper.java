@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.mapper;
 
 import io.github.nayetdet.gamekube.model.Friendship;
-import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
+import io.github.nayetdet.gamekube.payload.http.response.FriendshipResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

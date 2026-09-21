@@ -2,8 +2,8 @@ package io.github.nayetdet.gamekube.mapper;
 
 import io.github.nayetdet.gamekube.enums.PresenceStatus;
 import io.github.nayetdet.gamekube.model.User;
-import io.github.nayetdet.gamekube.payload.request.UserRequest;
-import io.github.nayetdet.gamekube.payload.response.UserResponse;
+import io.github.nayetdet.gamekube.payload.http.request.UserRequest;
+import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
 import org.springframework.stereotype.Component;
 
 @Component

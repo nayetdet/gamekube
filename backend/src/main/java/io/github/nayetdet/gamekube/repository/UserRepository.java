@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.repository;
 
 import io.github.nayetdet.gamekube.model.User;
-import io.github.nayetdet.gamekube.payload.query.UserQuery;
+import io.github.nayetdet.gamekube.payload.http.query.UserQuery;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;

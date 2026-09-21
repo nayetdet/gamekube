@@ -2,8 +2,8 @@ package io.github.nayetdet.gamekube.mapper;
 
 import io.github.nayetdet.gamekube.game.Game;
 import io.github.nayetdet.gamekube.game.GameInstance;
-import io.github.nayetdet.gamekube.payload.response.GameInstanceResponse;
-import io.github.nayetdet.gamekube.payload.response.GameResponse;
+import io.github.nayetdet.gamekube.payload.http.response.GameInstanceResponse;
+import io.github.nayetdet.gamekube.payload.http.response.GameResponse;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.mapper;
 
 import io.github.nayetdet.gamekube.model.Message;
-import io.github.nayetdet.gamekube.payload.response.MessageResponse;
+import io.github.nayetdet.gamekube.payload.http.response.MessageResponse;
 import org.springframework.stereotype.Component;
 
 @Component

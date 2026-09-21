@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.service;
 
 import io.github.nayetdet.gamekube.exception.strategy.KeycloakExceptionStrategy;
-import io.github.nayetdet.gamekube.payload.request.UserRequest;
+import io.github.nayetdet.gamekube.payload.http.request.UserRequest;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.UUID;
