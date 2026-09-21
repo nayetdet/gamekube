@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,9 @@ public class GameInstanceProvider {
 
   @Value("${gamekube.game.auth.oidc-issuer-url}")
   private String issuerUrl;
+
+  @Value("${gamekube.game.auth.oidc-internal-issuer-url}")
+  private String internalIssuerUrl;
 
   @Value("${gamekube.game.auth.cookie-secret}")
   private String cookieSecret;
@@ -106,9 +110,10 @@ public class GameInstanceProvider {
                             .replace("${GAME_TLS_SECRET}", tlsSecret)
                             .replace("${GAME_USERNAME}", gameInstance.getUsername())
                             .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
-                            .replace("${GAME_KEYCLOAK_COOKIE_SECRET}", cookieSecret)
+                            .replace("${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}", internalIssuerUrl)
+                            .replace("${GAME_KEYCLOAK_COOKIE_SECRET}", encodeSecret(cookieSecret))
                             .replace("${GAME_KEYCLOAK_CLIENT_ID}", clientId)
-                            .replace("${GAME_KEYCLOAK_CLIENT_SECRET}", clientSecret);
+                            .replace("${GAME_KEYCLOAK_CLIENT_SECRET}", encodeSecret(clientSecret));
 
                     if (resolvedManifest.contains("${")) {
                       throw new GameInvalidException();
@@ -133,6 +138,10 @@ public class GameInstanceProvider {
     } catch (RuntimeException exception) {
       throw new GameInvalidException(exception);
     }
+  }
+
+  private String encodeSecret(String value) {
+    return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
   }
 
   private void validate(List<HasMetadata> resources) {

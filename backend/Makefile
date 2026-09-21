@@ -1,8 +1,13 @@
 .PHONY: init up build update migrate format check
 
+SHELL := /bin/bash
+
 GRADLE := ./gradlew
 TRUSTSTORE := $(CURDIR)/build/gamekube-truststore.p12
 TRUSTSTORE_PASSWORD := changeit
+TRUSTSTORE_ALIAS := gamekube-ca
+CA_NAMESPACE := cert-manager
+CA_SECRET := gamekube-ca
 
 ifneq (,$(wildcard .env))
 include .env
@@ -24,11 +29,22 @@ export \
 endif
 
 init:
-	@mkdir -p $(dir $(TRUSTSTORE))
-	@keytool -delete -alias gamekube-ca -keystore $(TRUSTSTORE) -storetype PKCS12 -storepass $(TRUSTSTORE_PASSWORD) >/dev/null 2>&1 || true
-	@ca_file=$$(mktemp); trap 'rm -f "$$ca_file"' EXIT; \
-		kubectl -n cert-manager get secret gamekube-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > "$$ca_file"; \
-		keytool -importcert -noprompt -trustcacerts -alias gamekube-ca -file "$$ca_file" -keystore $(TRUSTSTORE) -storetype PKCS12 -storepass $(TRUSTSTORE_PASSWORD) >/dev/null
+	@mkdir -p "$(dir $(TRUSTSTORE))"
+	@keytool -delete \
+		-alias "$(TRUSTSTORE_ALIAS)" \
+		-keystore "$(TRUSTSTORE)" \
+		-storetype PKCS12 \
+		-storepass "$(TRUSTSTORE_PASSWORD)" \
+		>/dev/null 2>&1 || true
+
+	@keytool -importcert -noprompt -trustcacerts \
+		-alias "$(TRUSTSTORE_ALIAS)" \
+		-file <(kubectl -n "$(CA_NAMESPACE)" get secret "$(CA_SECRET)" \
+			-o 'jsonpath={.data.ca\.crt}' | base64 --decode) \
+		-keystore "$(TRUSTSTORE)" \
+		-storetype PKCS12 \
+		-storepass "$(TRUSTSTORE_PASSWORD)" \
+		>/dev/null
 
 up: init
 	SPRING_OUTPUT_ANSI_ENABLED=always \

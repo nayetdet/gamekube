@@ -54,6 +54,7 @@ gamekube:
         lock-timeout: 30s
     auth:
       oidc-issuer-url: ${GAME_KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
+      oidc-internal-issuer-url: http://gamekube-keycloak/realms/${KEYCLOAK_REALM}
       cookie-secret: ${GAME_KEYCLOAK_COOKIE_SECRET}
       client-id: ${GAME_KEYCLOAK_CLIENT_ID}
       client-secret: ${GAME_KEYCLOAK_CLIENT_SECRET}
