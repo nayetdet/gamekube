@@ -17,13 +17,13 @@ keycloak:
     - name: QUARKUS_DATASOURCE_APPLICATION_DB_KIND
       value: postgresql
     - name: QUARKUS_DATASOURCE_APPLICATION_JDBC_URL
-      value: jdbc:postgresql://gamekube-keycloak-postgresql:5432/keycloak?currentSchema=public
+      value: jdbc:postgresql://gamekube-postgresql:5432/gamekube?currentSchema=gamekube
     - name: QUARKUS_DATASOURCE_APPLICATION_USERNAME
-      value: keycloak
+      value: gamekube
     - name: QUARKUS_DATASOURCE_APPLICATION_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: gamekube-keycloak-postgresql
+          name: gamekube-postgresql
           key: password
   ingress:
     enabled: true
