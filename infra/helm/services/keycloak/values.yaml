@@ -12,6 +12,8 @@ keycloak:
     - start-dev
     - --import-realm
   extraEnvVars:
+    - name: KC_DB
+      value: postgres
     - name: QUARKUS_DATASOURCE_APPLICATION_DB_KIND
       value: postgresql
     - name: QUARKUS_DATASOURCE_APPLICATION_JDBC_URL
