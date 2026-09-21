@@ -1,0 +1,11 @@
+postgres:
+  enabled: true
+
+redis:
+  enabled: true
+
+keycloak:
+  enabled: true
+
+mailhog:
+  enabled: true

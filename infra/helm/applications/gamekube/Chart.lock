@@ -1,0 +1,15 @@
+dependencies:
+- name: postgres
+  repository: file://../../services/postgres
+  version: 0.1.0
+- name: redis
+  repository: file://../../services/redis
+  version: 0.1.0
+- name: keycloak
+  repository: file://../../services/keycloak
+  version: 0.1.0
+- name: mailhog
+  repository: file://../../services/mailhog
+  version: 0.1.0
+digest: sha256:d1e537a9bb05353395b320ce925385b8542c2454ad614280f198f3c4be3fe029
+generated: "2026-09-21T04:58:38.368416426Z"

@@ -1,0 +1,35 @@
+global:
+  security:
+    allowInsecureImages: true
+
+keycloak:
+  image:
+    registry: ghcr.io
+    repository: nayetdet/gamekube
+    tag: keycloak
+    pullPolicy: Always
+  args:
+    - start-dev
+    - --import-realm
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hostname: keycloak.gamekube.localhost
+    servicePort: http
+    tls: false
+    extraTls:
+      - hosts:
+          - keycloak.gamekube.localhost
+        secretName: gamekube-tls
+  proxyHeaders: xforwarded
+  hostnameStrict: true
+  auth:
+    adminUser: admin
+    adminPassword: admin
+  postgresql:
+    enabled: true
+    fullnameOverride: gamekube-keycloak-postgresql
+    auth:
+      username: keycloak
+      password: keycloak
+      database: keycloak
