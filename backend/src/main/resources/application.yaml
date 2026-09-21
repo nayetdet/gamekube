@@ -31,9 +31,10 @@ spring:
           issuer-uri: ${gamekube.keycloak.server-url}/realms/${gamekube.keycloak.realm}
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 springdoc:
+  paths-to-match: /v1/**
+  paths-to-exclude: /springwolf/**
   api-docs:
     enabled: true
-    paths-to-match: /v1/**
   swagger-ui:
     enabled: true
     operations-sorter: method
