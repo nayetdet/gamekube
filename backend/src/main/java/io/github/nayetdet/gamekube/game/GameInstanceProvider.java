@@ -40,6 +40,18 @@ public class GameInstanceProvider {
   @Value("${gamekube.game.infra.readiness-timeout}")
   private Duration readinessTimeout;
 
+  @Value("${gamekube.game.auth.oidc-issuer-url}")
+  private String issuerUrl;
+
+  @Value("${gamekube.game.auth.cookie-secret}")
+  private String cookieSecret;
+
+  @Value("${gamekube.game.auth.client-id}")
+  private String clientId;
+
+  @Value("${gamekube.game.auth.client-secret}")
+  private String clientSecret;
+
   public GameInstance provision(Game game) {
     GameInstance instance = instance(game);
     List<HasMetadata> resources = load(game, instance);
@@ -91,7 +103,12 @@ public class GameInstanceProvider {
                             .replace("${GAME_NAME}", gameInstance.getName())
                             .replace("${GAME_HOST}", gameInstance.getHost())
                             .replace("${GAME_NAMESPACE}", namespace)
-                            .replace("${GAME_TLS_SECRET}", tlsSecret);
+                            .replace("${GAME_TLS_SECRET}", tlsSecret)
+                            .replace("${GAME_USERNAME}", gameInstance.getUsername())
+                            .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
+                            .replace("${GAME_KEYCLOAK_COOKIE_SECRET}", cookieSecret)
+                            .replace("${GAME_KEYCLOAK_CLIENT_ID}", clientId)
+                            .replace("${GAME_KEYCLOAK_CLIENT_SECRET}", clientSecret);
 
                     if (resolvedManifest.contains("${")) {
                       throw new GameInvalidException();

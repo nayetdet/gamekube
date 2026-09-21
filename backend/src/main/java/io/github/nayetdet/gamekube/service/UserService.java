@@ -36,7 +36,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final StringRedisTemplate redisTemplate;
 
-  @Value("${gamekube.presence.heartbeat-timeout}")
+  @Value("${gamekube.user.presence.heartbeat-timeout}")
   private Duration heartbeatTimeout;
 
   @Transactional(readOnly = true)

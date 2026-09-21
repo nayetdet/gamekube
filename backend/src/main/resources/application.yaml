@@ -49,10 +49,16 @@ gamekube:
       cleanup:
         interval: 15s
         lock-timeout: 30s
+    auth:
+      oidc-issuer-url: ${GAME_KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
+      cookie-secret: ${GAME_KEYCLOAK_COOKIE_SECRET}
+      client-id: ${GAME_KEYCLOAK_CLIENT_ID}
+      client-secret: ${GAME_KEYCLOAK_CLIENT_SECRET}
   keycloak:
     server-url: ${KEYCLOAK_SERVER_URL}
     realm: ${KEYCLOAK_REALM}
     client-id: ${KEYCLOAK_CLIENT_ID}
     client-secret: ${KEYCLOAK_CLIENT_SECRET}
-  presence:
-    heartbeat-timeout: 30s
+  user:
+    presence:
+      heartbeat-timeout: 30s

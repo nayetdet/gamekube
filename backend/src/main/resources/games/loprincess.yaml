@@ -35,6 +35,50 @@ resources:
                 periodSeconds: 5
                 timeoutSeconds: 3
                 failureThreshold: 12
+            - name: auth-proxy
+              image: quay.io/oauth2-proxy/oauth2-proxy:v7.8.1
+              env:
+                - name: OAUTH2_PROXY_COOKIE_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${GAME_NAME}-auth-cookie
+                      key: cookie-secret
+                - name: OAUTH2_PROXY_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${GAME_NAME}-auth-cookie
+                      key: client-secret
+              args:
+                - --provider=keycloak-oidc
+                - --oidc-issuer-url=${GAME_KEYCLOAK_ISSUER_URL}
+                - --insecure-oidc-skip-issuer-verification=true
+                - --oidc-audience-claim=azp
+                - --oidc-email-claim=preferred_username
+                - --oidc-extra-audience=account
+                - --authenticated-emails-file=/etc/game-auth/allowed-users
+                - --email-domain=*
+                - --client-id=${GAME_KEYCLOAK_CLIENT_ID}
+                - --client-secret=$(OAUTH2_PROXY_CLIENT_SECRET)
+                - --cookie-secret=$(OAUTH2_PROXY_COOKIE_SECRET)
+                - --cookie-secure=true
+                - --cookie-samesite=lax
+                - --reverse-proxy=true
+                - --proxy-websockets=true
+                - --http-address=0.0.0.0:4180
+                - --upstream=http://127.0.0.1:3000
+                - --redirect-url=https://${GAME_HOST}/oauth2/callback
+                - --skip-provider-button=true
+              ports:
+                - name: auth
+                  containerPort: 4180
+              volumeMounts:
+                - name: game-auth
+                  mountPath: /etc/game-auth
+                  readOnly: true
+          volumes:
+            - name: game-auth
+              configMap:
+                name: ${GAME_NAME}-auth
   - apiVersion: v1
     kind: Service
     metadata:
@@ -47,8 +91,8 @@ resources:
         app: ${GAME_NAME}
       ports:
         - name: http
-          port: 3000
-          targetPort: http
+          port: 4180
+          targetPort: auth
   - apiVersion: networking.k8s.io/v1
     kind: Ingress
     metadata:
@@ -73,3 +117,23 @@ resources:
                     name: ${GAME_NAME}
                     port:
                       name: http
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: ${GAME_NAME}-auth
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    data:
+      allowed-users: ${GAME_USERNAME}
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: ${GAME_NAME}-auth-cookie
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    type: Opaque
+    stringData:
+      cookie-secret: ${GAME_KEYCLOAK_COOKIE_SECRET}
+      client-secret: ${GAME_KEYCLOAK_CLIENT_SECRET}
