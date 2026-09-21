@@ -1,6 +1,8 @@
-.PHONY: up build update migrate format check
+.PHONY: init up build update migrate format check
 
 GRADLE := ./gradlew
+TRUSTSTORE := $(CURDIR)/build/gamekube-truststore.p12
+TRUSTSTORE_PASSWORD := changeit
 
 ifneq (,$(wildcard .env))
 include .env
@@ -21,8 +23,16 @@ export \
 	GAME_KEYCLOAK_CLIENT_SECRET
 endif
 
-up:
+init:
+	@mkdir -p $(dir $(TRUSTSTORE))
+	@keytool -delete -alias gamekube-ca -keystore $(TRUSTSTORE) -storetype PKCS12 -storepass $(TRUSTSTORE_PASSWORD) >/dev/null 2>&1 || true
+	@ca_file=$$(mktemp); trap 'rm -f "$$ca_file"' EXIT; \
+		kubectl -n cert-manager get secret gamekube-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > "$$ca_file"; \
+		keytool -importcert -noprompt -trustcacerts -alias gamekube-ca -file "$$ca_file" -keystore $(TRUSTSTORE) -storetype PKCS12 -storepass $(TRUSTSTORE_PASSWORD) >/dev/null
+
+up: init
 	SPRING_OUTPUT_ANSI_ENABLED=always \
+	JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=$(TRUSTSTORE) -Djavax.net.ssl.trustStorePassword=$(TRUSTSTORE_PASSWORD) -Djavax.net.ssl.trustStoreType=PKCS12" \
 	$(GRADLE) --console=rich bootRun
 
 build:
