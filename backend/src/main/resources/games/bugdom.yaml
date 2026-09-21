@@ -54,6 +54,8 @@ resources:
                 - --login-url=${GAME_KEYCLOAK_ISSUER_URL}/protocol/openid-connect/auth
                 - --redeem-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}/protocol/openid-connect/token
                 - --oidc-jwks-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}/protocol/openid-connect/certs
+                - --skip-oidc-discovery
+                - --code-challenge-method=S256
                 - --insecure-oidc-skip-issuer-verification=true
                 - --oidc-audience-claim=azp
                 - --oidc-email-claim=preferred_username
