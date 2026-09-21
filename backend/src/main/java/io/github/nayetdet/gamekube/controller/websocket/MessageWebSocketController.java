@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.websocket;
 
-import io.github.nayetdet.gamekube.controller.websocket.docs.MessageControllerDocs;
+import io.github.nayetdet.gamekube.controller.websocket.docs.MessageWebSocketControllerDocs;
 import io.github.nayetdet.gamekube.exception.UserUnauthorizedException;
 import io.github.nayetdet.gamekube.payload.websocket.command.MessageReadCommand;
 import io.github.nayetdet.gamekube.payload.websocket.command.MessageSendCommand;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @RequiredArgsConstructor
-public class MessageController implements MessageControllerDocs {
+public class MessageWebSocketController implements MessageWebSocketControllerDocs {
 
   private final MessageService messageService;
 

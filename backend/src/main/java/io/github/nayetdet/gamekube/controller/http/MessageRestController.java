@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.http;
 
-import io.github.nayetdet.gamekube.controller.http.docs.MessageControllerDocs;
+import io.github.nayetdet.gamekube.controller.http.docs.MessageRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.http.request.MessageRequest;
 import io.github.nayetdet.gamekube.payload.http.response.MessageResponse;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/messages")
 @RequiredArgsConstructor
-public class MessageController implements MessageControllerDocs {
+public class MessageRestController implements MessageRestControllerDocs {
 
   private final MessageService messageService;
 

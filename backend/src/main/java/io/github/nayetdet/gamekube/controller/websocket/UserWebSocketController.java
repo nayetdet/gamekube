@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.websocket;
 
-import io.github.nayetdet.gamekube.controller.websocket.docs.UserControllerDocs;
+import io.github.nayetdet.gamekube.controller.websocket.docs.UserWebSocketControllerDocs;
 import io.github.nayetdet.gamekube.exception.UserUnauthorizedException;
 import io.github.nayetdet.gamekube.payload.websocket.command.UserHeartbeatCommand;
 import io.github.nayetdet.gamekube.service.UserService;
@@ -15,7 +15,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Controller
 @RequiredArgsConstructor
-public class UserController implements UserControllerDocs {
+public class UserWebSocketController implements UserWebSocketControllerDocs {
 
   private final UserService userService;
 

@@ -10,7 +10,7 @@ import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import java.security.Principal;
 
-public interface MessageControllerDocs {
+public interface MessageWebSocketControllerDocs {
 
   @AsyncPublisher(
       operation =

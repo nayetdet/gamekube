@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.mapper;
 
-import io.github.nayetdet.gamekube.enums.PresenceStatus;
+import io.github.nayetdet.gamekube.enums.UserStatus;
 import io.github.nayetdet.gamekube.model.User;
 import io.github.nayetdet.gamekube.payload.http.request.UserRequest;
 import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
@@ -13,11 +13,11 @@ public class UserMapper {
     return toResponse(user, null);
   }
 
-  public UserResponse toResponse(User user, PresenceStatus status) {
+  public UserResponse toResponse(User user, UserStatus status) {
     return toResponse(user, status, null);
   }
 
-  public UserResponse toResponse(User user, PresenceStatus status, String currentGame) {
+  public UserResponse toResponse(User user, UserStatus status, String currentGame) {
     if (user == null) {
       return null;
     }

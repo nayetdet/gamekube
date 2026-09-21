@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Friendships", description = "Endpoints for managing user friendships and requests")
-public interface FriendshipControllerDocs {
+public interface FriendshipRestControllerDocs {
 
   @Operation(
       summary = "Create a friendship request for an addressee",

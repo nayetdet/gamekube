@@ -16,7 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Messages", description = "Private conversations, messages and read state")
-public interface MessageControllerDocs {
+public interface MessageRestControllerDocs {
 
   @Operation(
       summary = "List messages in a conversation",

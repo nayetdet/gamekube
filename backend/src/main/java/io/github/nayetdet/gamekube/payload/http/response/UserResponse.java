@@ -2,7 +2,7 @@ package io.github.nayetdet.gamekube.payload.http.response;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.github.nayetdet.gamekube.enums.PresenceStatus;
+import io.github.nayetdet.gamekube.enums.UserStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -28,7 +28,7 @@ public class UserResponse {
   @Getter(AccessLevel.NONE)
   private String currentGame;
 
-  private PresenceStatus status;
+  private UserStatus status;
 
   @Getter(AccessLevel.NONE)
   private LocalDateTime lastSeenAt;
@@ -39,12 +39,12 @@ public class UserResponse {
   @JsonGetter("currentGame")
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public String getCurrentGameForSerialization() {
-    return status == PresenceStatus.ONLINE ? currentGame : null;
+    return status == UserStatus.ONLINE ? currentGame : null;
   }
 
   @JsonGetter("lastSeenAt")
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public LocalDateTime getLastSeenAtForSerialization() {
-    return status == PresenceStatus.OFFLINE ? lastSeenAt : null;
+    return status == UserStatus.OFFLINE ? lastSeenAt : null;
   }
 }

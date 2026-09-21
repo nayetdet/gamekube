@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.http;
 
-import io.github.nayetdet.gamekube.controller.http.docs.UserControllerDocs;
+import io.github.nayetdet.gamekube.controller.http.docs.UserRestControllerDocs;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.payload.http.query.UserQuery;
 import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/users")
 @RequiredArgsConstructor
-public class UserController implements UserControllerDocs {
+public class UserRestController implements UserRestControllerDocs {
 
   private final UserService userService;
 

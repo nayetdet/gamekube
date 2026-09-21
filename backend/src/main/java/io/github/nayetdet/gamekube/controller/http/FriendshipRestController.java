@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.http;
 
-import io.github.nayetdet.gamekube.controller.http.docs.FriendshipControllerDocs;
+import io.github.nayetdet.gamekube.controller.http.docs.FriendshipRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.http.request.FriendshipRequest;
 import io.github.nayetdet.gamekube.payload.http.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/friendships")
 @Tag(name = "Friendships", description = "Friendships and pending friendship requests")
 @RequiredArgsConstructor
-public class FriendshipController implements FriendshipControllerDocs {
+public class FriendshipRestController implements FriendshipRestControllerDocs {
 
   private final FriendshipService friendshipService;
 

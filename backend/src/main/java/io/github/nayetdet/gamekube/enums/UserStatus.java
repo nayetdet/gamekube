@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.enums;
 
-public enum PresenceStatus {
+public enum UserStatus {
   ONLINE,
   OFFLINE
 }

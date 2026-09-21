@@ -4,7 +4,7 @@ import io.github.nayetdet.gamekube.payload.websocket.command.UserHeartbeatComman
 import java.security.Principal;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
-public interface UserControllerDocs {
+public interface UserWebSocketControllerDocs {
 
   void markAsOnline(
       Principal principal, UserHeartbeatCommand request, SimpMessageHeaderAccessor headers);

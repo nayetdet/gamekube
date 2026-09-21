@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Games", description = "Game catalog and the authenticated user's game instance")
-public interface GameControllerDocs {
+public interface GameRestControllerDocs {
 
   @Operation(
       summary = "List the available games",

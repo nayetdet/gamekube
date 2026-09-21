@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.http;
 
-import io.github.nayetdet.gamekube.controller.http.docs.GameControllerDocs;
+import io.github.nayetdet.gamekube.controller.http.docs.GameRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.http.response.GameInstanceResponse;
 import io.github.nayetdet.gamekube.payload.http.response.GameResponse;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/games")
 @RequiredArgsConstructor
 @Tag(name = "Games", description = "Game catalog and the authenticated user's game instance")
-public class GameController implements GameControllerDocs {
+public class GameRestController implements GameRestControllerDocs {
 
   private final GameService gameService;
 

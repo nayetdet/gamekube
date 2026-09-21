@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.controller.websocket;
 
-import io.github.nayetdet.gamekube.controller.websocket.docs.GameControllerDocs;
+import io.github.nayetdet.gamekube.controller.websocket.docs.GameWebSocketControllerDocs;
 import io.github.nayetdet.gamekube.exception.UserUnauthorizedException;
 import io.github.nayetdet.gamekube.payload.websocket.command.GameHeartbeatCommand;
 import io.github.nayetdet.gamekube.service.GameService;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @RequiredArgsConstructor
-public class GameController implements GameControllerDocs {
+public class GameWebSocketController implements GameWebSocketControllerDocs {
 
   private final GameService gameService;
 

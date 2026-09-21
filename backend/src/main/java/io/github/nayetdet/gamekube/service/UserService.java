@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.service;
 
 import io.github.nayetdet.gamekube.cache.UserCacheRegistry;
-import io.github.nayetdet.gamekube.enums.PresenceStatus;
+import io.github.nayetdet.gamekube.enums.UserStatus;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.game.GameInstanceLifecycleProvider;
 import io.github.nayetdet.gamekube.mapper.UserMapper;
@@ -151,7 +151,7 @@ public class UserService {
     }
   }
 
-  private PresenceStatus status(String username) {
+  private UserStatus status(String username) {
     String cacheKey = UserCacheRegistry.presenceKey(username);
     long currentTime = System.currentTimeMillis();
     redisTemplate.opsForZSet().removeRangeByScore(cacheKey, 0, currentTime);
@@ -159,7 +159,7 @@ public class UserService {
                 redisTemplate.opsForZSet().count(cacheKey, currentTime, Double.POSITIVE_INFINITY),
                 0L)
             > 0
-        ? PresenceStatus.ONLINE
-        : PresenceStatus.OFFLINE;
+        ? UserStatus.ONLINE
+        : UserStatus.OFFLINE;
   }
 }

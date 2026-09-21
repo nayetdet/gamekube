@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Users", description = "User discovery, profile management and account actions")
-public interface UserControllerDocs {
+public interface UserRestControllerDocs {
 
   @Operation(
       summary = "List users with optional filters and pagination",

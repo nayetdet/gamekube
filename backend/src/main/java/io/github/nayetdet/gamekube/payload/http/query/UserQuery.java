@@ -1,6 +1,6 @@
 package io.github.nayetdet.gamekube.payload.http.query;
 
-import io.github.nayetdet.gamekube.enums.PresenceStatus;
+import io.github.nayetdet.gamekube.enums.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class UserQuery extends BaseQuery {
 
   private String username;
   private String name;
-  private PresenceStatus status;
+  private UserStatus status;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate lastSeenAtAfter;
