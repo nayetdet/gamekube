@@ -11,6 +11,18 @@ keycloak:
   args:
     - start-dev
     - --import-realm
+  extraEnvVars:
+    - name: QUARKUS_DATASOURCE_APPLICATION_DB_KIND
+      value: postgresql
+    - name: QUARKUS_DATASOURCE_APPLICATION_JDBC_URL
+      value: jdbc:postgresql://gamekube-keycloak-postgresql:5432/keycloak?currentSchema=public
+    - name: QUARKUS_DATASOURCE_APPLICATION_USERNAME
+      value: keycloak
+    - name: QUARKUS_DATASOURCE_APPLICATION_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: gamekube-keycloak-postgresql
+          key: password
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -23,12 +35,31 @@ keycloak:
         secretName: gamekube-tls
   proxyHeaders: xforwarded
   hostnameStrict: true
+  usePasswordFiles: false
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 60
+  defaultInitContainers:
+    prepareWriteDirs:
+      enabled: false
+  containerSecurityContext:
+    enabled: false
+  podSecurityContext:
+    enabled: false
   auth:
     adminUser: admin
     adminPassword: admin
   postgresql:
     enabled: true
     fullnameOverride: gamekube-keycloak-postgresql
+    image:
+      registry: docker.io
+      repository: bitnami/postgresql
+      tag: latest
+      pullPolicy: Always
     auth:
       username: keycloak
       password: keycloak

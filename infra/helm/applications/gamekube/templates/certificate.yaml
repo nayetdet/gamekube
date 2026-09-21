@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: gamekube-tls
   issuerRef:
-    name: gamekube-selfsigned
+    name: gamekube-ca
     kind: ClusterIssuer
   dnsNames:
     - gamekube.localhost
