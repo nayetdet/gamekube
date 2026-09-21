@@ -46,7 +46,7 @@ gamekube:
       domain: gamekube.localhost
       tls-secret: gamekube-tls
       protocol: https
-      readiness-timeout: 120s
+      readiness-timeout: 5m
     instance:
       idle-timeout: 5m
       cleanup:
