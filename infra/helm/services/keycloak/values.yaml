@@ -11,7 +11,6 @@ keycloak:
   args:
     - start-dev
     - --import-realm
-  httpEnabled: true
   extraEnvVars:
     - name: KC_DB
       value: postgres
