@@ -52,8 +52,8 @@ resources:
                 - --provider=keycloak-oidc
                 - --oidc-issuer-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}
                 - --login-url=${GAME_KEYCLOAK_ISSUER_URL}/protocol/openid-connect/auth
-                - --redeem-url=http://gamekube-keycloak/realms/gamekube/protocol/openid-connect/token
-                - --oidc-jwks-url=http://gamekube-keycloak/realms/gamekube/protocol/openid-connect/certs
+                - --redeem-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}/protocol/openid-connect/token
+                - --oidc-jwks-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}/protocol/openid-connect/certs
                 - --insecure-oidc-skip-issuer-verification=true
                 - --oidc-audience-claim=azp
                 - --oidc-email-claim=preferred_username

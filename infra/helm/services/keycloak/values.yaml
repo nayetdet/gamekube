@@ -11,16 +11,19 @@ keycloak:
   args:
     - start-dev
     - --import-realm
+  httpEnabled: true
   extraEnvVars:
     - name: KC_DB
       value: postgres
-    - name: QUARKUS_DATASOURCE_APPLICATION_DB_KIND
-      value: postgresql
-    - name: QUARKUS_DATASOURCE_APPLICATION_JDBC_URL
+    - name: KC_HEALTH_ENABLED
+      value: "true"
+    - name: KC_DB_KIND_APPLICATION
+      value: postgres
+    - name: KC_DB_URL_FULL_APPLICATION
       value: jdbc:postgresql://gamekube-postgresql:5432/gamekube?currentSchema=gamekube
-    - name: QUARKUS_DATASOURCE_APPLICATION_USERNAME
+    - name: KC_DB_USERNAME_APPLICATION
       value: gamekube
-    - name: QUARKUS_DATASOURCE_APPLICATION_PASSWORD
+    - name: KC_DB_PASSWORD_APPLICATION
       valueFrom:
         secretKeyRef:
           name: gamekube-postgresql
