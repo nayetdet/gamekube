@@ -1,5 +1,5 @@
 import { displayName, type User } from '@/entities/user/user.entity';
-import { PresenceForm } from '@/components/presence/presence-form';
+import { PresenceBadge } from '@/components/presence/presence-badge';
 import { UserAvatar } from '@/components/user/user-avatar';
 
 function greeting(): string {
@@ -22,7 +22,13 @@ export function GreetingCard({ user }: { user: User }) {
           </h2>
         </div>
       </div>
-      <PresenceForm status={user.status} currentGame={user.currentGame} />
+      <div className="space-y-2">
+        <PresenceBadge status={user.status} currentGame={user.currentGame} />
+        <p className="text-sm text-muted-foreground">
+          Você fica online enquanto o GameKube está aberto. Sua atividade de
+          jogo aparece automaticamente para seus amigos.
+        </p>
+      </div>
     </section>
   );
 }

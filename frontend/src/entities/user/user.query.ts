@@ -4,6 +4,7 @@ export const userSortFields = [
   'id',
   'username',
   'name',
+  'lastSeenAt',
   'createdAt',
   'updatedAt',
 ] as const;
@@ -26,11 +27,19 @@ export const userQuerySchema = z.object({
     .min(1)
     .max(50)
     .catch(defaultUserQuery.pageSize),
-  orderBy: z.string().catch(defaultUserQuery.orderBy),
+  orderBy: z
+    .string()
+    .refine((value) =>
+      userSortFields.some((field) => value === field || value === `-${field}`),
+    )
+    .catch(defaultUserQuery.orderBy),
   username: z.string().trim().min(1).optional().catch(undefined),
   name: z.string().trim().min(1).optional().catch(undefined),
   createdAfter: z.iso.date().optional().catch(undefined),
   createdBefore: z.iso.date().optional().catch(undefined),
+  status: z.enum(['ONLINE', 'OFFLINE']).optional().catch(undefined),
+  lastSeenAtAfter: z.iso.date().optional().catch(undefined),
+  lastSeenAtBefore: z.iso.date().optional().catch(undefined),
 });
 
 export type UserQuery = z.infer<typeof userQuerySchema>;

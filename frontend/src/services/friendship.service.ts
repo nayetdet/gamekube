@@ -9,8 +9,10 @@ const endpoint = {
   requests: '/v1/friendships',
   received: '/v1/friendships/requests/received',
   sent: '/v1/friendships/requests/sent',
-  accept: (username: string) => `/v1/friendships/${encodeURIComponent(username)}/accept`,
-  reject: (username: string) => `/v1/friendships/${encodeURIComponent(username)}/reject`,
+  accept: (username: string) =>
+    `/v1/friendships/${encodeURIComponent(username)}/accept`,
+  reject: (username: string) =>
+    `/v1/friendships/${encodeURIComponent(username)}/reject`,
   item: (username: string) => `/v1/friendships/${encodeURIComponent(username)}`,
 };
 

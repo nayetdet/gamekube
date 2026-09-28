@@ -9,5 +9,3 @@ export const friendRequestSchema = z.object({
 });
 
 export type FriendRequestInput = z.infer<typeof friendRequestSchema>;
-
-export const friendshipIdSchema = z.uuid('Pedido de amizade desconhecido.');

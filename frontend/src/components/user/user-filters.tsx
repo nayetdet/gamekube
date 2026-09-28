@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FilterSelect } from './filter-select';
+import { UserActivityFilters } from './user-activity-filters';
 
 const sortLabels: Record<string, string> = {
   username: 'Nome de usuário',
@@ -17,54 +18,58 @@ const sortLabels: Record<string, string> = {
   createdAt: 'Mais recentes',
   updatedAt: 'Atualizados recentemente',
   id: 'Identificador',
+  lastSeenAt: 'Última atividade',
 };
 
 export function UserFilters({ query }: { query: UserQuery }) {
   return (
     <Form
       action={routes.users}
-      className="grid items-start gap-3 rounded-xl bg-card p-4 ring-1 ring-border sm:grid-cols-2 xl:grid-cols-[1fr_1fr_11rem_7rem_auto]"
+      className="space-y-4 rounded-xl bg-card p-4 ring-1 ring-border"
     >
-      <TextFilter
-        name="username"
-        label="Nome de usuário"
-        defaultValue={query.username}
-      />
-      <TextFilter
-        name="name"
-        label="Nome de exibição"
-        defaultValue={query.name}
-      />
+      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_11rem_7rem_auto]">
+        <TextFilter
+          name="username"
+          label="Nome de usuário"
+          defaultValue={query.username}
+        />
+        <TextFilter
+          name="name"
+          label="Nome de exibição"
+          defaultValue={query.name}
+        />
 
-      <FilterSelect
-        name="orderBy"
-        label="Ordenar por"
-        defaultValue={query.orderBy}
-        options={userSortFields.map((field) => ({
-          value: field,
-          label: sortLabels[field] ?? field,
-        }))}
-      />
+        <FilterSelect
+          name="orderBy"
+          label="Ordenar por"
+          defaultValue={query.orderBy}
+          options={userSortFields.flatMap((field) => [
+            { value: field, label: `${sortLabels[field] ?? field} ↑` },
+            { value: `-${field}`, label: `${sortLabels[field] ?? field} ↓` },
+          ])}
+        />
 
-      <FilterSelect
-        name="pageSize"
-        label="Por página"
-        defaultValue={String(query.pageSize)}
-        options={userPageSizes.map((size) => ({
-          value: String(size),
-          label: String(size),
-        }))}
-      />
+        <FilterSelect
+          name="pageSize"
+          label="Por página"
+          defaultValue={String(query.pageSize)}
+          options={userPageSizes.map((size) => ({
+            value: String(size),
+            label: String(size),
+          }))}
+        />
 
-      <div className="space-y-1.5">
-        <Label aria-hidden className="invisible hidden text-xs xl:block">
-          Buscar
-        </Label>
-        <Button type="submit" className="w-full gap-2 font-semibold">
-          <SearchIcon aria-hidden />
-          Buscar
-        </Button>
+        <div className="space-y-1.5">
+          <Label aria-hidden className="invisible hidden text-xs xl:block">
+            Buscar
+          </Label>
+          <Button type="submit" className="w-full gap-2 font-semibold">
+            <SearchIcon aria-hidden />
+            Buscar
+          </Button>
+        </div>
       </div>
+      <UserActivityFilters query={query} />
     </Form>
   );
 }
