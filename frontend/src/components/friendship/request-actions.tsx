@@ -7,13 +7,13 @@ import { respondToRequestAction } from '@/server/actions/friendship.actions';
 import { useActionToast } from '@/hooks/use-action-toast';
 import { SubmitButton } from '@/components/common/submit-button';
 
-export function RequestActions({ id }: { id: string }) {
+export function RequestActions({ username }: { username: string }) {
   const [state, action] = useActionState(respondToRequestAction, idleState);
   useActionToast(state);
 
   return (
     <form action={action} className="flex shrink-0 items-center gap-2">
-      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="username" value={username} />
       <SubmitButton
         name="decision"
         value="reject"

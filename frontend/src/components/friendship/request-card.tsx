@@ -21,7 +21,7 @@ export function RequestCard({ request, direction }: RequestCardProps) {
         {formatRelative(request.createdAt)}
       </span>
       {received ? (
-        <RequestActions id={request.id} />
+        <RequestActions username={request.requester.username} />
       ) : (
         <span className="rounded-full bg-warning/12 px-2.5 py-1 text-xs font-semibold text-warning">
           Aguardando resposta
