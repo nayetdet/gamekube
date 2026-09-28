@@ -15,7 +15,7 @@ const MONTHS = [
 
 const ISO_PARTS = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/;
 
-export function formatDateTime(value: string | null): string {
+export function formatDateTime(value: string | null | undefined): string {
   const parts = value?.match(ISO_PARTS);
   if (!parts) return '—';
   const [, year, month, day, hours, minutes] = parts;
@@ -23,7 +23,7 @@ export function formatDateTime(value: string | null): string {
   return `${Number(day)} ${label} ${year}, ${hours}:${minutes}`;
 }
 
-export function formatDate(value: string | null): string {
+export function formatDate(value: string | null | undefined): string {
   const parts = value?.match(ISO_PARTS);
   if (!parts) return '—';
   const [, year, month, day] = parts;
@@ -34,9 +34,9 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-export function formatRelative(value: string | null): string {
+export function formatRelative(value: string | null | undefined): string {
   if (!value) return 'nunca';
-  const elapsed = Date.now() - Date.parse(value);
+  const elapsed = Date.now() - Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? value : `${value}Z`);
   if (Number.isNaN(elapsed)) return 'nunca';
   if (elapsed < MINUTE) return 'agora mesmo';
   if (elapsed < HOUR) return `há ${Math.floor(elapsed / MINUTE)} min`;

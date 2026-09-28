@@ -10,7 +10,7 @@ const endpoint = {
   self: '/v1/users/me',
   item: (username: string) => `/v1/users/${encodeURIComponent(username)}`,
   emailReset: (username: string) =>
-    `/v1/users/${encodeURIComponent(username)}/reset-email`,
+    `/v1/users/${encodeURIComponent(username)}/email`,
 };
 
 export const userService = {
@@ -27,7 +27,7 @@ export const userService = {
   },
 
   requestEmailReset(username: string): Promise<void> {
-    return apiVoid(endpoint.emailReset(username), { method: 'POST' });
+    return apiVoid(endpoint.emailReset(username), { method: 'PATCH' });
   },
 
   update(username: string, input: UserUpdateInput): Promise<void> {

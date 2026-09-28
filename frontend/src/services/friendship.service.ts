@@ -5,13 +5,13 @@ import type { User } from '@/entities/user/user.entity';
 import { apiJson, apiVoid } from './http/api-client';
 
 const endpoint = {
-  friends: '/v1/friends',
-  requests: '/v1/friends/requests',
-  received: '/v1/friends/requests/received',
-  sent: '/v1/friends/requests/sent',
-  accept: (id: string) => `/v1/friends/requests/${id}/accept`,
-  reject: (id: string) => `/v1/friends/requests/${id}/reject`,
-  item: (username: string) => `/v1/friends/${encodeURIComponent(username)}`,
+  friends: '/v1/friendships',
+  requests: '/v1/friendships',
+  received: '/v1/friendships/requests/received',
+  sent: '/v1/friendships/requests/sent',
+  accept: (username: string) => `/v1/friendships/${encodeURIComponent(username)}/accept`,
+  reject: (username: string) => `/v1/friendships/${encodeURIComponent(username)}/reject`,
+  item: (username: string) => `/v1/friendships/${encodeURIComponent(username)}`,
 };
 
 export const friendshipService = {
@@ -30,16 +30,16 @@ export const friendshipService = {
   sendRequest(input: FriendRequestInput): Promise<Friendship> {
     return apiJson<Friendship>(endpoint.requests, {
       method: 'POST',
-      body: input,
+      body: { addresseeUsername: input.username },
     });
   },
 
-  acceptRequest(id: string): Promise<Friendship> {
-    return apiJson<Friendship>(endpoint.accept(id), { method: 'POST' });
+  acceptRequest(username: string): Promise<Friendship> {
+    return apiJson<Friendship>(endpoint.accept(username), { method: 'PATCH' });
   },
 
-  rejectRequest(id: string): Promise<Friendship> {
-    return apiJson<Friendship>(endpoint.reject(id), { method: 'POST' });
+  rejectRequest(username: string): Promise<Friendship> {
+    return apiJson<Friendship>(endpoint.reject(username), { method: 'PATCH' });
   },
 
   remove(username: string): Promise<void> {

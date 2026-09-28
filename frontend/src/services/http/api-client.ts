@@ -7,7 +7,7 @@ import { ApiError, readDetail } from './api-error';
 import { toQueryString, type QueryParams } from './query-string';
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   query?: QueryParams;
   timeoutMs?: number;

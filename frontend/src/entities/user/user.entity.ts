@@ -7,8 +7,8 @@ export type User = {
   name: string | null;
   description: string | null;
   status: PresenceStatus;
-  lastSeenAt: string | null;
-  currentGame: string | null;
+  lastSeenAt?: string | null;
+  currentGame?: string | null;
   createdAt: string;
   updatedAt: string;
 };

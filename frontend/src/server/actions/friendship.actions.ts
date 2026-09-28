@@ -1,10 +1,7 @@
 'use server';
 
 import { refresh } from 'next/cache';
-import {
-  friendRequestSchema,
-  friendshipIdSchema,
-} from '@/entities/friendship/friendship.schema';
+import { friendRequestSchema } from '@/entities/friendship/friendship.schema';
 import { usernameParamSchema } from '@/entities/user/user.schema';
 import { friendshipService } from '@/services/friendship.service';
 import { requireSession } from '@/server/auth/dal';
@@ -44,16 +41,17 @@ export async function respondToRequestAction(
   _previous: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const id = friendshipIdSchema.safeParse(formData.get('id'));
+  const username = usernameParamSchema.safeParse(formData.get('username'));
   const decision = formData.get('decision');
-  if (!id.success) return failed('Esse pedido não existe mais.');
+  if (!username.success) return failed('Esse pedido não existe mais.');
+  if (decision !== 'accept' && decision !== 'reject') return failed('Resposta inválida.');
 
   const accepting = decision === 'accept';
   return attempt(
     async () => {
       await requireSession();
-      if (accepting) await friendshipService.acceptRequest(id.data);
-      else await friendshipService.rejectRequest(id.data);
+      if (accepting) await friendshipService.acceptRequest(username.data);
+      else await friendshipService.rejectRequest(username.data);
       refresh();
       return succeeded(
         accepting ? 'Vocês agora são amigos.' : 'Pedido recusado.',
