@@ -1,0 +1,41 @@
+@layer components {
+  /* Soft violet wash behind hero areas. */
+  .surface-aurora {
+    background-image:
+      radial-gradient(
+        60rem 30rem at 12% -10%,
+        var(--brand-100) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        45rem 25rem at 100% 0%,
+        var(--brand-50) 0%,
+        transparent 55%
+      );
+  }
+
+  /* Denser variant for the full-height auth panel. */
+  .surface-aurora-strong {
+    background-image:
+      radial-gradient(
+        48rem 34rem at 8% 4%,
+        var(--brand-200) 0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        40rem 30rem at 96% 22%,
+        var(--brand-100) 0%,
+        transparent 58%
+      ),
+      linear-gradient(160deg, var(--brand-50) 0%, transparent 55%);
+  }
+
+  /* Diagonal hatch used as cover art for game tiles. */
+  .surface-hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.14) 0 2px,
+      transparent 2px 12px
+    );
+  }
+}
