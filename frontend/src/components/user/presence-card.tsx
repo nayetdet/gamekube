@@ -1,8 +1,5 @@
-import { Suspense } from 'react';
-import {
-  LivePresence,
-  LivePresenceSkeleton,
-} from '@/components/presence/live-presence';
+import type { User } from '@/entities/user/user.entity';
+import { LivePresence } from '@/components/presence/live-presence';
 import {
   Card,
   CardContent,
@@ -11,19 +8,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-export function PresenceCard({ username }: { username: string }) {
+export function PresenceCard({ user }: { user: User }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Presença ao vivo</CardTitle>
         <CardDescription>
-          Lida direto do endpoint de presença a cada requisição.
+          A presença acompanha sua conexão e suas sessões de jogo.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Suspense fallback={<LivePresenceSkeleton />}>
-          <LivePresence username={username} />
-        </Suspense>
+        <LivePresence user={user} />
       </CardContent>
     </Card>
   );

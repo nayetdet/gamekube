@@ -12,10 +12,12 @@ import {
 } from 'lucide-react';
 import { routes } from '@/config/routes';
 import { Button } from '@/components/ui/button';
+import { EndGameForm } from '../end-game-form';
 
 type StageToolbarProps = {
   url: string;
   title: string;
+  gameId: string;
   fullscreen: boolean;
   onToggleFullscreen: () => void;
 };
@@ -26,6 +28,7 @@ const button =
 export function StageToolbar({
   url,
   title,
+  gameId,
   fullscreen,
   onToggleFullscreen,
 }: StageToolbarProps) {
@@ -54,6 +57,7 @@ export function StageToolbar({
       </span>
 
       <div className="ml-auto flex shrink-0 items-center gap-1">
+        <EndGameForm id={gameId} />
         <Button
           type="button"
           variant="ghost"

@@ -8,9 +8,10 @@ type GameStageProps = {
   url: string;
   title: string;
   ratio: number;
+  gameId: string;
 };
 
-export function GameStage({ url, title, ratio }: GameStageProps) {
+export function GameStage({ url, title, ratio, gameId }: GameStageProps) {
   const stage = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -34,6 +35,7 @@ export function GameStage({ url, title, ratio }: GameStageProps) {
     <div ref={stage} className="flex h-dvh flex-col bg-foreground">
       <StageToolbar
         url={url}
+        gameId={gameId}
         title={title}
         fullscreen={fullscreen}
         onToggleFullscreen={toggleFullscreen}
