@@ -4,6 +4,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   APP_URL: z.url(),
   BACKEND_API_URL: z.url(),
+  BACKEND_WEBSOCKET_URL: z.url().optional(),
   KEYCLOAK_ISSUER_URL: z.url(),
   KEYCLOAK_CLIENT_ID: z.string().min(1),
   SESSION_SECRET: z.string().min(32),
@@ -20,6 +21,7 @@ export function env(): Env {
   const parsed = envSchema.safeParse({
     APP_URL: process.env.APP_URL,
     BACKEND_API_URL: process.env.BACKEND_API_URL,
+    BACKEND_WEBSOCKET_URL: process.env.BACKEND_WEBSOCKET_URL || undefined,
     KEYCLOAK_ISSUER_URL: process.env.KEYCLOAK_ISSUER_URL,
     KEYCLOAK_CLIENT_ID: process.env.KEYCLOAK_CLIENT_ID,
     SESSION_SECRET: process.env.SESSION_SECRET,

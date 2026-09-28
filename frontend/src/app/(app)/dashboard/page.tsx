@@ -25,7 +25,7 @@ export default async function DashboardPage() {
       <PageHeader
         eyebrow="Visão geral"
         title="Seu lobby"
-        description="Defina sua presença, veja quem está por perto e entre numa sessão."
+        description="Veja quem está por perto, converse com seus amigos e entre numa sessão."
         actions={
           <Button asChild className="gap-2 font-semibold">
             <Link href={routes.games}>
