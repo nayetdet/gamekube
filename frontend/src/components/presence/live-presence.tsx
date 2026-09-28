@@ -1,11 +1,9 @@
 import { RadioIcon } from 'lucide-react';
-import { presenceService } from '@/services/presence.service';
+import type { User } from '@/entities/user/user.entity';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import { PresenceBadge } from './presence-badge';
 
-export async function LivePresence({ username }: { username: string }) {
-  const presence = await presenceService.findByUsername(username);
-
+export function LivePresence({ user: presence }: { user: User }) {
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
       <PresenceBadge

@@ -53,7 +53,7 @@ export default async function UserDetailPage(
         }
       />
 
-      <PresenceCard username={user.username} />
+      <PresenceCard user={user} />
       <AccountCard user={user} />
       <ProfileCard
         user={user}

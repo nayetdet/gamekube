@@ -2,13 +2,12 @@
 
 import { useActionState } from 'react';
 import { PlayIcon } from 'lucide-react';
-import type { GameSlug } from '@/entities/game/game.entity';
 import { idleState } from '@/server/actions/action-state';
 import { launchGameAction } from '@/server/actions/game.actions';
 import { useActionToast } from '@/hooks/use-action-toast';
 import { SubmitButton } from '@/components/common/submit-button';
 
-export function GameLauncher({ slug }: { slug: GameSlug }) {
+export function GameLauncher({ slug }: { slug: string }) {
   const [state, action, pending] = useActionState(launchGameAction, idleState);
   useActionToast(state);
 
@@ -27,8 +26,7 @@ export function GameLauncher({ slug }: { slug: GameSlug }) {
 
       {pending ? (
         <p className="text-xs text-muted-foreground">
-          O cluster está iniciando um pod e aguardando ele ficar saudável. Assim
-          que estiver de pé, o jogo abre em uma tela só dele.
+          Preparando seu jogo. Isso pode levar alguns minutos.
         </p>
       ) : null}
     </div>
