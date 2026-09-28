@@ -1,9 +1,14 @@
+import com.tngtech.archunit.core.importer.ClassFileImporter
+
+import static com.tngtech.archunit.library.Architectures.layeredArchitecture
+
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 
 	dependencies {
+		classpath 'com.tngtech.archunit:archunit:1.5.0'
 		classpath 'org.flywaydb:flyway-database-postgresql:12.4.0'
 		classpath 'org.postgresql:postgresql:42.7.11'
 	}
@@ -31,23 +36,30 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-flyway'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
-	implementation 'org.keycloak:keycloak-admin-client:26.0.11'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 	implementation 'io.github.wimdeblauwe:error-handling-spring-boot-starter:5.1.1'
 	implementation 'io.fabric8:kubernetes-client:7.8.0'
+	implementation 'org.keycloak:keycloak-admin-client:26.0.11'
+
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+	implementation 'io.github.springwolf:springwolf-stomp:2.7.0'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
 	runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'io.github.springwolf:springwolf-ui:2.7.0'
 
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
@@ -76,4 +88,43 @@ spotless {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('classes')
+	notCompatibleWithConfigurationCache('Architecture rules access source sets during execution')
+
+	doLast {
+		def basePackage = 'io.github.nayetdet.gamekube'
+
+		layeredArchitecture()
+				.consideringAllDependencies()
+				.layer('Controller').definedBy("${basePackage}.controller..")
+				.layer('Scheduler').definedBy("${basePackage}.scheduler..")
+				.layer('Game').definedBy("${basePackage}.game..")
+				.layer('Service').definedBy("${basePackage}.service..")
+				.layer('Repository').definedBy("${basePackage}.repository..")
+				.layer('Mapper').definedBy("${basePackage}.mapper..")
+				.layer('Security').definedBy("${basePackage}.security..")
+				.layer('Config').definedBy("${basePackage}.config..")
+				.layer('Payload').definedBy("${basePackage}.payload..")
+				.layer('Model').definedBy("${basePackage}.model..")
+				.layer('Enums').definedBy("${basePackage}.enums..")
+				.layer('Exception').definedBy("${basePackage}.exception..")
+				.layer('Cache').definedBy("${basePackage}.cache..")
+				.whereLayer('Controller').mayNotBeAccessedByAnyLayer()
+				.whereLayer('Service').mayOnlyBeAccessedByLayers('Controller')
+				.whereLayer('Game').mayOnlyBeAccessedByLayers('Service', 'Mapper', 'Game', 'Scheduler')
+				.whereLayer('Scheduler').mayNotBeAccessedByAnyLayer()
+				.whereLayer('Repository').mayOnlyBeAccessedByLayers('Service', 'Security')
+				.whereLayer('Mapper').mayOnlyBeAccessedByLayers('Service', 'Mapper')
+				.whereLayer('Security').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Game', 'Config', 'Security')
+				.whereLayer('Config').mayNotBeAccessedByAnyLayer()
+				.whereLayer('Payload').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Repository', 'Mapper', 'Payload', 'Game')
+				.whereLayer('Model').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Security', 'Payload', 'Model')
+				.whereLayer('Enums').mayOnlyBeAccessedByLayers('Service', 'Repository', 'Mapper', 'Model', 'Payload', 'Enums')
+				.whereLayer('Exception').mayOnlyBeAccessedByLayers('Controller', 'Service', 'Security', 'Config', 'Game', 'Exception')
+				.whereLayer('Cache').mayOnlyBeAccessedByLayers('Service', 'Game', 'Cache')
+				.check(new ClassFileImporter().importPaths(project.sourceSets.main.output.classesDirs.files.collect { it.toPath() }))
+	}
 }

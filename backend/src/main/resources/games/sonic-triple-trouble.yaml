@@ -1,0 +1,144 @@
+name: Sonic Triple Trouble
+description: While Dr. Robotnik tests an ultimate weapon, an accident scatters five Chaos Emeralds across Mobius. Sonic and Tails set out to recover them, racing against Knuckles and Nack the Weasel through six zones and five bonus rounds.
+image: /images/sonic-triple-trouble.png
+resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ${GAME_NAME}
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        app: ${GAME_NAME}
+        game: ${GAME_ID}
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ${GAME_NAME}
+      template:
+        metadata:
+          labels:
+            app: ${GAME_NAME}
+            game: ${GAME_ID}
+        spec:
+          containers:
+            - name: ${GAME_ID}
+              image: ghcr.io/nayetdet/sonic-triple-trouble-docker:latest
+              ports:
+                - name: http
+                  containerPort: 3000
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: http
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 12
+            - name: oauth2-proxy
+              image: quay.io/oauth2-proxy/oauth2-proxy:v7.8.1
+              env:
+                - name: OAUTH2_PROXY_COOKIE_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${GAME_NAME}-auth-cookie
+                      key: cookie-secret
+                - name: OAUTH2_PROXY_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${GAME_NAME}-auth-cookie
+                      key: client-secret
+              args:
+                - --provider=keycloak-oidc
+                - --oidc-issuer-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}
+                - --login-url=${GAME_KEYCLOAK_ISSUER_URL}/protocol/openid-connect/auth
+                - --redeem-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}/protocol/openid-connect/token
+                - --oidc-jwks-url=${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}/protocol/openid-connect/certs
+                - --skip-oidc-discovery
+                - --code-challenge-method=S256
+                - --insecure-oidc-skip-issuer-verification=true
+                - --oidc-audience-claim=azp
+                - --oidc-email-claim=preferred_username
+                - --oidc-extra-audience=account
+                - --authenticated-emails-file=/etc/game-auth/allowed-users
+                - --email-domain=*
+                - --client-id=${GAME_KEYCLOAK_CLIENT_ID}
+                - --client-secret=$(OAUTH2_PROXY_CLIENT_SECRET)
+                - --cookie-secret=$(OAUTH2_PROXY_COOKIE_SECRET)
+                - --cookie-secure=true
+                - --cookie-samesite=lax
+                - --reverse-proxy=true
+                - --proxy-websockets=true
+                - --http-address=0.0.0.0:4180
+                - --upstream=http://127.0.0.1:3000
+                - --redirect-url=https://${GAME_HOST}/oauth2/callback
+                - --skip-provider-button=true
+              ports:
+                - name: auth
+                  containerPort: 4180
+              volumeMounts:
+                - name: game-auth
+                  mountPath: /etc/game-auth
+                  readOnly: true
+          volumes:
+            - name: game-auth
+              configMap:
+                name: ${GAME_NAME}-auth
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${GAME_NAME}
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    spec:
+      selector:
+        app: ${GAME_NAME}
+      ports:
+        - name: http
+          port: 4180
+          targetPort: auth
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: ${GAME_NAME}
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    spec:
+      ingressClassName: traefik
+      tls:
+        - hosts:
+            - ${GAME_HOST}
+          secretName: ${GAME_TLS_SECRET}
+      rules:
+        - host: ${GAME_HOST}
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: ${GAME_NAME}
+                    port:
+                      name: http
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: ${GAME_NAME}-auth
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    data:
+      allowed-users: ${GAME_USERNAME}
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: ${GAME_NAME}-auth-cookie
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: ${GAME_ID}
+    type: Opaque
+    data:
+      cookie-secret: ${GAME_KEYCLOAK_COOKIE_SECRET}
+      client-secret: ${GAME_KEYCLOAK_CLIENT_SECRET}

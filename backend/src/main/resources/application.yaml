@@ -1,9 +1,16 @@
 server:
-  port: 8081
+  port: 8000
   forward-headers-strategy: framework
 spring:
   application:
     name: gamekube
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -21,21 +28,41 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${keycloak.server-url}/realms/${keycloak.realm}
+          issuer-uri: ${gamekube.keycloak.server-url}/realms/${gamekube.keycloak.realm}
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
-keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET}
 springdoc:
+  paths-to-match: /v1/**
+  paths-to-exclude: /springwolf/**
   api-docs:
     enabled: true
   swagger-ui:
     enabled: true
-game:
-  namespace: gamekube
-  domain: gamekube.localhost
-  tls-secret: ""
-  protocol: http
-  readiness-timeout-seconds: 120
+    operations-sorter: method
+    tags-sorter: alpha
+gamekube:
+  game:
+    infra:
+      namespace: gamekube
+      domain: gamekube.localhost
+      tls-secret: gamekube-tls
+      protocol: https
+      readiness-timeout: 5m
+    instance:
+      idle-timeout: 5m
+      cleanup:
+        interval: 15s
+        lock-timeout: 30s
+    auth:
+      oidc-issuer-url: ${GAME_KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
+      oidc-internal-issuer-url: http://gamekube-keycloak/realms/${KEYCLOAK_REALM}
+      cookie-secret: ${GAME_KEYCLOAK_COOKIE_SECRET}
+      client-id: ${GAME_KEYCLOAK_CLIENT_ID}
+      client-secret: ${GAME_KEYCLOAK_CLIENT_SECRET}
+  keycloak:
+    server-url: ${KEYCLOAK_SERVER_URL}
+    realm: ${KEYCLOAK_REALM}
+    client-id: ${KEYCLOAK_CLIENT_ID}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  user:
+    presence:
+      heartbeat-timeout: 30s

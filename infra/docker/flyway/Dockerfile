@@ -1,0 +1,2 @@
+FROM flyway/flyway:13-alpine
+COPY backend/src/main/resources/db/migration /flyway/sql

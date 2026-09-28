@@ -1,0 +1,6 @@
+dependencies:
+- name: mailhog
+  repository: https://codecentric.github.io/helm-charts
+  version: 5.8.0
+digest: sha256:e4ba575c05bb271bfe135a5c1fc8fbf6eef0b7c2181e30509f83531875451988
+generated: "2026-09-21T04:55:40.391941166Z"

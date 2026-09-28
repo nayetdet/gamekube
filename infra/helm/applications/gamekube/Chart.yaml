@@ -1,0 +1,23 @@
+apiVersion: v2
+name: gamekube
+description: GameKube local infrastructure
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+dependencies:
+  - name: postgres
+    version: 0.1.0
+    repository: file://../../services/postgres
+    condition: postgres.enabled
+  - name: redis
+    version: 0.1.0
+    repository: file://../../services/redis
+    condition: redis.enabled
+  - name: keycloak
+    version: 0.1.0
+    repository: file://../../services/keycloak
+    condition: keycloak.enabled
+  - name: mailhog
+    version: 0.1.0
+    repository: file://../../services/mailhog
+    condition: mailhog.enabled

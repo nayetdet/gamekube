@@ -1,0 +1,21 @@
+postgresql:
+  auth:
+    database: gamekube
+    username: gamekube
+    password: gamekube
+  primary:
+    service:
+      type: NodePort
+      nodePorts:
+        postgresql: 30432
+    persistence:
+      enabled: true
+      size: 1Gi
+
+flyway:
+  enabled: true
+  image:
+    repository: ghcr.io/nayetdet/gamekube
+    tag: flyway
+    pullPolicy: Always
+  connectRetries: 60

@@ -11,8 +11,4 @@ public class UserNotFoundException extends BaseException {
   public UserNotFoundException() {
     super(DEFAULT_ERROR_MESSAGE);
   }
-
-  public UserNotFoundException(String message) {
-    super(message);
-  }
 }
