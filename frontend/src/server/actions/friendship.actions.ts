@@ -44,7 +44,8 @@ export async function respondToRequestAction(
   const username = usernameParamSchema.safeParse(formData.get('username'));
   const decision = formData.get('decision');
   if (!username.success) return failed('Esse pedido não existe mais.');
-  if (decision !== 'accept' && decision !== 'reject') return failed('Resposta inválida.');
+  if (decision !== 'accept' && decision !== 'reject')
+    return failed('Resposta inválida.');
 
   const accepting = decision === 'accept';
   return attempt(
