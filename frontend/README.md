@@ -7,8 +7,7 @@ the Spring Boot backend exposes.
 ## Requirements
 
 - [Bun](https://bun.sh) 1.3+
-- The backend running on `:8081` and Keycloak on `:8080`
-  (`docker compose up` from the repository root starts both)
+- The backend running on `:8000` and Keycloak on `:8080`.
 
 ## Getting started
 
@@ -22,25 +21,31 @@ bun run dev
 The app is served on <http://localhost:3000>, which is the redirect URI the
 `frontend-client` public client is registered with in the realm import.
 
-| Variable              | Purpose                                                |
-| --------------------- | ------------------------------------------------------ |
-| `APP_URL`             | Public origin; used for redirect URIs and cookie flags |
-| `BACKEND_API_URL`     | Base URL of the GameKube API                           |
-| `KEYCLOAK_ISSUER_URL` | Realm issuer, e.g. `.../realms/gamekube`               |
-| `KEYCLOAK_CLIENT_ID`  | Public OIDC client (`frontend-client`)                 |
-| `SESSION_SECRET`      | ≥32 bytes; encrypts the session cookies                |
+| Variable                | Purpose                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `APP_URL`               | Public origin; used for redirect URIs and cookie flags |
+| `BACKEND_API_URL`       | Base URL of the GameKube API                           |
+| `BACKEND_WEBSOCKET_URL` | Optional STOMP URL; defaults to the backend's `/ws`    |
+| `KEYCLOAK_ISSUER_URL`   | Realm issuer, e.g. `.../realms/gamekube`               |
+| `KEYCLOAK_CLIENT_ID`    | Public OIDC client (`frontend-client`)                 |
+| `SESSION_SECRET`        | ≥32 bytes; encrypts the session cookies                |
+| `GAME_SESSION_DOMAIN`   | Trusted domain for game instance URLs                  |
 
 ## Scripts
 
-| Command          | What it does                            |
-| ---------------- | --------------------------------------- |
-| `bun run dev`    | Development server                      |
-| `bun run build`  | Production build                        |
-| `bun run start`  | Serve the production build              |
-| `bun run format` | Prettier, in place                      |
-| `bun run check`  | Prettier check + ESLint (zero warnings) |
+| Command            | What it does                                 |
+| ------------------ | -------------------------------------------- |
+| `bun run dev`      | Development server                           |
+| `bun run build`    | Production build                             |
+| `bun run start`    | Serve the production build                   |
+| `bun run format`   | Prettier, in place                           |
+| `bun run check`    | Prettier check + ESLint (zero warnings)      |
+| `bun run test:e2e` | Production build + browser integration tests |
 
 ## Architecture
 
 See [`docs/architecture.md`](./docs/architecture.md) for the layering rules,
 the authentication flow and the endpoint-to-screen map.
+
+See [`docs/local-testing.md`](./docs/local-testing.md) for the current isolated
+development stack, addresses and test accounts.
