@@ -23,7 +23,7 @@ public enum KeycloakExceptionStrategy {
   }
 
   public static RuntimeException of(int statusCode) {
-    for (var strategy : values()) {
+    for (KeycloakExceptionStrategy strategy : values()) {
       if (strategy.statusCode == statusCode) {
         return strategy.supplier.get();
       }

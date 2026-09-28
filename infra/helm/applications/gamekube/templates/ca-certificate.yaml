@@ -1,0 +1,17 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gamekube-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: gamekube-local-ca
+  secretName: gamekube-ca
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    name: gamekube-selfsigned
+    kind: ClusterIssuer

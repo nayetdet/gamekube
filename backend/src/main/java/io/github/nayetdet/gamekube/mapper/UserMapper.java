@@ -1,32 +1,42 @@
 package io.github.nayetdet.gamekube.mapper;
 
+import io.github.nayetdet.gamekube.enums.UserStatus;
 import io.github.nayetdet.gamekube.model.User;
-import io.github.nayetdet.gamekube.payload.request.UserUpdateRequest;
-import io.github.nayetdet.gamekube.payload.response.UserResponse;
+import io.github.nayetdet.gamekube.payload.http.request.UserRequest;
+import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
 
   public UserResponse toResponse(User user) {
+    return toResponse(user, null);
+  }
+
+  public UserResponse toResponse(User user, UserStatus status) {
+    return toResponse(user, status, null);
+  }
+
+  public UserResponse toResponse(User user, UserStatus status, String currentGame) {
     if (user == null) {
       return null;
     }
+
     return UserResponse.builder()
         .id(user.getId())
         .keycloakId(user.getKeycloakId())
         .username(user.getUsername())
         .name(user.getName())
         .description(user.getDescription())
-        .status(user.getStatus())
+        .status(status)
+        .currentGame(currentGame)
         .lastSeenAt(user.getLastSeenAt())
-        .currentGame(user.getCurrentGame())
         .createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt())
         .build();
   }
 
-  public void update(User user, UserUpdateRequest request) {
+  public void update(User user, UserRequest request) {
     user.setUsername(request.getUsername());
     user.setName(request.getName());
     user.setDescription(request.getDescription());

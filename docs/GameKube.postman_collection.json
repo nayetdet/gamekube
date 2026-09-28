@@ -44,7 +44,7 @@
             }
           ]
         },
-        "url": "http://localhost:8080/realms/gamekube/protocol/openid-connect/token"
+        "url": "https://keycloak.gamekube.localhost/realms/gamekube/protocol/openid-connect/token"
       },
       "event": [
         {

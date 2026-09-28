@@ -1,7 +1,7 @@
 package io.github.nayetdet.gamekube.mapper;
 
 import io.github.nayetdet.gamekube.model.Friendship;
-import io.github.nayetdet.gamekube.payload.response.FriendshipResponse;
+import io.github.nayetdet.gamekube.payload.http.response.FriendshipResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +15,7 @@ public class FriendshipMapper {
     if (friendship == null) {
       return null;
     }
+
     return FriendshipResponse.builder()
         .id(friendship.getId())
         .requester(userMapper.toResponse(friendship.getRequester()))

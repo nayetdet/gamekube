@@ -11,8 +11,4 @@ public class FriendshipAlreadyExistsException extends BaseException {
   public FriendshipAlreadyExistsException() {
     super(DEFAULT_ERROR_MESSAGE);
   }
-
-  public FriendshipAlreadyExistsException(String message) {
-    super(message);
-  }
 }
