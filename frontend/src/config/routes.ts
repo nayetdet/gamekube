@@ -4,6 +4,9 @@ export const routes = {
   dashboard: '/dashboard',
   friends: '/friends',
   friendRequests: '/friends/requests',
+  messages: '/messages',
+  conversation: (username: string) =>
+    `/messages/${encodeURIComponent(username)}`,
   games: '/games',
   play: (slug: string, session: string) =>
     `/play/${encodeURIComponent(slug)}?session=${encodeURIComponent(session)}`,

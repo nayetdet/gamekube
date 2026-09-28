@@ -1,4 +1,8 @@
 import type { User } from '@/entities/user/user.entity';
+import Link from 'next/link';
+import { MessageCircleIcon } from 'lucide-react';
+import { routes } from '@/config/routes';
+import { Button } from '@/components/ui/button';
 import { formatRelative } from '@/lib/format';
 import { PresenceBadge } from '@/components/presence/presence-badge';
 import { UserIdentity } from '@/components/user/user-identity';
@@ -20,6 +24,14 @@ export function FriendCard({ friend }: { friend: User }) {
         ) : null}
       </div>
       <RemoveFriendButton username={friend.username} />
+      <Button asChild variant="outline" size="icon-sm">
+        <Link
+          href={routes.conversation(friend.username)}
+          aria-label={`Conversar com ${friend.username}`}
+        >
+          <MessageCircleIcon aria-hidden />
+        </Link>
+      </Button>
     </li>
   );
 }
