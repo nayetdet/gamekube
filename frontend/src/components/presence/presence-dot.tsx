@@ -13,10 +13,20 @@ export function PresenceDot({
   status: PresenceStatus;
   className?: string;
 }) {
+  const isOnline = status === 'ONLINE';
+
   return (
-    <span
-      aria-hidden
-      className={cn('size-2 shrink-0 rounded-full', tone[status], className)}
-    />
+    <span className="relative flex size-2 shrink-0 items-center justify-center">
+      {isOnline ? (
+        <span
+          aria-hidden
+          className="absolute inline-flex size-full animate-ping rounded-full bg-online opacity-75"
+        />
+      ) : null}
+      <span
+        aria-hidden
+        className={cn('size-2 shrink-0 rounded-full', tone[status], className)}
+      />
+    </span>
   );
 }

@@ -21,15 +21,17 @@ export function PresenceBadge({
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
-        online ? 'bg-online/12 text-online' : 'bg-muted text-muted-foreground',
+        'inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold shadow-xs transition-all',
+        online
+          ? 'border-online/25 bg-online/10 text-online backdrop-blur-xs'
+          : 'border-border bg-muted/60 text-muted-foreground',
         className,
       )}
     >
       <PresenceDot status={status} />
       <span className="truncate">
         {online && currentGame
-          ? `Jogando ${currentGame}`
+          ? `🎮 Jogando ${currentGame}`
           : presenceLabels[status]}
       </span>
     </span>
