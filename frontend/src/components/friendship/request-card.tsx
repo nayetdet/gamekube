@@ -14,7 +14,7 @@ export function RequestCard({ request, direction }: RequestCardProps) {
   const player = received ? request.requester : request.addressee;
 
   return (
-    <li className="flex flex-wrap items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border">
+    <li className="flex flex-wrap items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border shadow-2xs transition-all duration-200 hover:ring-brand-400/40 hover:shadow-md">
       <UserIdentity user={player} className="min-w-48 flex-1" />
       <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <ClockIcon className="size-3.5" aria-hidden />
@@ -23,7 +23,7 @@ export function RequestCard({ request, direction }: RequestCardProps) {
       {received ? (
         <RequestActions username={request.requester.username} />
       ) : (
-        <span className="rounded-full bg-warning/12 px-2.5 py-1 text-xs font-semibold text-warning">
+        <span className="inline-flex items-center rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-warning border border-warning/20">
           Aguardando resposta
         </span>
       )}
