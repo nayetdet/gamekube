@@ -1,0 +1,32 @@
+@layer base {
+  * {
+    @apply border-border outline-ring/45;
+  }
+
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-optical-sizing: auto;
+  }
+
+  /* Inter reads sharper at display sizes with slightly tighter headings. */
+  h1,
+  h2,
+  h3 {
+    @apply font-heading tracking-tight;
+    letter-spacing: -0.014em;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+}
+
+@utility scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-300) transparent;
+}
