@@ -1,5 +1,8 @@
-import { UsersRoundIcon } from 'lucide-react';
+import Link from 'next/link';
+import { UserSearchIcon, UsersRoundIcon } from 'lucide-react';
 import type { User } from '@/entities/user/user.entity';
+import { routes } from '@/config/routes';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/common/empty-state';
 import { FriendCard } from './friend-card';
 
@@ -9,7 +12,15 @@ export function FriendList({ friends }: { friends: User[] }) {
       <EmptyState
         icon={UsersRoundIcon}
         title="Sua lista está vazia"
-        description="Adicione alguém pelo nome de usuário e essa pessoa aparece aqui assim que aceitar."
+        description="Adicione alguém pelo nome de usuário ou explore os jogadores cadastrados na plataforma."
+        action={
+          <Button asChild variant="outline" className="mt-2 font-semibold">
+            <Link href={routes.users}>
+              <UserSearchIcon className="size-4" aria-hidden />
+              Explorar jogadores
+            </Link>
+          </Button>
+        }
       />
     );
   }

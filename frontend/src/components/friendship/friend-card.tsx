@@ -10,7 +10,7 @@ import { RemoveFriendButton } from './remove-friend-button';
 
 export function FriendCard({ friend }: { friend: User }) {
   return (
-    <li className="flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition-shadow hover:shadow-sm">
+    <li className="flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border shadow-2xs transition-all duration-200 hover:ring-brand-400/40 hover:shadow-md">
       <UserIdentity user={friend} className="flex-1" />
       <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
         <PresenceBadge
