@@ -9,3 +9,6 @@ keycloak:
 
 mailhog:
   enabled: true
+
+minio:
+  enabled: true

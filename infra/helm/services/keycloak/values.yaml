@@ -30,11 +30,15 @@ keycloak:
   ingress:
     enabled: true
     ingressClassName: traefik
-    hostname: keycloak.gamekube.localhost
+    hostname: sso.gamekube.localhost
     servicePort: http
     tls: false
+    extraHosts:
+      - name: keycloak.gamekube.localhost
+        path: /
     extraTls:
       - hosts:
+          - sso.gamekube.localhost
           - keycloak.gamekube.localhost
         secretName: gamekube-tls
   proxyHeaders: xforwarded

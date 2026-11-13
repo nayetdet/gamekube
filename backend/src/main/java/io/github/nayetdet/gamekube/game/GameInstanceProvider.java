@@ -41,6 +41,9 @@ public class GameInstanceProvider {
   @Value("${gamekube.game.infra.readiness-timeout}")
   private Duration readinessTimeout;
 
+  @Value("${gamekube.game.storage.save-bucket}")
+  private String saveBucket;
+
   @Value("${gamekube.game.auth.oidc-issuer-url}")
   private String issuerUrl;
 
@@ -107,6 +110,7 @@ public class GameInstanceProvider {
                             .replace("${GAME_NAME}", gameInstance.getName())
                             .replace("${GAME_HOST}", gameInstance.getHost())
                             .replace("${GAME_NAMESPACE}", namespace)
+                            .replace("${GAME_SAVE_BUCKET}", saveBucket)
                             .replace("${GAME_TLS_SECRET}", tlsSecret)
                             .replace("${GAME_USERNAME}", gameInstance.getUsername())
                             .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
@@ -132,6 +136,7 @@ public class GameInstanceProvider {
       if (resources.isEmpty()) {
         throw new GameInvalidException();
       }
+
       return resources;
     } catch (GameInvalidException exception) {
       throw exception;

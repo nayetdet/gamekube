@@ -140,6 +140,10 @@ public class GameProvider {
       throw new GameInvalidException();
     }
 
+    if (game.getHasSave() == null) {
+      throw new GameInvalidException();
+    }
+
     if (game.getResources() == null || game.getResources().isEmpty()) {
       throw new GameInvalidException();
     }

@@ -1,0 +1,36 @@
+server:
+  fullnameOverride: minio
+  mode: standalone
+  image:
+    repository: docker.io/pgsty/minio
+    tag: RELEASE.2026-08-04T00-00-00Z
+  mcImage:
+    repository: docker.io/pgsty/minio
+    tag: RELEASE.2026-08-04T00-00-00Z
+  replicas: 1
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - s3.gamekube.localhost
+    tls:
+      - secretName: gamekube-tls
+        hosts:
+          - s3.gamekube.localhost
+  consoleIngress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - minio.gamekube.localhost
+    tls:
+      - secretName: gamekube-tls
+        hosts:
+          - minio.gamekube.localhost
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      memory: 512Mi
+  bucket: &saveBucket saves
+  buckets:
+    - name: *saveBucket

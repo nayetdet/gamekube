@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "GameKube",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

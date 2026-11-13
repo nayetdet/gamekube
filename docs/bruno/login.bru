@@ -1,0 +1,45 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+vars:pre-request {
+  ssoUrl: https://sso.gamekube.localhost
+  realm: gamekube
+  clientId: backend-client
+  clientSecret: **********
+  username: admin
+  password: admin
+}
+
+post {
+  url: {{ssoUrl}}/realms/{{realm}}/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  grant_type: password
+  client_id: {{clientId}}
+  client_secret: {{clientSecret}}
+  username: {{username}}
+  password: {{password}}
+  scope: openid
+}
+
+script:post-response {
+  const json = res.getBody();
+  bru.setVar("access_token", json.access_token);
+}
+
+tests {
+  test("returns a successful status", function () {
+    expect(res.getStatus()).to.be.oneOf([200, 201]);
+  });
+
+  test("returns an access token", function () {
+    const json = res.getBody();
+    expect(json.access_token).to.be.a("string").and.not.empty;
+  });
+}

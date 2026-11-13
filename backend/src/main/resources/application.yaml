@@ -41,6 +41,8 @@ springdoc:
     tags-sorter: alpha
 gamekube:
   game:
+    storage:
+      save-bucket: ${GAME_SAVE_BUCKET:saves}
     infra:
       namespace: gamekube
       domain: gamekube.localhost
