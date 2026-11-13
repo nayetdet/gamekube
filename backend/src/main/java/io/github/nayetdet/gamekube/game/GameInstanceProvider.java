@@ -7,6 +7,9 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameInstanceDestroyException;
 import io.github.nayetdet.gamekube.exception.GameInstanceProvisionException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.UserNotFoundException;
+import io.github.nayetdet.gamekube.model.User;
+import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class GameInstanceProvider {
 
   private final KubernetesClient kubernetesClient;
+  private final UserRepository userRepository;
 
   @Value("${gamekube.game.infra.namespace}")
   private String namespace;
@@ -86,10 +90,15 @@ public class GameInstanceProvider {
 
   public GameInstance instance(Game game) {
     String username = AuthenticationHelper.getUsername().toLowerCase(Locale.ROOT);
+    User user =
+        userRepository
+            .findByKeycloakId(AuthenticationHelper.getKeycloakId())
+            .orElseThrow(UserNotFoundException::new);
     String name = game.getId() + "-" + username;
     String host = username + "." + game.getId() + "." + domain;
     return GameInstance.builder()
         .gameId(game.getId())
+        .userId(user.getId())
         .username(username)
         .name(name)
         .host(host)
@@ -112,6 +121,7 @@ public class GameInstanceProvider {
                             .replace("${GAME_NAMESPACE}", namespace)
                             .replace("${GAME_SAVE_BUCKET}", saveBucket)
                             .replace("${GAME_TLS_SECRET}", tlsSecret)
+                            .replace("${GAME_USER_ID}", resolveUserId(gameInstance))
                             .replace("${GAME_USERNAME}", gameInstance.getUsername())
                             .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
                             .replace("${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}", internalIssuerUrl)
@@ -143,6 +153,18 @@ public class GameInstanceProvider {
     } catch (RuntimeException exception) {
       throw new GameInvalidException(exception);
     }
+  }
+
+  private String resolveUserId(GameInstance gameInstance) {
+    if (gameInstance.getUserId() != null) {
+      return gameInstance.getUserId().toString();
+    }
+
+    return userRepository
+        .findByUsername(gameInstance.getUsername())
+        .map(User::getId)
+        .map(Object::toString)
+        .orElse(gameInstance.getUsername());
   }
 
   private String encodeSecret(String value) {

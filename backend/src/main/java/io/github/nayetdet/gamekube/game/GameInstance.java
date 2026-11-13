@@ -1,6 +1,7 @@
 package io.github.nayetdet.gamekube.game;
 
 import java.net.URI;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 public class GameInstance {
 
   private String gameId;
+  private UUID userId;
   private String username;
   private String name;
   private String host;

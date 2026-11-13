@@ -37,8 +37,16 @@ resources:
                     secretKeyRef: {name: minio, key: rootPassword}
                 - name: MC_HOST_storage
                   value: http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@minio.${GAME_NAMESPACE}.svc:9000
-              command: [mc]
-              args: [mirror, "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USERNAME}", /data]
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  save_path="storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"
+                  : > /data/.gamekube-prefix
+                  mc cp /data/.gamekube-prefix "$save_path/.gamekube-prefix"
+                  mc mirror --overwrite "$save_path" /data
+                  rm -f /data/.gamekube-prefix
+                  mc rm "$save_path/.gamekube-prefix"
               volumeMounts:
                 - {name: game-data, mountPath: /data}
           containers:
@@ -68,34 +76,18 @@ resources:
                     secretKeyRef: {name: minio, key: rootPassword}
                 - name: MC_HOST_storage
                   value: http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@minio.${GAME_NAMESPACE}.svc:9000
-              command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  while :; do
-                    mc mirror --watch --overwrite --retry /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USERNAME}" || true
-                    sleep 5
-                  done
+              command: [mc]
+              args: [mirror, --watch, --overwrite, --retry, /data, "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"]
               lifecycle:
                 preStop:
                   exec:
                     command:
                       - /bin/sh
                       - -c
-                      - |
-                        sleep 10
-
-                        mc mirror --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USERNAME}" &
-                        sync_pid=$!
-
-                        (sleep 90; kill "$sync_pid" 2>/dev/null || true) &
-                        watchdog_pid=$!
-
-                        wait "$sync_pid"
-                        sync_status=$?
-
-                        kill "$watchdog_pid" 2>/dev/null || true
-                        wait "$watchdog_pid" 2>/dev/null || true
-                        exit "$sync_status"
+                      - >-
+                        sleep 10 && timeout --signal=TERM --kill-after=5s 90s
+                        mc mirror --overwrite /data
+                        "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"
               volumeMounts:
                 - {name: game-data, mountPath: /data}
             - name: oauth2-proxy
