@@ -7,7 +7,6 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameInstanceDestroyException;
 import io.github.nayetdet.gamekube.exception.GameInstanceProvisionException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
-import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.io.ByteArrayInputStream;
@@ -120,7 +119,7 @@ public class GameInstanceProvider {
                                 userRepository
                                     .findByUsernameIgnoreCase(gameInstance.getUsername())
                                     .map(user -> user.getId().toString())
-                                    .orElseThrow(UserNotFoundException::new))
+                                    .orElse(""))
                             .replace("${GAME_USERNAME}", gameInstance.getUsername())
                             .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
                             .replace("${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}", internalIssuerUrl)
