@@ -76,8 +76,13 @@ resources:
                     secretKeyRef: {name: minio, key: rootPassword}
                 - name: MC_HOST_storage
                   value: http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@minio.${GAME_NAMESPACE}.svc:9000
-              command: [mc]
-              args: [mirror, --watch, --overwrite, --retry, /data, "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"]
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  while true; do
+                    mc mirror --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"
+                    sleep 10
+                  done
               lifecycle:
                 preStop:
                   exec:
