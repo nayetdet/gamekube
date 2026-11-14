@@ -63,7 +63,7 @@ resources:
                   fi
                   exec /init
               volumeMounts:
-                - {name: game-data, mountPath: /config/.local/share}
+                - {name: game-data, mountPath: /config/.local/share/off}
               ports:
                 - name: http
                   containerPort: 3000
