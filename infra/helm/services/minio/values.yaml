@@ -34,3 +34,4 @@ server:
   bucket: &saveBucket saves
   buckets:
     - name: *saveBucket
+    - name: avatars
