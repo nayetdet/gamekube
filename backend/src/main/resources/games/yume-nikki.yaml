@@ -52,6 +52,15 @@ resources:
           containers:
             - name: ${GAME_ID}
               image: ghcr.io/nayetdet/yume-nikki-docker:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - >-
+                  mkdir -p /config/.local/share/yume-nikki &&
+                  if ! grep -Fq -- '--save-path /config/.local/share/yume-nikki' /etc/services.d/yume-nikki/run; then
+                    grep -Fq -- '--project-path /opt/yume-nikki/yumenikki' /etc/services.d/yume-nikki/run &&
+                    sed -i 's|--project-path /opt/yume-nikki/yumenikki|--project-path /opt/yume-nikki/yumenikki --save-path /config/.local/share/yume-nikki|' /etc/services.d/yume-nikki/run
+                  fi &&
+                  exec /init
               volumeMounts:
                 - {name: game-data, mountPath: /config/.local/share}
               ports:

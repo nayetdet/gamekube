@@ -52,6 +52,15 @@ resources:
           containers:
             - name: ${GAME_ID}
               image: ghcr.io/nayetdet/off-docker:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - >-
+                  mkdir -p /config/.local/share/off &&
+                  if ! grep -Fq -- '--save-path /config/.local/share/off' /etc/services.d/off/run; then
+                    grep -Fq -- '--project-path /opt/off/off-english-3.0' /etc/services.d/off/run &&
+                    sed -i 's|--project-path /opt/off/off-english-3.0|--project-path /opt/off/off-english-3.0 --save-path /config/.local/share/off|' /etc/services.d/off/run
+                  fi &&
+                  exec /init
               volumeMounts:
                 - {name: game-data, mountPath: /config/.local/share}
               ports:
