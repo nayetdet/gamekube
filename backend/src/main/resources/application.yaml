@@ -49,11 +49,12 @@ gamekube:
       tls-secret: gamekube-tls
       protocol: https
       readiness-timeout: 5m
+      shutdown-timeout: 5m
     instance:
       idle-timeout: 5m
       cleanup:
         interval: 15s
-        lock-timeout: 30s
+        lock-timeout: 5m
     auth:
       oidc-issuer-url: ${GAME_KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
       oidc-internal-issuer-url: http://gamekube-keycloak/realms/${KEYCLOAK_REALM}

@@ -35,7 +35,9 @@ public class GameInstanceLifecycleProvider {
       return Optional.empty();
     }
 
-    if (!hasActiveLease(GameInstanceCacheRegistry.key(gameId, username))) {
+    if (!Boolean.TRUE.equals(
+        redisTemplate.hasKey(
+            GameInstanceCacheRegistry.leaseKey(GameInstanceCacheRegistry.key(gameId, username))))) {
       redisTemplate.delete(activeKey);
       return Optional.empty();
     }
@@ -48,18 +50,34 @@ public class GameInstanceLifecycleProvider {
       throw new GameNotFoundException();
     }
 
-    String activeKey = GameInstanceCacheRegistry.activeKey(instance.getUsername());
+    String instanceKey =
+        GameInstanceCacheRegistry.key(instance.getGameId(), instance.getUsername());
+    String lock = GameInstanceCacheRegistry.LOCK.formatted(instanceKey);
     if (!Boolean.TRUE.equals(
-        redisTemplate.opsForValue().setIfAbsent(activeKey, instance.getGameId(), idleTimeout))) {
+        redisTemplate.opsForValue().setIfAbsent(lock, "locked", lockTimeout))) {
       return false;
     }
 
     try {
-      renew(GameInstanceCacheRegistry.key(instance.getGameId(), instance.getUsername()));
-      return true;
-    } catch (RuntimeException exception) {
-      redisTemplate.delete(activeKey);
-      throw exception;
+      if (!Boolean.TRUE.equals(
+          redisTemplate
+              .opsForValue()
+              .setIfAbsent(
+                  GameInstanceCacheRegistry.activeKey(instance.getUsername()),
+                  instance.getGameId(),
+                  idleTimeout))) {
+        return false;
+      }
+
+      try {
+        renew(instanceKey);
+        return true;
+      } catch (RuntimeException exception) {
+        redisTemplate.delete(GameInstanceCacheRegistry.activeKey(instance.getUsername()));
+        throw exception;
+      }
+    } finally {
+      redisTemplate.delete(lock);
     }
   }
 
@@ -71,7 +89,8 @@ public class GameInstanceLifecycleProvider {
     String instanceKey =
         GameInstanceCacheRegistry.key(instance.getGameId(), instance.getUsername());
 
-    if (hasActiveLease(instanceKey)) {
+    if (Boolean.TRUE.equals(
+        redisTemplate.hasKey(GameInstanceCacheRegistry.leaseKey(instanceKey)))) {
       renew(instanceKey);
       redisTemplate.expire(
           GameInstanceCacheRegistry.activeKey(instance.getUsername()), idleTimeout);
@@ -84,8 +103,7 @@ public class GameInstanceLifecycleProvider {
       redisTemplate.delete(activeKey);
       String instanceKey =
           GameInstanceCacheRegistry.key(instance.getGameId(), instance.getUsername());
-
-      redisTemplate.delete(GameInstanceCacheRegistry.LEASE.formatted(instanceKey));
+      redisTemplate.delete(GameInstanceCacheRegistry.leaseKey(instanceKey));
       redisTemplate.opsForZSet().remove(GameInstanceCacheRegistry.EXPIRATIONS, instanceKey);
     }
   }
@@ -112,7 +130,7 @@ public class GameInstanceLifecycleProvider {
     }
 
     try {
-      if (hasActiveLease(instance)) {
+      if (Boolean.TRUE.equals(redisTemplate.hasKey(GameInstanceCacheRegistry.leaseKey(instance)))) {
         refresh(instance);
         return;
       }
@@ -141,15 +159,10 @@ public class GameInstanceLifecycleProvider {
     }
   }
 
-  private boolean hasActiveLease(String instance) {
-    return Boolean.TRUE.equals(
-        redisTemplate.hasKey(GameInstanceCacheRegistry.LEASE.formatted(instance)));
-  }
-
   private void renew(String instance) {
     redisTemplate
         .opsForValue()
-        .set(GameInstanceCacheRegistry.LEASE.formatted(instance), "active", idleTimeout);
+        .set(GameInstanceCacheRegistry.leaseKey(instance), "active", idleTimeout);
 
     redisTemplate
         .opsForZSet()
@@ -162,7 +175,7 @@ public class GameInstanceLifecycleProvider {
   private void refresh(String instance) {
     long remaining =
         redisTemplate.getExpire(
-            GameInstanceCacheRegistry.LEASE.formatted(instance), TimeUnit.MILLISECONDS);
+            GameInstanceCacheRegistry.leaseKey(instance), TimeUnit.MILLISECONDS);
 
     if (remaining > 0) {
       redisTemplate

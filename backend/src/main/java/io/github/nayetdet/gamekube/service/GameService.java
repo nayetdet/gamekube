@@ -42,19 +42,27 @@ public class GameService {
       throw new GameNotFoundException();
     }
 
-    GameInstance instance = gameInstanceProvider.instance(game);
     boolean claimed = false;
+    GameInstance instance = gameInstanceProvider.instance(game);
     try {
       claimed = gameInstanceLifecycleProvider.provision(instance);
       if (!claimed) {
         throw new GameInstanceAlreadyActiveException();
       }
 
-      return gameMapper.toResponse(gameInstanceProvider.provision(game));
+      return gameMapper.toResponse(
+          gameInstanceProvider.provision(
+              game, () -> gameInstanceLifecycleProvider.renew(instance)));
     } catch (RuntimeException exception) {
       if (claimed) {
-        gameInstanceLifecycleProvider.destroy(instance);
+        try {
+          gameInstanceProvider.destroy(game, instance);
+          gameInstanceLifecycleProvider.destroy(instance);
+        } catch (RuntimeException cleanupException) {
+          exception.addSuppressed(cleanupException);
+        }
       }
+
       throw exception;
     }
   }
@@ -70,6 +78,7 @@ public class GameService {
         .findCurrentGameId(instance.getUsername())
         .filter(gameId::equals)
         .isPresent()) {
+      gameInstanceLifecycleProvider.renew(instance);
       gameInstanceProvider.destroy(game, instance);
       gameInstanceLifecycleProvider.destroy(instance);
     }

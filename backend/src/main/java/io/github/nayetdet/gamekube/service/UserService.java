@@ -104,7 +104,6 @@ public class UserService {
                         .orElse(null)));
   }
 
-  @Transactional(readOnly = true)
   public void updateEmail(String username) {
     User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     AuthorizationHelper.validateResourceAccess(user.getKeycloakId());
@@ -119,13 +118,11 @@ public class UserService {
     userRepository.save(user);
   }
 
-  @Transactional
   public void delete(String username) {
     User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     AuthorizationHelper.validateResourceAccess(user.getKeycloakId());
-    userRepository.delete(user);
-    userRepository.flush();
     keycloakService.delete(user.getKeycloakId());
+    userRepository.delete(user);
   }
 
   public void markAsOnline(String username, String sessionId) {
