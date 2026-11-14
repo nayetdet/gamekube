@@ -2,6 +2,8 @@ package io.github.nayetdet.gamekube.service;
 
 import io.github.nayetdet.gamekube.cache.UserCacheRegistry;
 import io.github.nayetdet.gamekube.enums.UserStatus;
+import io.github.nayetdet.gamekube.exception.UserAvatarInvalidException;
+import io.github.nayetdet.gamekube.exception.UserAvatarNotFoundException;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.game.GameInstanceLifecycleProvider;
 import io.github.nayetdet.gamekube.mapper.UserMapper;
@@ -13,9 +15,11 @@ import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import io.github.nayetdet.gamekube.security.AuthorizationHelper;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -23,21 +27,36 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+  private static final Map<String, String> ALLOWED_AVATAR_TYPES =
+      Map.of(
+          MediaType.IMAGE_JPEG_VALUE,
+          ".jpg",
+          MediaType.IMAGE_PNG_VALUE,
+          ".png",
+          "image/webp",
+          ".webp");
+
   private final GameInstanceLifecycleProvider gameInstanceLifecycleProvider;
   private final KeycloakService keycloakService;
+  private final StorageService storageService;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
   private final StringRedisTemplate redisTemplate;
 
   @Value("${gamekube.user.presence.heartbeat-timeout}")
   private Duration heartbeatTimeout;
+
+  @Value("${gamekube.user.storage.avatar-bucket}")
+  private String avatarBucket;
 
   @Transactional(readOnly = true)
   public ApplicationPage<UserResponse> search(UserQuery query) {
@@ -118,9 +137,57 @@ public class UserService {
     userRepository.save(user);
   }
 
+  @Transactional(readOnly = true)
+  public StorageService.StorageObject getAvatar(String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    if (user.getAvatarKey() == null) {
+      throw new UserAvatarNotFoundException();
+    }
+
+    return storageService
+        .getObject(avatarBucket, user.getAvatarKey())
+        .orElseThrow(UserAvatarNotFoundException::new);
+  }
+
+  @Transactional
+  public void updateAvatar(String username, MultipartFile file) {
+    User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    AuthorizationHelper.validateResourceAccess(user.getKeycloakId());
+
+    if (file == null || file.isEmpty()) {
+      throw new UserAvatarInvalidException("Avatar file must not be empty");
+    }
+
+    String contentType = file.getContentType();
+    String extension = contentType != null ? ALLOWED_AVATAR_TYPES.get(contentType) : null;
+    if (extension == null) {
+      throw new UserAvatarInvalidException("Avatar must be a JPEG, PNG, or WebP image");
+    }
+
+    byte[] content;
+    try {
+      content = file.getBytes();
+    } catch (IOException exception) {
+      throw new UserAvatarInvalidException("Failed to read avatar file");
+    }
+
+    String previousKey = user.getAvatarKey();
+    String newKey = user.getId() + extension;
+    storageService.putObject(avatarBucket, newKey, content, contentType);
+    if (previousKey != null && !previousKey.equals(newKey)) {
+      storageService.deleteObject(avatarBucket, previousKey);
+    }
+
+    user.setAvatarKey(newKey);
+    userRepository.save(user);
+  }
+
   public void delete(String username) {
     User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     AuthorizationHelper.validateResourceAccess(user.getKeycloakId());
+    if (user.getAvatarKey() != null) {
+      storageService.deleteObject(avatarBucket, user.getAvatarKey());
+    }
     keycloakService.delete(user.getKeycloakId());
     userRepository.delete(user);
   }
