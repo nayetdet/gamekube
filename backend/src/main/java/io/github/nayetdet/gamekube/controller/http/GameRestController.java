@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 @RequestMapping("/v1/games")
@@ -55,6 +58,28 @@ public class GameRestController implements GameRestControllerDocs {
   @DeleteMapping("/{gameId}/instance")
   public ResponseEntity<Void> destroy(@PathVariable String gameId) {
     gameService.destroy(gameId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  @PreAuthorizeUser
+  @GetMapping(value = "/{gameId}/save", produces = "application/zip")
+  public ResponseEntity<StreamingResponseBody> downloadSave(@PathVariable String gameId) {
+    StreamingResponseBody body = gameService.downloadSave(gameId);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentDisposition(
+        ContentDisposition.attachment().filename(gameId + "-save.zip").build());
+    return ResponseEntity.ok()
+        .headers(headers)
+        .contentType(MediaType.parseMediaType("application/zip"))
+        .body(body);
+  }
+
+  @Override
+  @PreAuthorizeUser
+  @DeleteMapping("/{gameId}/save")
+  public ResponseEntity<Void> deleteSave(@PathVariable String gameId) {
+    gameService.deleteSave(gameId);
     return ResponseEntity.noContent().build();
   }
 }

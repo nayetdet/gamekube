@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Tag(name = "Games", description = "Game catalog and the authenticated user's game instance")
 public interface GameRestControllerDocs {
@@ -73,4 +74,33 @@ public interface GameRestControllerDocs {
         @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
       })
   ResponseEntity<byte[]> image(@PathVariable String gameId);
+
+  @Operation(
+      summary = "Download the authenticated user's save data for a game as a ZIP archive",
+      security = @SecurityRequirement(name = "bearerAuth"),
+      responses = {
+        @ApiResponse(
+            description = "OK",
+            responseCode = "200",
+            content =
+                @Content(
+                    mediaType = "application/zip",
+                    schema = @Schema(type = "string", format = "binary"))),
+        @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+        @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+        @ApiResponse(description = "Bad Gateway", responseCode = "502", content = @Content)
+      })
+  ResponseEntity<StreamingResponseBody> downloadSave(@PathVariable String gameId);
+
+  @Operation(
+      summary = "Delete the authenticated user's save data for a game",
+      security = @SecurityRequirement(name = "bearerAuth"),
+      responses = {
+        @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+        @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+        @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+        @ApiResponse(description = "Conflict", responseCode = "409", content = @Content),
+        @ApiResponse(description = "Bad Gateway", responseCode = "502", content = @Content)
+      })
+  ResponseEntity<Void> deleteSave(@PathVariable String gameId);
 }

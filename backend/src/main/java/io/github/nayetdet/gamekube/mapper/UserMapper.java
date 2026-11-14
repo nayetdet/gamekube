@@ -28,6 +28,7 @@ public class UserMapper {
         .username(user.getUsername())
         .name(user.getName())
         .description(user.getDescription())
+        .hasAvatar(user.getAvatarKey() != null)
         .status(status)
         .currentGame(currentGame)
         .lastSeenAt(user.getLastSeenAt())

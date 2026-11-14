@@ -24,6 +24,7 @@ public class UserResponse {
   private String username;
   private String name;
   private String description;
+  private boolean hasAvatar;
 
   @Getter(AccessLevel.NONE)
   private String currentGame;

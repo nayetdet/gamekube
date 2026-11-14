@@ -32,6 +32,9 @@ public class User extends BaseModel {
   @Column(length = 1000)
   private String description;
 
+  @Column(name = "avatar_key", length = 255)
+  private String avatarKey;
+
   @Column(name = "last_seen_at")
   private LocalDateTime lastSeenAt;
 }
