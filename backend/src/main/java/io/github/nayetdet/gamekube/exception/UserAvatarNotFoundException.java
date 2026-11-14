@@ -12,4 +12,3 @@ public class UserAvatarNotFoundException extends BaseException {
     super(DEFAULT_ERROR_MESSAGE);
   }
 }
-

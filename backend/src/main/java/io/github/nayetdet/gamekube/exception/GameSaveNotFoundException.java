@@ -12,4 +12,3 @@ public class GameSaveNotFoundException extends BaseException {
     super(DEFAULT_ERROR_MESSAGE);
   }
 }
-

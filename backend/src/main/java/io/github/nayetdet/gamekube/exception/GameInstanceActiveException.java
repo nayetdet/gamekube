@@ -13,4 +13,3 @@ public class GameInstanceActiveException extends BaseException {
     super(DEFAULT_ERROR_MESSAGE);
   }
 }
-

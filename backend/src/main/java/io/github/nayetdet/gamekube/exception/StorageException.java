@@ -12,4 +12,3 @@ public class StorageException extends BaseException {
     super(DEFAULT_ERROR_MESSAGE, cause);
   }
 }
-

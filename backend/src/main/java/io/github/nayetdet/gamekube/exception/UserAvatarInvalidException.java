@@ -10,4 +10,3 @@ public class UserAvatarInvalidException extends BaseException {
     super(message);
   }
 }
-
