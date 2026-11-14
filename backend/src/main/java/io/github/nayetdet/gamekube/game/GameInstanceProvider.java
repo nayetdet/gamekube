@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameInstanceDestroyException;
 import io.github.nayetdet.gamekube.exception.GameInstanceProvisionException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.io.ByteArrayInputStream;
@@ -16,6 +17,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,7 +65,7 @@ public class GameInstanceProvider {
 
   public GameInstance provision(Game game) {
     GameInstance instance = instance(game);
-    List<HasMetadata> resources = load(game, instance);
+    List<HasMetadata> resources = load(game, instance, true);
     validate(resources);
     apply(resources);
     wait(instance);
@@ -75,7 +77,7 @@ public class GameInstanceProvider {
   }
 
   public void destroy(Game game, GameInstance instance) {
-    List<HasMetadata> resources = load(game, instance);
+    List<HasMetadata> resources = load(game, instance, false);
 
     try {
       for (HasMetadata resource : resources.reversed()) {
@@ -99,7 +101,8 @@ public class GameInstanceProvider {
         .build();
   }
 
-  private List<HasMetadata> load(Game game, GameInstance gameInstance) {
+  private List<HasMetadata> load(
+      Game game, GameInstance gameInstance, boolean requireExistingUser) {
     try {
       List<HasMetadata> resources =
           game.getResources().stream()
@@ -119,7 +122,12 @@ public class GameInstanceProvider {
                                 userRepository
                                     .findByUsernameIgnoreCase(gameInstance.getUsername())
                                     .map(user -> user.getId().toString())
-                                    .orElse(""))
+                                    .or(
+                                        () ->
+                                            requireExistingUser
+                                                ? Optional.empty()
+                                                : Optional.of(""))
+                                    .orElseThrow(UserNotFoundException::new))
                             .replace("${GAME_USERNAME}", gameInstance.getUsername())
                             .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
                             .replace("${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}", internalIssuerUrl)
@@ -146,6 +154,8 @@ public class GameInstanceProvider {
       }
 
       return resources;
+    } catch (UserNotFoundException exception) {
+      throw exception;
     } catch (GameInvalidException exception) {
       throw exception;
     } catch (RuntimeException exception) {
