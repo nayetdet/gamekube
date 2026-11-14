@@ -42,6 +42,19 @@ resources:
           securityContext:
             fsGroup: 911
           initContainers:
+            - name: install-freedoom
+              image: alpine:3.22
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  apk add --no-cache curl unzip
+                  curl -fsSL https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip -o /tmp/freedoom.zip
+                  echo "3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59  /tmp/freedoom.zip" | sha256sum -c -
+                  unzip -p /tmp/freedoom.zip freedoom-0.13.0/freedoom1.wad > /games/freedoom1.wad
+                  chmod 644 /games/freedoom1.wad
+              volumeMounts:
+                - {name: doom-data, mountPath: /games}
             - name: restore-game-data
               image: docker.io/pgsty/minio:RELEASE.2026-08-04T00-00-00Z
               env:
@@ -70,19 +83,26 @@ resources:
           containers:
             - name: ${GAME_ID}
               image: ghcr.io/nayetdet/gzdoom-docker:latest
+              env:
+                - name: GZDOOM_IWAD
+                  value: /games/freedoom1.wad
               lifecycle:
                 preStop:
                   exec:
                     command:
                       - /bin/sh
                       - -c
-                      - >-
-                        s6-svc -d /run/service/gzdoom &&
-                        (timeout --signal=TERM --kill-after=5s 60s s6-svc -wD /run/service/gzdoom || { s6-svc -k /run/service/gzdoom && s6-svc -wD /run/service/gzdoom; }) &&
+                      - |
+                        s6-svc -d /run/service/gzdoom >/dev/null 2>&1 || true
+                        if ! timeout --signal=TERM --kill-after=5s 60s s6-svc -wD /run/service/gzdoom; then
+                          s6-svc -k /run/service/gzdoom >/dev/null 2>&1 || true
+                          timeout --signal=TERM --kill-after=5s 10s s6-svc -wD /run/service/gzdoom || true
+                        fi
                         touch /gamekube-lifecycle/game-stopped
               volumeMounts:
                 - {name: game-lifecycle, mountPath: /gamekube-lifecycle}
                 - {name: game-data, mountPath: /config/.config/gzdoom}
+                - {name: doom-data, mountPath: /games, readOnly: true}
               ports:
                 - name: http
                   containerPort: 3000
@@ -108,11 +128,12 @@ resources:
               command: ["/bin/sh", "-c"]
               args:
                 - |
+                  trap 'touch /gamekube-lifecycle/game-stopped' TERM INT
                   while true; do
                     if [ -f /gamekube-lifecycle/game-stopped ]; then
                       attempt=0
                       while [ "$attempt" -lt 3 ]; do
-                        if timeout --signal=TERM --kill-after=5s 30s mc mirror --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"; then
+                        if timeout --signal=TERM --kill-after=5s 30s mc mirror --remove --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"; then
                           touch /gamekube-lifecycle/sync-complete
                           break
                         fi
@@ -124,7 +145,7 @@ resources:
                       fi
                       break
                     fi
-                    timeout --signal=TERM --kill-after=5s 20s mc mirror --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}" || true
+                    timeout --signal=TERM --kill-after=5s 20s mc mirror --remove --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}" || true
                     sleep 10
                   done
               lifecycle:
@@ -133,8 +154,12 @@ resources:
                     command:
                       - /bin/sh
                       - -c
-                      - >-
-                        while [ ! -f /gamekube-lifecycle/sync-complete ] && [ ! -f /gamekube-lifecycle/sync-failed ]; do sleep 1; done
+                      - |
+                        attempt=0
+                        while [ "$attempt" -lt 90 ] && [ ! -f /gamekube-lifecycle/game-stopped ]; do
+                          attempt=$((attempt + 1))
+                          sleep 1
+                        done
               volumeMounts:
                 - {name: game-lifecycle, mountPath: /gamekube-lifecycle}
                 - {name: game-data, mountPath: /data}
@@ -184,6 +209,8 @@ resources:
                   mountPath: /etc/game-auth
                   readOnly: true
           volumes:
+            - name: doom-data
+              emptyDir: {}
             - name: game-data
               persistentVolumeClaim:
                 claimName: ${GAME_ID}-${GAME_USER_ID}

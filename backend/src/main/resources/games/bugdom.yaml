@@ -76,9 +76,12 @@ resources:
                     command:
                       - /bin/sh
                       - -c
-                      - >-
-                        s6-svc -d /run/service/bugdom &&
-                        (timeout --signal=TERM --kill-after=5s 60s s6-svc -wD /run/service/bugdom || { s6-svc -k /run/service/bugdom && s6-svc -wD /run/service/bugdom; }) &&
+                      - |
+                        s6-svc -d /run/service/bugdom >/dev/null 2>&1 || true
+                        if ! timeout --signal=TERM --kill-after=5s 60s s6-svc -wD /run/service/bugdom; then
+                          s6-svc -k /run/service/bugdom >/dev/null 2>&1 || true
+                          timeout --signal=TERM --kill-after=5s 10s s6-svc -wD /run/service/bugdom || true
+                        fi
                         touch /gamekube-lifecycle/game-stopped
               volumeMounts:
                 - {name: game-lifecycle, mountPath: /gamekube-lifecycle}
@@ -108,11 +111,12 @@ resources:
               command: ["/bin/sh", "-c"]
               args:
                 - |
+                  trap 'touch /gamekube-lifecycle/game-stopped' TERM INT
                   while true; do
                     if [ -f /gamekube-lifecycle/game-stopped ]; then
                       attempt=0
                       while [ "$attempt" -lt 3 ]; do
-                        if timeout --signal=TERM --kill-after=5s 30s mc mirror --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"; then
+                        if timeout --signal=TERM --kill-after=5s 30s mc mirror --remove --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"; then
                           touch /gamekube-lifecycle/sync-complete
                           break
                         fi
@@ -124,7 +128,7 @@ resources:
                       fi
                       break
                     fi
-                    timeout --signal=TERM --kill-after=5s 20s mc mirror --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}" || true
+                    timeout --signal=TERM --kill-after=5s 20s mc mirror --remove --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}" || true
                     sleep 10
                   done
               lifecycle:
@@ -133,8 +137,12 @@ resources:
                     command:
                       - /bin/sh
                       - -c
-                      - >-
-                        while [ ! -f /gamekube-lifecycle/sync-complete ] && [ ! -f /gamekube-lifecycle/sync-failed ]; do sleep 1; done
+                      - |
+                        attempt=0
+                        while [ "$attempt" -lt 90 ] && [ ! -f /gamekube-lifecycle/game-stopped ]; do
+                          attempt=$((attempt + 1))
+                          sleep 1
+                        done
               volumeMounts:
                 - {name: game-lifecycle, mountPath: /gamekube-lifecycle}
                 - {name: game-data, mountPath: /data}
