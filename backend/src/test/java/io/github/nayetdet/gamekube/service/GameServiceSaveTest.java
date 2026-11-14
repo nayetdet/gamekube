@@ -57,7 +57,8 @@ class GameServiceSaveTest {
 
     Jwt jwt =
         Jwt.withTokenValue("token").header("alg", "none").subject(keycloakId.toString()).build();
-    SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
+    SecurityContextHolder.getContext()
+        .setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
   }
 
   @AfterEach

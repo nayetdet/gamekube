@@ -13,6 +13,7 @@ import io.github.nayetdet.gamekube.game.GameInstanceLifecycleProvider;
 import io.github.nayetdet.gamekube.mapper.UserMapper;
 import io.github.nayetdet.gamekube.model.User;
 import io.github.nayetdet.gamekube.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -53,7 +54,8 @@ class UserServiceAvatarTest {
 
     Jwt jwt =
         Jwt.withTokenValue("token").header("alg", "none").subject(keycloakId.toString()).build();
-    SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
+    SecurityContextHolder.getContext()
+        .setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
   }
 
   @AfterEach
