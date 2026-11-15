@@ -7,6 +7,8 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.github.nayetdet.gamekube.exception.GameInstanceDestroyException;
 import io.github.nayetdet.gamekube.exception.GameInstanceProvisionException;
 import io.github.nayetdet.gamekube.exception.GameInvalidException;
+import io.github.nayetdet.gamekube.exception.UserNotFoundException;
+import io.github.nayetdet.gamekube.repository.UserRepository;
 import io.github.nayetdet.gamekube.security.AuthenticationHelper;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -15,7 +17,11 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,6 +31,7 @@ import org.springframework.stereotype.Component;
 public class GameInstanceProvider {
 
   private final KubernetesClient kubernetesClient;
+  private final UserRepository userRepository;
 
   @Value("${gamekube.game.infra.namespace}")
   private String namespace;
@@ -41,6 +48,12 @@ public class GameInstanceProvider {
   @Value("${gamekube.game.infra.readiness-timeout}")
   private Duration readinessTimeout;
 
+  @Value("${gamekube.game.infra.shutdown-timeout}")
+  private Duration shutdownTimeout;
+
+  @Value("${gamekube.game.storage.save-bucket}")
+  private String saveBucket;
+
   @Value("${gamekube.game.auth.oidc-issuer-url}")
   private String issuerUrl;
 
@@ -56,12 +69,37 @@ public class GameInstanceProvider {
   @Value("${gamekube.game.auth.client-secret}")
   private String clientSecret;
 
-  public GameInstance provision(Game game) {
+  public GameInstance provision(Game game, Runnable keepAlive) {
     GameInstance instance = instance(game);
-    List<HasMetadata> resources = load(game, instance);
+    List<HasMetadata> resources = load(game, instance, true);
     validate(resources);
+
+    try {
+      if (!waitForPods(
+          instance,
+          resources.stream()
+              .map(HasMetadata::getMetadata)
+              .map(metadata -> metadata.getLabels())
+              .filter(Objects::nonNull)
+              .map(labels -> labels.get("user"))
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElse(null),
+          keepAlive)) {
+        throw new GameInstanceProvisionException(
+            new TimeoutException("Timed out waiting for game Pods to terminate"));
+      }
+    } catch (GameInstanceProvisionException exception) {
+      throw exception;
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt();
+      throw new GameInstanceProvisionException(exception);
+    } catch (RuntimeException exception) {
+      throw new GameInstanceProvisionException(exception);
+    }
+
     apply(resources);
-    wait(instance);
+    waitForDeployment(instance, keepAlive);
     return instance;
   }
 
@@ -70,14 +108,29 @@ public class GameInstanceProvider {
   }
 
   public void destroy(Game game, GameInstance instance) {
-    List<HasMetadata> resources = load(game, instance);
+    List<HasMetadata> resources = load(game, instance, false);
 
+    boolean previousPodsTerminated;
     try {
       for (HasMetadata resource : resources.reversed()) {
+        if ("PersistentVolumeClaim".equals(resource.getKind())) {
+          continue;
+        }
+
         kubernetesClient.resource(resource).inNamespace(namespace).delete();
       }
+
+      previousPodsTerminated = waitForPods(instance, null, null);
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt();
+      throw new GameInstanceDestroyException(exception);
     } catch (RuntimeException exception) {
       throw new GameInstanceDestroyException(exception);
+    }
+
+    if (!previousPodsTerminated) {
+      throw new GameInstanceDestroyException(
+          new TimeoutException("Timed out waiting for game Pods to terminate"));
     }
   }
 
@@ -94,7 +147,8 @@ public class GameInstanceProvider {
         .build();
   }
 
-  private List<HasMetadata> load(Game game, GameInstance gameInstance) {
+  private List<HasMetadata> load(
+      Game game, GameInstance gameInstance, boolean requireExistingUser) {
     try {
       List<HasMetadata> resources =
           game.getResources().stream()
@@ -107,7 +161,19 @@ public class GameInstanceProvider {
                             .replace("${GAME_NAME}", gameInstance.getName())
                             .replace("${GAME_HOST}", gameInstance.getHost())
                             .replace("${GAME_NAMESPACE}", namespace)
+                            .replace("${GAME_SAVE_BUCKET}", saveBucket)
                             .replace("${GAME_TLS_SECRET}", tlsSecret)
+                            .replace(
+                                "${GAME_USER_ID}",
+                                userRepository
+                                    .findByUsernameIgnoreCase(gameInstance.getUsername())
+                                    .map(user -> user.getId().toString())
+                                    .or(
+                                        () ->
+                                            requireExistingUser
+                                                ? Optional.empty()
+                                                : Optional.of(""))
+                                    .orElseThrow(UserNotFoundException::new))
                             .replace("${GAME_USERNAME}", gameInstance.getUsername())
                             .replace("${GAME_KEYCLOAK_ISSUER_URL}", issuerUrl)
                             .replace("${GAME_KEYCLOAK_INTERNAL_ISSUER_URL}", internalIssuerUrl)
@@ -132,7 +198,10 @@ public class GameInstanceProvider {
       if (resources.isEmpty()) {
         throw new GameInvalidException();
       }
+
       return resources;
+    } catch (UserNotFoundException exception) {
+      throw exception;
     } catch (GameInvalidException exception) {
       throw exception;
     } catch (RuntimeException exception) {
@@ -187,16 +256,74 @@ public class GameInstanceProvider {
     }
   }
 
-  private void wait(GameInstance gameInstance) {
-    try {
-      kubernetesClient
-          .apps()
-          .deployments()
+  private void waitForDeployment(GameInstance gameInstance, Runnable keepAlive) {
+    long deadline = System.nanoTime() + readinessTimeout.toNanos();
+    long nextKeepAlive = System.nanoTime();
+    while (System.nanoTime() < deadline) {
+      var deployment =
+          kubernetesClient
+              .apps()
+              .deployments()
+              .inNamespace(namespace)
+              .withName(gameInstance.getName())
+              .get();
+
+      if (deployment != null
+          && deployment.getSpec() != null
+          && deployment.getStatus() != null
+          && deployment.getStatus().getReadyReplicas() != null
+          && deployment.getStatus().getReadyReplicas()
+              >= Objects.requireNonNullElse(deployment.getSpec().getReplicas(), 1)) {
+        return;
+      }
+
+      if (System.nanoTime() >= nextKeepAlive) {
+        keepAlive.run();
+        nextKeepAlive = System.nanoTime() + Duration.ofSeconds(20).toNanos();
+      }
+
+      try {
+        TimeUnit.SECONDS.sleep(1);
+      } catch (InterruptedException exception) {
+        Thread.currentThread().interrupt();
+        throw new GameInstanceProvisionException(exception);
+      }
+    }
+
+    throw new GameInstanceProvisionException(
+        new TimeoutException("Timed out waiting for game Deployment to become ready"));
+  }
+
+  private boolean waitForPods(GameInstance gameInstance, String userId, Runnable keepAlive)
+      throws InterruptedException {
+    long deadline = System.nanoTime() + shutdownTimeout.toNanos();
+    while (true) {
+      if (kubernetesClient
+          .pods()
           .inNamespace(namespace)
-          .withName(gameInstance.getName())
-          .waitUntilReady(readinessTimeout.toSeconds(), TimeUnit.SECONDS);
-    } catch (RuntimeException exception) {
-      throw new GameInstanceProvisionException(exception);
+          .withLabel("game", gameInstance.getGameId())
+          .list()
+          .getItems()
+          .stream()
+          .noneMatch(
+              pod -> {
+                Map<String, String> labels = pod.getMetadata().getLabels();
+                return labels != null
+                    && (gameInstance.getName().equals(labels.get("app"))
+                        || (userId != null && userId.equals(labels.get("user"))));
+              })) {
+        return true;
+      }
+
+      if (System.nanoTime() >= deadline) {
+        return false;
+      }
+
+      if (keepAlive != null) {
+        keepAlive.run();
+      }
+
+      TimeUnit.SECONDS.sleep(10);
     }
   }
 }

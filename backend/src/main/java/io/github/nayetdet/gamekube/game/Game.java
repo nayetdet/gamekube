@@ -22,5 +22,6 @@ public class Game implements Serializable {
   private String name;
   private String description;
   private String image;
+  private Boolean hasSave;
   private List<Map<String, Object>> resources;
 }

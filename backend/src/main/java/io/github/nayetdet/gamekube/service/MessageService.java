@@ -51,7 +51,6 @@ public class MessageService {
             .map(messageMapper::toResponse));
   }
 
-  @Transactional
   public void updateReadStatus(String currentUsername, String senderUsername) {
     User recipient =
         userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
@@ -71,24 +70,26 @@ public class MessageService {
       }
 
       messageRepository.saveAll(unreadMessages);
-      messagingTemplate.convertAndSendToUser(
-          sender.getUsername(),
-          "/queue/messages/read",
-          MessagesReadEvent.builder()
-              .readerUsername(currentUsername)
-              .readAt(now.toString())
-              .count(unreadMessages.size())
-              .build());
+      try {
+        messagingTemplate.convertAndSendToUser(
+            sender.getUsername(),
+            "/queue/messages/read",
+            MessagesReadEvent.builder()
+                .readerUsername(currentUsername)
+                .readAt(now.toString())
+                .count(unreadMessages.size())
+                .build());
+      } catch (RuntimeException exception) {
+        log.warn("Could not dispatch message read event", exception);
+      }
     }
   }
 
-  @Transactional
   public MessageResponse create(
       String senderUsername, String recipientUsername, MessageRequest request) {
     return create(senderUsername, recipientUsername, request.getContent());
   }
 
-  @Transactional
   public MessageResponse create(String senderUsername, String recipientUsername, String content) {
     User sender =
         userRepository.findByUsername(senderUsername).orElseThrow(UserNotFoundException::new);
@@ -124,19 +125,22 @@ public class MessageService {
             response.getStatus(),
             response.getCreatedAt(),
             response.getReadAt());
-    messagingTemplate.convertAndSendToUser(recipient.getUsername(), "/queue/messages", event);
-    messagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/messages", event);
 
-    log.info(
-        "Message {} dispatched from {} to {}",
-        response.getId(),
-        senderUsername,
-        recipient.getUsername());
+    try {
+      messagingTemplate.convertAndSendToUser(recipient.getUsername(), "/queue/messages", event);
+      messagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/messages", event);
+      log.info(
+          "Message {} dispatched from {} to {}",
+          response.getId(),
+          senderUsername,
+          recipient.getUsername());
+    } catch (RuntimeException exception) {
+      log.warn("Could not dispatch message {} after saving it", response.getId(), exception);
+    }
 
     return response;
   }
 
-  @Transactional
   public MessageEvent createEvent(String senderUsername, String recipientUsername, String content) {
     MessageResponse response = create(senderUsername, recipientUsername, content);
     return MessageEvent.from(

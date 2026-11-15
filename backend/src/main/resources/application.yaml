@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: gamekube
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   cache:
     type: redis
   data:
@@ -41,17 +45,20 @@ springdoc:
     tags-sorter: alpha
 gamekube:
   game:
+    storage:
+      save-bucket: ${GAME_SAVE_BUCKET:saves}
     infra:
       namespace: gamekube
       domain: gamekube.localhost
       tls-secret: gamekube-tls
       protocol: https
       readiness-timeout: 5m
+      shutdown-timeout: 5m
     instance:
       idle-timeout: 5m
       cleanup:
         interval: 15s
-        lock-timeout: 30s
+        lock-timeout: 5m
     auth:
       oidc-issuer-url: ${GAME_KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
       oidc-internal-issuer-url: http://gamekube-keycloak/realms/${KEYCLOAK_REALM}
@@ -66,3 +73,10 @@ gamekube:
   user:
     presence:
       heartbeat-timeout: 30s
+    storage:
+      avatar-bucket: ${USER_AVATAR_BUCKET:avatars}
+  storage:
+    endpoint: ${STORAGE_ENDPOINT}
+    access-key: ${STORAGE_ACCESS_KEY}
+    secret-key: ${STORAGE_SECRET_KEY}
+    region: ${STORAGE_REGION:us-east-1}

@@ -42,6 +42,10 @@ public class KeycloakService {
     try {
       usersResource.get(keycloakId.toString()).remove();
     } catch (WebApplicationException e) {
+      if (e.getResponse().getStatus() == 404) {
+        return;
+      }
+
       log.error(e.getMessage());
       throw KeycloakExceptionStrategy.of(e.getResponse().getStatus());
     }

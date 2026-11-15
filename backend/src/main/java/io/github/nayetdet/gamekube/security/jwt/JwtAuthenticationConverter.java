@@ -11,6 +11,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,18 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
   @Override
   public AbstractAuthenticationToken convert(Jwt source) {
-    UUID keycloakId = UUID.fromString(source.getSubject());
+    String subject = source.getSubject();
+    if (subject == null || subject.isBlank()) {
+      throw new InvalidBearerTokenException("The access token does not contain a subject");
+    }
+
+    UUID keycloakId;
+    try {
+      keycloakId = UUID.fromString(subject);
+    } catch (IllegalArgumentException exception) {
+      throw new InvalidBearerTokenException("The access token subject is not a UUID");
+    }
+
     User user = userRepository.findByKeycloakId(keycloakId).orElseThrow(UserNotFoundException::new);
     Map<String, List<String>> realmAccess = source.getClaim("realm_access");
     List<SimpleGrantedAuthority> grantedAuthorities =

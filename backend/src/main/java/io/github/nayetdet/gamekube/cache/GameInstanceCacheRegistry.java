@@ -15,6 +15,10 @@ public class GameInstanceCacheRegistry {
     return "%s|%s".formatted(gameId, username.toLowerCase(Locale.ROOT));
   }
 
+  public static String leaseKey(String instance) {
+    return LEASE.formatted(instance);
+  }
+
   public static String activeKey(String username) {
     return ACTIVE.formatted(username.toLowerCase(Locale.ROOT));
   }

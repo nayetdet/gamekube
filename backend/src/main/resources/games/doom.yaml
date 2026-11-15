@@ -1,7 +1,22 @@
 name: DOOM
 description: A space marine is sent to Mars after assaulting a superior officer who ordered civilians killed. When the UAC's teleportation experiments open a gateway to Hell and overrun the bases on Phobos and Deimos, he must fight through the demon invasion alone.
 image: /images/doom.png
+hasSave: true
 resources:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: ${GAME_ID}-${GAME_USER_ID}
+      namespace: ${GAME_NAMESPACE}
+      labels:
+        game: "${GAME_ID}"
+        user: ${GAME_USER_ID}
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -9,7 +24,8 @@ resources:
       namespace: ${GAME_NAMESPACE}
       labels:
         app: ${GAME_NAME}
-        game: ${GAME_ID}
+        game: "${GAME_ID}"
+        user: ${GAME_USER_ID}
     spec:
       replicas: 1
       selector:
@@ -19,11 +35,74 @@ resources:
         metadata:
           labels:
             app: ${GAME_NAME}
-            game: ${GAME_ID}
+            game: "${GAME_ID}"
+            user: ${GAME_USER_ID}
         spec:
+          terminationGracePeriodSeconds: 240
+          securityContext:
+            fsGroup: 911
+          initContainers:
+            - name: install-freedoom
+              image: alpine:3.22
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  apk add --no-cache curl unzip
+                  curl -fsSL https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip -o /tmp/freedoom.zip
+                  echo "3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59  /tmp/freedoom.zip" | sha256sum -c -
+                  unzip -p /tmp/freedoom.zip freedoom-0.13.0/freedoom1.wad > /games/freedoom1.wad
+                  chmod 644 /games/freedoom1.wad
+              volumeMounts:
+                - {name: doom-data, mountPath: /games}
+            - name: restore-game-data
+              image: docker.io/pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+              env:
+                - name: MINIO_ROOT_USER
+                  valueFrom:
+                    secretKeyRef: {name: minio, key: rootUser}
+                - name: MINIO_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef: {name: minio, key: rootPassword}
+                - name: MC_HOST_storage
+                  value: http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@minio.${GAME_NAMESPACE}.svc:9000
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  if [ -f /data/.gamekube-initialized ]; then exit 0; fi
+                  save_path="storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"
+                  : > /data/.gamekube-prefix
+                  mc cp /data/.gamekube-prefix "$save_path/.gamekube-prefix"
+                  mc mirror --overwrite "$save_path" /data
+                  rm -f /data/.gamekube-prefix
+                  mc rm "$save_path/.gamekube-prefix"
+                  touch /data/.gamekube-initialized
+              volumeMounts:
+                - {name: game-data, mountPath: /data}
           containers:
             - name: ${GAME_ID}
               image: ghcr.io/nayetdet/gzdoom-docker:latest
+              env:
+                - name: GZDOOM_IWAD
+                  value: /games/freedoom1.wad
+              lifecycle:
+                preStop:
+                  exec:
+                    command:
+                      - /bin/sh
+                      - -c
+                      - |
+                        s6-svc -d /run/service/gzdoom >/dev/null 2>&1 || true
+                        if ! timeout --signal=TERM --kill-after=5s 60s s6-svc -wD /run/service/gzdoom; then
+                          s6-svc -k /run/service/gzdoom >/dev/null 2>&1 || true
+                          timeout --signal=TERM --kill-after=5s 10s s6-svc -wD /run/service/gzdoom || true
+                        fi
+                        touch /gamekube-lifecycle/game-stopped
+              volumeMounts:
+                - {name: game-lifecycle, mountPath: /gamekube-lifecycle}
+                - {name: game-data, mountPath: /config/.config/gzdoom}
+                - {name: doom-data, mountPath: /games, readOnly: true}
               ports:
                 - name: http
                   containerPort: 3000
@@ -35,6 +114,55 @@ resources:
                 periodSeconds: 5
                 timeoutSeconds: 3
                 failureThreshold: 12
+            - name: persist-game-data
+              image: docker.io/pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+              env:
+                - name: MINIO_ROOT_USER
+                  valueFrom:
+                    secretKeyRef: {name: minio, key: rootUser}
+                - name: MINIO_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef: {name: minio, key: rootPassword}
+                - name: MC_HOST_storage
+                  value: http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@minio.${GAME_NAMESPACE}.svc:9000
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  trap 'touch /gamekube-lifecycle/game-stopped' TERM INT
+                  while true; do
+                    if [ -f /gamekube-lifecycle/game-stopped ]; then
+                      attempt=0
+                      while [ "$attempt" -lt 3 ]; do
+                        if timeout --signal=TERM --kill-after=5s 30s mc mirror --remove --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}"; then
+                          touch /gamekube-lifecycle/sync-complete
+                          break
+                        fi
+                        attempt=$((attempt + 1))
+                        if [ "$attempt" -lt 3 ]; then sleep 5; fi
+                      done
+                      if [ ! -f /gamekube-lifecycle/sync-complete ]; then
+                        touch /gamekube-lifecycle/sync-failed
+                      fi
+                      break
+                    fi
+                    timeout --signal=TERM --kill-after=5s 20s mc mirror --remove --overwrite /data "storage/${GAME_SAVE_BUCKET}/${GAME_ID}/${GAME_USER_ID}" || true
+                    sleep 10
+                  done
+              lifecycle:
+                preStop:
+                  exec:
+                    command:
+                      - /bin/sh
+                      - -c
+                      - |
+                        attempt=0
+                        while [ "$attempt" -lt 90 ] && [ ! -f /gamekube-lifecycle/game-stopped ]; do
+                          attempt=$((attempt + 1))
+                          sleep 1
+                        done
+              volumeMounts:
+                - {name: game-lifecycle, mountPath: /gamekube-lifecycle}
+                - {name: game-data, mountPath: /data}
             - name: oauth2-proxy
               image: quay.io/oauth2-proxy/oauth2-proxy:v7.8.1
               env:
@@ -81,6 +209,13 @@ resources:
                   mountPath: /etc/game-auth
                   readOnly: true
           volumes:
+            - name: doom-data
+              emptyDir: {}
+            - name: game-data
+              persistentVolumeClaim:
+                claimName: ${GAME_ID}-${GAME_USER_ID}
+            - name: game-lifecycle
+              emptyDir: {}
             - name: game-auth
               configMap:
                 name: ${GAME_NAME}-auth
@@ -90,7 +225,7 @@ resources:
       name: ${GAME_NAME}
       namespace: ${GAME_NAMESPACE}
       labels:
-        game: ${GAME_ID}
+        game: "${GAME_ID}"
     spec:
       selector:
         app: ${GAME_NAME}
@@ -104,7 +239,7 @@ resources:
       name: ${GAME_NAME}
       namespace: ${GAME_NAMESPACE}
       labels:
-        game: ${GAME_ID}
+        game: "${GAME_ID}"
     spec:
       ingressClassName: traefik
       tls:
@@ -128,7 +263,7 @@ resources:
       name: ${GAME_NAME}-auth
       namespace: ${GAME_NAMESPACE}
       labels:
-        game: ${GAME_ID}
+        game: "${GAME_ID}"
     data:
       allowed-users: ${GAME_USERNAME}
   - apiVersion: v1
@@ -137,7 +272,7 @@ resources:
       name: ${GAME_NAME}-auth-cookie
       namespace: ${GAME_NAMESPACE}
       labels:
-        game: ${GAME_ID}
+        game: "${GAME_ID}"
     type: Opaque
     data:
       cookie-secret: ${GAME_KEYCLOAK_COOKIE_SECRET}
