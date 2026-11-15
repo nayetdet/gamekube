@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { env } from '@/config/env';
 import { authRoutes, publicRoutes, routes } from '@/config/routes';
 import { resolveSession } from '@/server/auth/proxy-session';
 import { clearAuthCookies } from '@/server/auth/session-response';
@@ -18,11 +19,11 @@ export async function proxy(request: NextRequest) {
   const isPublic = matches(pathname, publicRoutes);
 
   if (session && isPublic) {
-    return NextResponse.redirect(new URL(routes.dashboard, request.nextUrl));
+    return NextResponse.redirect(new URL(routes.dashboard, env().APP_URL));
   }
 
   if (!session && !isPublic) {
-    const target = new URL(routes.login, request.nextUrl);
+    const target = new URL(routes.login, env().APP_URL);
     target.searchParams.set('redirectTo', `${pathname}${search}`);
     const redirect = NextResponse.redirect(target);
     clearAuthCookies(redirect);

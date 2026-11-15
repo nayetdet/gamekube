@@ -27,7 +27,12 @@ export async function GET(request: NextRequest) {
 }
 
 function safeRedirect(value: string | null): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+  if (
+    !value ||
+    !value.startsWith('/') ||
+    value.startsWith('//') ||
+    value.includes('\\')
+  ) {
     return routes.dashboard;
   }
   return value;

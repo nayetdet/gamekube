@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { env } from '@/config/env';
 import { routes } from '@/config/routes';
 import { authorizationCookie } from '@/server/auth/session-cookies';
 import { unseal } from '@/server/auth/session-crypto';
@@ -9,8 +10,8 @@ import {
   type AuthorizationRequest,
 } from '@/server/auth/session-response';
 
-function failed(request: NextRequest, reason: string) {
-  const url = new URL(routes.login, request.nextUrl.origin);
+function failed(reason: string) {
+  const url = new URL(routes.login, env().APP_URL);
   url.searchParams.set('error', reason);
   const response = NextResponse.redirect(url);
   clearAuthCookies(response);
@@ -27,15 +28,15 @@ export async function GET(request: NextRequest) {
   );
 
   if (!code || !state || !pending || pending.state !== state) {
-    return failed(request, 'invalid_request');
+    return failed('invalid_request');
   }
 
   const tokens = await exchangeCode(code, pending.codeVerifier);
   const session = tokens && toSession(tokens);
-  if (!tokens || !session) return failed(request, 'exchange_failed');
+  if (!tokens || !session) return failed('exchange_failed');
 
   const response = NextResponse.redirect(
-    new URL(pending.redirectTo, request.nextUrl.origin),
+    new URL(pending.redirectTo, env().APP_URL),
   );
   await attachSession(response, session, tokens.refresh_token);
   return response;
