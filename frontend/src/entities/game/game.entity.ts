@@ -7,6 +7,7 @@ export type GameDefinition = {
   name: string;
   description: string;
   image: string;
+  hasSave: boolean;
 };
 
 export function parseSessionUrl(value: unknown, domain: string): string | null {

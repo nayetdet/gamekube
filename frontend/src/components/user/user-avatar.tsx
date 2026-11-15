@@ -9,7 +9,8 @@ import {
 import { cn } from '@/lib/utils';
 
 type UserAvatarProps = {
-  user: Pick<User, 'name' | 'username' | 'status'>;
+  user: Pick<User, 'name' | 'username' | 'status'> &
+    Partial<Pick<User, 'hasAvatar' | 'updatedAt'>>;
   size?: 'sm' | 'default' | 'lg' | 'xl';
   showPresence?: boolean;
   className?: string;
@@ -23,7 +24,14 @@ export function UserAvatar({
 }: UserAvatarProps) {
   return (
     <Avatar size={size} className={className}>
-      <AvatarImage src={defaultAvatar} alt="" />
+      <AvatarImage
+        src={
+          user.hasAvatar
+            ? `/api/users/${encodeURIComponent(user.username)}/avatar?v=${encodeURIComponent(user.updatedAt ?? '')}`
+            : defaultAvatar
+        }
+        alt=""
+      />
       <AvatarFallback className="bg-brand-100 font-bold text-brand-700">
         {userInitials(user)}
       </AvatarFallback>

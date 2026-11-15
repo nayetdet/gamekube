@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { GameDefinition } from '@/entities/game/game.entity';
+import { SaveControls } from './save-controls';
 import { GameLauncher } from './game-launcher';
 
 export function GameCard({ game }: { game: GameDefinition }) {
@@ -28,6 +29,7 @@ export function GameCard({ game }: { game: GameDefinition }) {
           </div>
 
           <GameLauncher slug={game.id} />
+          {game.hasSave && <SaveControls id={game.id} />}
         </div>
       </div>
     </article>

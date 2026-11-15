@@ -3,6 +3,7 @@ import { routes } from '@/config/routes';
 import { friendshipService } from '@/services/friendship.service';
 import { getViewer } from '@/server/viewer';
 import { PageHeader } from '@/components/common/page-header';
+import { AvatarEditor } from '@/components/user/avatar-editor';
 import { DangerCard } from '@/components/user/danger-card';
 import { EmailCard } from '@/components/user/email-card';
 import { ProfileCard } from '@/components/user/profile-card';
@@ -40,6 +41,8 @@ export default async function ProfilePage() {
       />
 
       <ProfileHero user={user} stats={stats} />
+
+      <AvatarEditor username={user.username} />
 
       <ProfileCard
         user={user}

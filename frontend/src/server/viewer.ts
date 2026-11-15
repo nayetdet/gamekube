@@ -21,6 +21,7 @@ function fromClaims(session: Session): User {
     username: session.user.username,
     name: session.user.name,
     description: null,
+    hasAvatar: false,
     status: 'OFFLINE',
     lastSeenAt: null,
     currentGame: null,

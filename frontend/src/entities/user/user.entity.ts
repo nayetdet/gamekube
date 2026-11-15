@@ -4,6 +4,7 @@ export type User = {
   id: string;
   keycloakId: string;
   username: string;
+  hasAvatar: boolean;
   name: string | null;
   description: string | null;
   status: PresenceStatus;
