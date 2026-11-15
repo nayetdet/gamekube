@@ -20,6 +20,9 @@ export const gameService = {
     });
   },
   destroy(id: string): Promise<void> {
-    return apiVoid(instance(id), { method: 'DELETE' });
+    return apiVoid(instance(id), {
+      method: 'DELETE',
+      timeoutMs: LAUNCH_TIMEOUT_MS,
+    });
   },
 };
