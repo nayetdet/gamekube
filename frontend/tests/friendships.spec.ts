@@ -6,6 +6,47 @@ test.beforeEach(async ({ context, request }) => {
   await signIn(context);
 });
 
+test('friendship request badge updates from realtime events', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/dashboard');
+  const requestsLink = page
+    .getByRole('navigation', { name: 'Principal' })
+    .getByRole('link', { name: /Pedidos/ });
+  await expect(requestsLink).toContainText('1');
+  await expect
+    .poll(async () => (await backendState(request)).heartbeats.length)
+    .toBeGreaterThan(0);
+  await control(request, 'friendship-event', { pending: false });
+  await expect(requestsLink).not.toContainText('1');
+  await control(request, 'friendship-event', { pending: true });
+  await expect(requestsLink).toContainText('1');
+});
+
+test('dashboard updates friend presence and current game from websocket events', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/dashboard');
+  const onlinePanel = page.getByRole('complementary', {
+    name: 'Jogos e amigos online',
+  });
+  await expect(onlinePanel).toContainText('Online agora 1');
+  await page.getByRole('button', { name: 'Ver amigos' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('link', { name: /Bob/ })).toBeVisible();
+  await expect
+    .poll(async () => (await backendState(request)).heartbeats.length)
+    .toBeGreaterThan(0);
+  await control(request, 'presence', { status: 'ONLINE', game: 'doom' });
+  await expect(dialog.getByText('Jogando doom')).toBeVisible();
+  await control(request, 'presence', { status: 'OFFLINE' });
+  await expect(dialog.getByText('Nenhum amigo online agora.')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(onlinePanel).toContainText('Online agora 0');
+});
+
 test('friend requests send the new payload and remove an accepted friendship', async ({
   page,
   request,

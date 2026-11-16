@@ -16,7 +16,10 @@ createServer(async (request, response) => {
   const method = request.method ?? 'GET';
   let raw = '';
   for await (const chunk of request) raw += chunk;
-  const body = raw ? JSON.parse(raw) : null;
+  const body =
+    raw && !request.headers['content-type']?.startsWith('multipart/form-data')
+      ? JSON.parse(raw)
+      : null;
   const json = (payload: unknown, status = 200) => {
     response.writeHead(status, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(payload));
@@ -47,6 +50,17 @@ createServer(async (request, response) => {
     state.failSend = true;
     return empty();
   }
+  if (path === '/__test/friendship-event') {
+    state.request = Boolean(body.pending);
+    notify('/user/queue/friendships', 'changed');
+    return empty();
+  }
+  if (path === '/__test/presence') {
+    state.friendStatus = body.status;
+    state.friendGame = body.game ?? null;
+    notify('/user/queue/presence', 'changed');
+    return empty();
+  }
   if (path === '/__test/message') {
     const message = incoming(body.content);
     state.messages.unshift(message);
@@ -65,10 +79,13 @@ createServer(async (request, response) => {
   state.requests.push({ method, path: `${path}${url.search}`, body });
   if (
     !path.endsWith('/image') &&
+    !(method === 'GET' && path.endsWith('/avatar')) &&
     request.headers.authorization !== 'Bearer integration-token'
   )
     return json({ detail: 'Unauthorized' }, 401);
   if (path === '/v1/games' && method === 'GET') return json([game]);
+  if (path === '/v1/games/doom' && method === 'GET') return json(game);
+  if (path === '/v1/games/doom/friends' && method === 'GET') return json([]);
   if (path === '/v1/games/doom/image') {
     response.writeHead(200, { 'Content-Type': 'image/png' });
     return response.end(
@@ -93,8 +110,25 @@ createServer(async (request, response) => {
     return json({
       ...viewer,
       name: state.name,
+      hasAvatar: state.hasAvatar,
       ...(state.activeGame ? { currentGame: 'doom' } : {}),
     });
+  if (path === '/v1/users/alice/avatar' && method === 'PUT') {
+    if (
+      !request.headers['content-type']?.startsWith('multipart/form-data') ||
+      !raw.includes('image/gif')
+    )
+      return json({ detail: 'Invalid upload' }, 400);
+    state.hasAvatar = true;
+    return empty();
+  }
+  if (path === '/v1/users/alice/avatar' && method === 'GET') {
+    if (!state.hasAvatar) return json({ detail: 'Not found' }, 404);
+    response.writeHead(200, { 'Content-Type': 'image/gif' });
+    return response.end(
+      Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64'),
+    );
+  }
   if (path === '/v1/users' && method === 'GET')
     return json(
       page(
@@ -104,14 +138,35 @@ createServer(async (request, response) => {
       ),
     );
   if (path === '/v1/users/alice' && method === 'GET') return json(viewer);
+  if (path === '/v1/users/alice/games' && method === 'GET') return json([]);
+  if (path === '/v1/users/bob/games' && method === 'GET') return json([]);
   if (path === '/v1/users/alice' && method === 'PUT') {
     state.name = body.name;
     return empty();
   }
   if (path === '/v1/users/alice' && method === 'DELETE') return empty();
   if (path === '/v1/users/alice/email' && method === 'PATCH') return empty();
-  if (path === '/v1/friendships' && method === 'GET')
-    return json(state.friend ? [friend] : []);
+  if (path === '/v1/friendships' && method === 'GET') {
+    const friends = state.friend
+      ? [
+          {
+            ...friend,
+            status: state.friendStatus,
+            currentGame: state.friendGame,
+          },
+        ]
+      : [];
+    const pageNumber = Number(url.searchParams.get('page') ?? 0);
+    const pageSize = Number(url.searchParams.get('size') ?? 12);
+    return json(
+      page(
+        friends.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize),
+        pageNumber,
+        pageSize,
+        friends.length,
+      ),
+    );
+  }
   if (path === '/v1/friendships' && method === 'POST') {
     if (!body.addresseeUsername || body.username)
       return json({ detail: 'Invalid friendship request' }, 400);
@@ -161,6 +216,25 @@ createServer(async (request, response) => {
           message.recipientUsername === 'alice' && message.status !== 'READ',
       ).length,
     });
+  if (path === '/v1/messages/conversations' && method === 'GET') {
+    const latest = state.messages[0];
+    return json(
+      latest
+        ? [
+            {
+              username: 'bob',
+              lastMessage: latest.content,
+              lastSenderUsername: latest.senderUsername,
+              unreadCount: state.messages.filter(
+                (message) =>
+                  message.recipientUsername === 'alice' &&
+                  message.status !== 'READ',
+              ).length,
+            },
+          ]
+        : [],
+    );
+  }
   if (path === '/v1/messages/bob') {
     if (method === 'GET') {
       const number = Number(url.searchParams.get('page') ?? 0);

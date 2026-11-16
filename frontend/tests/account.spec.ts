@@ -6,17 +6,52 @@ test.beforeEach(async ({ context, request }) => {
   await signIn(context);
 });
 
+test('uploads and displays a GIF profile image', async ({ page, request }) => {
+  await page.goto('/profile');
+  await page.getByLabel('Selecionar foto de perfil').setInputFiles({
+    name: 'avatar.gif',
+    mimeType: 'image/gif',
+    buffer: Buffer.from(
+      'R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
+      'base64',
+    ),
+  });
+  await expect
+    .poll(async () => (await backendState(request)).hasAvatar)
+    .toBe(true);
+  await expect(page.getByText('Foto de perfil atualizada.')).toBeVisible();
+  await expect(
+    page.locator('img[src^="/api/users/alice/avatar"]').first(),
+  ).toBeVisible();
+});
+
 test('profile editing and email update consume current endpoints', async ({
   page,
   request,
 }) => {
   await page.goto('/profile');
-  await page.getByRole('button', { name: 'Editar nome de exibição' }).click();
+  await page.getByRole('button', { name: 'Editar perfil' }).click();
   await page.locator('input[name="name"]').fill('Alice atualizada');
-  await page.getByRole('button', { name: 'Salvar', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Salvar alterações', exact: true })
+    .click();
   await expect
     .poll(async () => (await backendState(request)).name)
     .toBe('Alice atualizada');
+  await expect(
+    page.getByRole('button', { name: 'Enviar link para alterar e-mail' }),
+  ).toHaveCount(0);
+  await page.goto('/settings');
+  await expect(
+    page.getByRole('heading', { name: 'Configurações' }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/settings\/account$/);
+  await page.getByRole('link', { name: 'Privacidade', exact: true }).click();
+  await expect(page).toHaveURL(/\/settings\/privacy$/);
+  await expect(
+    page.getByRole('button', { name: 'Excluir conta' }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Conta', exact: true }).click();
   await page
     .getByRole('button', { name: 'Enviar link para alterar e-mail' })
     .click();
