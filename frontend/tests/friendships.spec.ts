@@ -101,3 +101,24 @@ for (const decision of ['accept', 'reject'] as const) {
     });
   });
 }
+
+test('friends use pages of eight and online modal loads more on scroll', async ({
+  page,
+  request,
+}) => {
+  await control(request, 'seed-friends');
+  await page.goto('/friends');
+  const pagination = page.getByRole('navigation', {
+    name: 'Páginas de amigos',
+  });
+  await expect(pagination).toContainText('1–8 de 15');
+  await pagination.getByRole('link', { name: 'Próxima' }).click();
+  await expect(pagination).toContainText('9–15 de 15');
+  await page.goto('/dashboard');
+  await page.getByRole('button', { name: 'Ver amigos' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('link', { name: /Amigo 00/ })).toBeVisible();
+  await expect(dialog.getByRole('link', { name: /Amigo 13/ })).toHaveCount(0);
+  await dialog.getByRole('link', { name: /Amigo 06/ }).scrollIntoViewIfNeeded();
+  await expect(dialog.getByRole('link', { name: /Amigo 13/ })).toBeVisible();
+});

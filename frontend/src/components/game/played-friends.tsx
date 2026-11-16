@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { routes } from '@/config/routes';
 import { displayName, type User } from '@/entities/user/user.entity';
 import { UserAvatar } from '@/components/user/user-avatar';
+import { InfiniteFriendList } from '@/components/friend/infinite-friend-list';
 import {
   Dialog,
   DialogContent,
@@ -55,27 +56,12 @@ export function PlayedFriends({ friends }: { friends: User[] }) {
             Seus amigos que já iniciaram este jogo.
           </DialogDescription>
         </DialogHeader>
-        <ul className="max-h-[min(24rem,60vh)] space-y-1 overflow-y-auto">
-          {friends.map((friend) => (
-            <li key={friend.id}>
-              <Link
-                href={routes.player(friend.username)}
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
-              >
-                <UserAvatar user={friend} />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">
-                    {displayName(friend)}
-                  </span>
-                  <span className="block truncate text-sm text-muted-foreground">
-                    @{friend.username}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {open && (
+          <InfiniteFriendList
+            friends={friends}
+            onSelect={() => setOpen(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

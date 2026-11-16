@@ -12,8 +12,8 @@ export default async function MessagesPage() {
     messageService.summaries(),
   ]);
   return (
-    <div className="grid min-h-[calc(100svh-8.5rem)] overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[18rem_minmax(0,1fr)]">
-      <aside className="border-border md:border-r">
+    <div className="grid min-h-0 flex-1 overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[18rem_minmax(0,1fr)]">
+      <aside className="min-h-0 border-border md:border-r">
         <ConversationList friends={friends} summaries={summaries} />
       </aside>
       <div className="hidden flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground md:flex">

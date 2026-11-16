@@ -46,6 +46,10 @@ createServer(async (request, response) => {
     );
     return empty();
   }
+  if (path === '/__test/seed-friends') {
+    state.extraFriends = 14;
+    return empty();
+  }
   if (path === '/__test/fail-send') {
     state.failSend = true;
     return empty();
@@ -156,8 +160,18 @@ createServer(async (request, response) => {
           },
         ]
       : [];
+    friends.push(
+      ...Array.from({ length: state.extraFriends }, (_, i) => ({
+        ...friend,
+        id: `extra-${i}`,
+        username: `extra${i}`,
+        name: `Amigo ${String(i).padStart(2, '0')}`,
+        status: 'ONLINE' as const,
+        currentGame: null,
+      })),
+    );
     const pageNumber = Number(url.searchParams.get('page') ?? 0);
-    const pageSize = Number(url.searchParams.get('size') ?? 12);
+    const pageSize = Number(url.searchParams.get('size') ?? 8);
     return json(
       page(
         friends.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize),

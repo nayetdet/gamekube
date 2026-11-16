@@ -35,7 +35,7 @@ class FriendshipPaginationTest {
     var friend = new User();
     friend.setId(UUID.randomUUID());
     var friendship = Friendship.builder().requester(friend).addressee(viewer).build();
-    var pageable = PageRequest.of(1, 12);
+    var pageable = PageRequest.of(1, 8);
     var response = UserResponse.builder().username("friend").build();
     when(users.findByUsername("viewer")).thenReturn(Optional.of(viewer));
     when(friendships.findAllByUserIdAndStatus(viewer.getId(), FriendshipStatus.ACCEPTED, pageable))
@@ -46,7 +46,7 @@ class FriendshipPaginationTest {
 
     assertEquals(List.of(response), result.getContent());
     assertEquals(1, result.getPageable().getPageNumber());
-    assertEquals(12, result.getPageable().getPageSize());
+    assertEquals(8, result.getPageable().getPageSize());
     assertEquals(25L, result.getPageable().getTotal());
     verify(userService).toPresenceResponse(friend);
   }

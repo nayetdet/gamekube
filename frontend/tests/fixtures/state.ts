@@ -45,6 +45,7 @@ export const state = {
   requests: [] as { method: string; path: string; body: unknown }[],
   heartbeats: [] as { destination: string; body: string }[],
   friend: true,
+  extraFriends: 0,
   friendStatus: 'ONLINE' as 'ONLINE' | 'OFFLINE',
   friendGame: null as string | null,
   request: true,
@@ -60,6 +61,7 @@ export function reset() {
   state.requests = [];
   state.heartbeats = [];
   state.friend = true;
+  state.extraFriends = 0;
   state.friendStatus = 'ONLINE';
   state.friendGame = null;
   state.request = true;

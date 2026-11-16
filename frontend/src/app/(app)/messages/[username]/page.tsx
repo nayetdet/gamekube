@@ -54,8 +54,8 @@ export default async function ConversationPage(
         )
       : undefined;
   return (
-    <div className="grid min-h-[calc(100svh-8.5rem)] overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[18rem_minmax(0,1fr)]">
-      <aside className="hidden border-r border-border md:block">
+    <div className="grid min-h-0 flex-1 overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[18rem_minmax(0,1fr)]">
+      <aside className="hidden min-h-0 border-r border-border md:block">
         <ConversationList
           friends={friends}
           summaries={summaries}
@@ -63,7 +63,7 @@ export default async function ConversationPage(
         />
       </aside>
       <section
-        className="flex min-w-0 flex-col"
+        className="flex min-h-0 min-w-0 flex-col"
         aria-label={`Conversa com @${username}`}
       >
         <header className="flex items-center gap-3 border-b border-border p-4 sm:px-6">
@@ -100,7 +100,7 @@ export default async function ConversationPage(
           )}
         </header>
         <ReadConversationForm username={username} unreadId={unread?.id} />
-        <div className="flex flex-1 flex-col gap-4 bg-muted/20 p-4 sm:p-6">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-muted/20 p-4 sm:p-6">
           <ConversationPagination meta={page.pageable} username={username} />
           <div className="mt-auto">
             <MessageHistory messages={page.content} username={user.username} />

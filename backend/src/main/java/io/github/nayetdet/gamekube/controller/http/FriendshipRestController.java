@@ -38,7 +38,7 @@ public class FriendshipRestController implements FriendshipRestControllerDocs {
   @PreAuthorizeUser
   @GetMapping
   public ResponseEntity<ApplicationPage<UserResponse>> findAcceptedFriends(
-      Principal principal, @ParameterObject @PageableDefault(size = 12) Pageable pageable) {
+      Principal principal, @ParameterObject @PageableDefault(size = 8) Pageable pageable) {
     return ResponseEntity.ok(friendshipService.findAcceptedFriends(principal.getName(), pageable));
   }
 

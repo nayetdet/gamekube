@@ -22,7 +22,7 @@ export function AppShell({ toolbar, children, ...sidebar }: AppShellProps) {
   const isDashboard = pathname === '/dashboard';
   return (
     <div
-      className="relative flex min-h-svh"
+      className={`relative flex ${isMessages ? 'h-svh overflow-hidden' : 'min-h-svh'}`}
       style={
         {
           '--dashboard-sidebar-offset': sidebarOpen ? '19rem' : '7rem',
@@ -61,13 +61,13 @@ export function AppShell({ toolbar, children, ...sidebar }: AppShellProps) {
           </Button>
         </div>
       </aside>
-      <div className="relative flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
         <TopBar {...sidebar} floating={isDashboard}>
           {toolbar}
         </TopBar>
         <main
           key={pathname}
-          className={`mx-auto w-full flex-1 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 ${isDashboard ? 'max-w-none' : `space-y-4 px-4 pt-2 pb-6 lg:px-6 ${isMessages ? 'max-w-none' : 'max-w-7xl'}`}`}
+          className={`mx-auto w-full flex-1 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 ${isDashboard ? 'max-w-none' : `px-4 pt-2 pb-6 lg:px-6 ${isMessages ? 'flex min-h-0 max-w-none flex-col gap-4' : 'max-w-7xl space-y-4'}`}`}
         >
           {!isDashboard && <Breadcrumbs />}
           {children}

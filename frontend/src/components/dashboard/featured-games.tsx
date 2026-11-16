@@ -14,6 +14,7 @@ import type { GameDefinition } from '@/entities/game/game.entity';
 import { displayName, type User } from '@/entities/user/user.entity';
 import { routes } from '@/config/routes';
 import { UserAvatar } from '@/components/user/user-avatar';
+import { InfiniteFriendList } from '@/components/friend/infinite-friend-list';
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ export function FeaturedGames({
 }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [friendsOpen, setFriendsOpen] = useState(false);
   useEffect(() => {
     if (
       games.length < 2 ||
@@ -172,7 +174,7 @@ export function FeaturedGames({
                 <UsersRoundIcon className="size-4" /> Online agora{' '}
                 <span className="text-white">{online.length}</span>
               </p>
-              <Dialog>
+              <Dialog open={friendsOpen} onOpenChange={setFriendsOpen}>
                 <DialogTrigger asChild>
                   <button
                     type="button"
@@ -189,31 +191,13 @@ export function FeaturedGames({
                     </DialogDescription>
                   </DialogHeader>
                   {online.length ? (
-                    <ul className="max-h-[min(24rem,60vh)] space-y-1 overflow-y-auto">
-                      {online.map((friend) => (
-                        <li key={friend.id}>
-                          <Link
-                            href={routes.player(friend.username)}
-                            className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
-                          >
-                            <UserAvatar user={friend} />
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-semibold">
-                                {displayName(friend)}
-                              </span>
-                              <span className="block truncate text-sm text-muted-foreground">
-                                @{friend.username}
-                              </span>
-                            </span>
-                            <span className="text-xs font-medium text-online">
-                              {friend.currentGame
-                                ? `Jogando ${friend.currentGame}`
-                                : 'Online'}
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                    friendsOpen && (
+                      <InfiniteFriendList
+                        friends={online}
+                        showStatus
+                        onSelect={() => setFriendsOpen(false)}
+                      />
+                    )
                   ) : (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                       Nenhum amigo online agora.

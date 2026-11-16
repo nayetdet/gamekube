@@ -18,7 +18,7 @@ const endpoint = {
 };
 
 export const friendshipService = {
-  listFriendsPage(page = 0, size = 12): Promise<Page<User>> {
+  listFriendsPage(page = 0, size = 8): Promise<Page<User>> {
     return apiJson<Page<User>>(endpoint.friends, { query: { page, size } });
   },
 

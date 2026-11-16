@@ -35,7 +35,7 @@ export function ConversationList({
         (byUsername.get(b.username)?.index ?? Infinity),
     );
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="flex h-full min-h-0 flex-col gap-4 p-4">
       <div>
         <h2 className="text-lg font-bold">Conversas</h2>
         <p className="mt-1 text-sm text-muted-foreground">Suas conversas</p>
@@ -67,7 +67,7 @@ export function ConversationList({
           Nenhuma conversa encontrada.
         </p>
       ) : (
-        <ul className="space-y-1 overflow-y-auto">
+        <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto">
           {matches.map((friend) => {
             const summary = byUsername.get(friend.username)?.summary;
             return (
