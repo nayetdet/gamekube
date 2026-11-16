@@ -1,3 +1,6 @@
 [submodule "infra/docker/keycloak/themes/keywind"]
 	path = infra/docker/keycloak/themes/keywind
 	url = https://github.com/nayetdet/keywind.git
+[submodule "infra/keycloak/themes/keywind"]
+	path = infra/keycloak/themes/keywind
+	url = https://github.com/nayetdet/keywind.git
