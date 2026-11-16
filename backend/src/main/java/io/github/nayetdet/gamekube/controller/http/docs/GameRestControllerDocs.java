@@ -30,6 +30,17 @@ public interface GameRestControllerDocs {
   ResponseEntity<List<GameResponse>> search();
 
   @Operation(
+      summary = "Get a game by ID",
+      responses = {
+        @ApiResponse(
+            description = "OK",
+            responseCode = "200",
+            content = @Content(schema = @Schema(implementation = GameResponse.class))),
+        @ApiResponse(description = "Not Found", responseCode = "404", content = @Content)
+      })
+  ResponseEntity<GameResponse> find(@PathVariable String gameId);
+
+  @Operation(
       summary = "Create the authenticated user's instance for a game",
       security = @SecurityRequirement(name = "bearerAuth"),
       responses = {

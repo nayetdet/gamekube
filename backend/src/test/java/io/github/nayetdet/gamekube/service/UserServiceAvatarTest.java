@@ -2,6 +2,7 @@ package io.github.nayetdet.gamekube.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -71,7 +72,9 @@ class UserServiceAvatarTest {
 
     userService.updateAvatar("alice", file);
 
-    String expectedKey = user.getId() + ".png";
+    String expectedKey = user.getAvatarKey();
+    assertTrue(expectedKey.startsWith(user.getId() + "/"));
+    assertTrue(expectedKey.endsWith(".png"));
     verify(storageService).putObject("avatars", expectedKey, new byte[] {1, 2, 3}, "image/png");
     verify(storageService).deleteObject("avatars", "old-key.jpg");
     assertEquals(expectedKey, user.getAvatarKey());
@@ -81,10 +84,21 @@ class UserServiceAvatarTest {
   @Test
   void updateAvatarRejectsUnsupportedMediaType() {
     MockMultipartFile file =
-        new MockMultipartFile("file", "avatar.gif", "image/gif", new byte[] {1, 2, 3});
+        new MockMultipartFile("file", "avatar.txt", "text/plain", new byte[] {1, 2, 3});
     when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
 
     assertThrows(UserAvatarInvalidException.class, () -> userService.updateAvatar("alice", file));
+  }
+
+  @Test
+  void updateAvatarPreservesGifBytes() {
+    byte[] content = {71, 73, 70, 56, 57, 97};
+    MockMultipartFile file = new MockMultipartFile("file", "avatar.gif", "image/gif", content);
+    when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+    userService.updateAvatar("alice", file);
+    assertTrue(user.getAvatarKey().startsWith(user.getId() + "/"));
+    assertTrue(user.getAvatarKey().endsWith(".gif"));
+    verify(storageService).putObject("avatars", user.getAvatarKey(), content, "image/gif");
   }
 
   @Test

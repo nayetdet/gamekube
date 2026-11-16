@@ -15,6 +15,8 @@ public class GameMapper {
         .name(game.getName())
         .description(game.getDescription())
         .image("/v1/games/" + game.getId() + "/image")
+        .videoUrl(game.getVideoUrl())
+        .logoUrl(game.getLogoUrl())
         .hasSave(game.getHasSave())
         .build();
   }

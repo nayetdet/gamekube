@@ -14,6 +14,36 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
+  interface ConversationSummary {
+    String getUsername();
+
+    String getLastMessage();
+
+    String getLastSenderUsername();
+
+    long getUnreadCount();
+  }
+
+  @Query(
+      value =
+          """
+      SELECT other.username AS "username", ranked.content AS "lastMessage",
+             sender.username AS "lastSenderUsername", ranked.unread_count AS "unreadCount"
+      FROM (
+        SELECT m.*, CASE WHEN m.sender_id = :userId THEN m.recipient_id ELSE m.sender_id END AS other_id,
+          ROW_NUMBER() OVER (PARTITION BY CASE WHEN m.sender_id = :userId THEN m.recipient_id ELSE m.sender_id END ORDER BY m.created_at DESC, m.id DESC) AS position,
+          SUM(CASE WHEN m.recipient_id = :userId AND m.status <> 'READ' THEN 1 ELSE 0 END)
+            OVER (PARTITION BY CASE WHEN m.sender_id = :userId THEN m.recipient_id ELSE m.sender_id END) AS unread_count
+        FROM gamekube.messages m WHERE m.sender_id = :userId OR m.recipient_id = :userId
+      ) ranked
+      JOIN gamekube.users other ON other.id = ranked.other_id
+      JOIN gamekube.users sender ON sender.id = ranked.sender_id
+      WHERE ranked.position = 1
+      ORDER BY ranked.created_at DESC, ranked.id DESC
+      """,
+      nativeQuery = true)
+  List<ConversationSummary> findConversationSummaries(@Param("userId") UUID userId);
+
   @Query(
       value =
           """

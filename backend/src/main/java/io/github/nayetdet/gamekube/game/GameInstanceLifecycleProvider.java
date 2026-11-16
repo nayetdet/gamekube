@@ -2,12 +2,14 @@ package io.github.nayetdet.gamekube.game;
 
 import io.github.nayetdet.gamekube.cache.GameInstanceCacheRegistry;
 import io.github.nayetdet.gamekube.exception.GameNotFoundException;
+import io.github.nayetdet.gamekube.payload.websocket.event.GamePresenceChangedEvent;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,7 @@ public class GameInstanceLifecycleProvider {
   private final GameProvider gameProvider;
   private final GameInstanceProvider gameInstanceProvider;
   private final StringRedisTemplate redisTemplate;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Value("${gamekube.game.instance.idle-timeout}")
   private Duration idleTimeout;
@@ -153,6 +156,7 @@ public class GameInstanceLifecycleProvider {
       if (owner[0].equals(redisTemplate.opsForValue().get(activeKey))) {
         redisTemplate.delete(activeKey);
       }
+      eventPublisher.publishEvent(new GamePresenceChangedEvent(owner[1]));
 
     } finally {
       redisTemplate.delete(lock);

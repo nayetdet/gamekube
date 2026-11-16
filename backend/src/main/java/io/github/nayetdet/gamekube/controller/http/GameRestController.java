@@ -4,6 +4,7 @@ import io.github.nayetdet.gamekube.controller.http.docs.GameRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.http.response.GameInstanceResponse;
 import io.github.nayetdet.gamekube.payload.http.response.GameResponse;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
+import io.github.nayetdet.gamekube.service.GameHistoryService;
 import io.github.nayetdet.gamekube.service.GameService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Duration;
@@ -30,11 +31,24 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class GameRestController implements GameRestControllerDocs {
 
   private final GameService gameService;
+  private final GameHistoryService gameHistoryService;
+
+  @PreAuthorizeUser
+  @GetMapping("/{gameId}/friends")
+  public List<String> friendsWhoPlayed(@PathVariable String gameId) {
+    return gameHistoryService.friendsForGame(gameId);
+  }
 
   @Override
   @GetMapping
   public ResponseEntity<List<GameResponse>> search() {
     return ResponseEntity.ok(gameService.search());
+  }
+
+  @Override
+  @GetMapping("/{gameId}")
+  public ResponseEntity<GameResponse> find(@PathVariable String gameId) {
+    return ResponseEntity.ok(gameService.find(gameId));
   }
 
   @Override

@@ -1,0 +1,16 @@
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
+import { site } from '@/config/site';
+
+export function BrandLockup({ className }: { className?: string }) {
+  return (
+    <Image
+      src="/gamekube-brand-blue.png"
+      alt={site.name}
+      width={2172}
+      height={724}
+      priority
+      className={cn('h-auto w-36 object-contain', className)}
+    />
+  );
+}

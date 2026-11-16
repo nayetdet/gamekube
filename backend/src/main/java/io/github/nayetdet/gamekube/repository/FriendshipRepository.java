@@ -5,6 +5,8 @@ import io.github.nayetdet.gamekube.model.Friendship;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
 
   @Query(
-      """
+      value =
+          """
       SELECT f FROM Friendship f
       WHERE (f.requester.id = :u1 AND f.addressee.id = :u2)
          OR (f.requester.id = :u2 AND f.addressee.id = :u1)
@@ -22,15 +25,22 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
   Optional<Friendship> findBetweenUsers(@Param("u1") UUID u1, @Param("u2") UUID u2);
 
   @Query(
-      """
+      value =
+          """
       SELECT f FROM Friendship f
       JOIN FETCH f.requester r
       JOIN FETCH f.addressee a
       WHERE f.status = :status
         AND (r.id = :userId OR a.id = :userId)
+      ORDER BY CASE WHEN r.id = :userId THEN a.username ELSE r.username END ASC, f.id ASC
+      """,
+      countQuery =
+          """
+      SELECT COUNT(f) FROM Friendship f
+      WHERE f.status = :status AND (f.requester.id = :userId OR f.addressee.id = :userId)
       """)
-  List<Friendship> findAllByUserIdAndStatus(
-      @Param("userId") UUID userId, @Param("status") FriendshipStatus status);
+  Page<Friendship> findAllByUserIdAndStatus(
+      @Param("userId") UUID userId, @Param("status") FriendshipStatus status, Pageable pageable);
 
   @Query(
       """

@@ -9,9 +9,9 @@ VALUES (
     gen_random_uuid(),
     'd8f6b3c1-2b7e-4d75-9a31-6f2c8e4b1a90',
     'admin',
-    CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
+    CURRENT_TIMESTAMP AT TIME ZONE 'UTC',
+    CURRENT_TIMESTAMP AT TIME ZONE 'UTC'
 )
 ON CONFLICT (username) DO UPDATE
 SET keycloak_id = EXCLUDED.keycloak_id,
-    updated_at = CURRENT_TIMESTAMP;
+    updated_at = CURRENT_TIMESTAMP AT TIME ZONE 'UTC';

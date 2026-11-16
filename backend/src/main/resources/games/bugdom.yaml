@@ -1,6 +1,8 @@
 name: Bugdom
+logoUrl: /game-logos/bugdom.png
 description: Bugdom was once ruled peacefully by the Rollie Pollies and Lady Bugs, until the Fire Ants captured the Lady Bugs and crowned King Thorax. As Rollie McFly, travel from the lawn to the Ant Hill, defeat the Fire Ants, and restore peace to the Bugdom.
 image: /images/bugdom.png
+videoUrl: https://www.youtube.com/watch?v=6lYzGjNZUX8
 hasSave: true
 resources:
   - apiVersion: v1

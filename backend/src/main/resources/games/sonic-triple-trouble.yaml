@@ -1,6 +1,8 @@
 name: Sonic Triple Trouble
+logoUrl: /game-logos/sonic-triple-trouble.png
 description: While Dr. Robotnik tests an ultimate weapon, an accident scatters five Chaos Emeralds across Mobius. Sonic and Tails set out to recover them, racing against Knuckles and Nack the Weasel through six zones and five bonus rounds.
 image: /images/sonic-triple-trouble.png
+videoUrl: https://www.youtube.com/watch?v=l13navshaJ0
 hasSave: true
 resources:
   - apiVersion: v1
