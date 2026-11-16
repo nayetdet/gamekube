@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeftIcon } from 'lucide-react';
 import { routes } from '@/config/routes';
@@ -14,6 +13,7 @@ import { DangerCard } from '@/components/user/danger-card';
 import { PresenceCard } from '@/components/user/presence-card';
 import { ProfileCard } from '@/components/user/profile-card';
 import { Button } from '@/components/ui/button';
+import { BackLink } from '@/components/common/back-link';
 
 export async function generateMetadata(
   props: PageProps<'/users/[username]'>,
@@ -36,10 +36,10 @@ export default async function UserDetailPage(
   return (
     <>
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
-        <Link href={routes.users}>
+        <BackLink fallback={routes.users}>
           <ArrowLeftIcon aria-hidden />
-          Voltar ao diretório
-        </Link>
+          Voltar
+        </BackLink>
       </Button>
 
       <PageHeader

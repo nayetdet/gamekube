@@ -1,36 +1,31 @@
 import Image from 'next/image';
+import Link from 'next/link';
+import { routes } from '@/config/routes';
 import type { GameDefinition } from '@/entities/game/game.entity';
-import { SaveControls } from './save-controls';
 import { GameLauncher } from './game-launcher';
 
 export function GameCard({ game }: { game: GameDefinition }) {
   return (
-    <article className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
-      <div className="grid sm:grid-cols-[16rem_1fr]">
-        <div className="relative min-h-40 bg-linear-to-br from-brand-500 to-brand-700 sm:min-h-full">
-          <Image
-            src={`/api/games/${encodeURIComponent(game.id)}/image`}
-            alt={`Arte de ${game.name}`}
-            unoptimized
-            fill
-            sizes="(min-width: 640px) 16rem, 100vw"
-            className="object-cover"
-          />
-        </div>
-
-        <div className="space-y-4 p-6">
-          <div className="space-y-2">
-            <h2 className="text-xl font-extrabold tracking-tight">
-              {game.name}
-            </h2>
-            <p className="max-w-prose text-sm text-muted-foreground">
-              {game.description}
-            </p>
-          </div>
-
-          <GameLauncher slug={game.id} />
-          {game.hasSave && <SaveControls id={game.id} />}
-        </div>
+    <article className="group flex h-full flex-col overflow-hidden rounded-xl bg-card ring-1 ring-border transition-shadow hover:shadow-lg hover:ring-primary/40 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1">
+      <Link
+        href={routes.game(game.id)}
+        aria-label={`Ver detalhes de ${game.name}`}
+        className="relative block aspect-[4/3] bg-linear-to-br from-brand-500 to-brand-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
+      >
+        <Image
+          src={`/api/games/${encodeURIComponent(game.id)}/image`}
+          alt=""
+          unoptimized
+          fill
+          sizes="(min-width: 1536px) 25vw, (min-width: 1280px) 33vw, (min-width: 480px) 50vw, 100vw"
+          className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105"
+        />
+      </Link>
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <h3 className="flex-1 text-lg font-extrabold tracking-tight">
+          {game.name}
+        </h3>
+        <GameLauncher slug={game.id} />
       </div>
     </article>
   );

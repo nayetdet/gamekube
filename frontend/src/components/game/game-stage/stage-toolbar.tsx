@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -13,6 +12,7 @@ import {
 import { routes } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { EndGameForm } from '../end-game-form';
+import { BackLink } from '@/components/common/back-link';
 
 type StageToolbarProps = {
   url: string;
@@ -22,8 +22,7 @@ type StageToolbarProps = {
   onToggleFullscreen: () => void;
 };
 
-const button =
-  'text-background/70 hover:bg-background/15 hover:text-background';
+const button = 'text-muted-foreground hover:bg-muted hover:text-foreground';
 
 export function StageToolbar({
   url,
@@ -41,19 +40,15 @@ export function StageToolbar({
   }
 
   return (
-    <div className="flex h-12 shrink-0 items-center gap-2 px-3">
+    <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-card px-3">
       <Button asChild variant="ghost" size="icon-sm" className={button}>
-        <Link href={routes.games} aria-label="Voltar aos jogos">
+        <BackLink fallback={routes.games} aria-label="Voltar">
           <ArrowLeftIcon aria-hidden />
-        </Link>
+        </BackLink>
       </Button>
 
-      <span className="flex min-w-0 items-center gap-2 text-xs font-semibold text-background">
-        <span className="size-2 shrink-0 rounded-full bg-online" aria-hidden />
-        <span className="truncate">{title}</span>
-        <span className="hidden text-background/50 sm:inline">
-          · sessão ativa
-        </span>
+      <span className="min-w-0 truncate text-xs font-semibold text-foreground">
+        {title}
       </span>
 
       <div className="ml-auto flex shrink-0 items-center gap-1">

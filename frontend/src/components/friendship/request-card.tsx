@@ -14,9 +14,9 @@ export function RequestCard({ request, direction }: RequestCardProps) {
   const player = received ? request.requester : request.addressee;
 
   return (
-    <li className="flex flex-wrap items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border shadow-2xs transition-all duration-200 hover:ring-brand-400/40 hover:shadow-md">
-      <UserIdentity user={player} className="min-w-48 flex-1" />
-      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <li className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-primary/40 sm:px-6">
+      <UserIdentity user={player} size="lg" className="min-w-48 flex-1" />
+      <span className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground">
         <ClockIcon className="size-3.5" aria-hidden />
         {formatRelative(request.createdAt)}
       </span>

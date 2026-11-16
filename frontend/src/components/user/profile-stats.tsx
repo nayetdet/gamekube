@@ -15,7 +15,7 @@ const statIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export function ProfileStats({ stats }: { stats: readonly ProfileStat[] }) {
   return (
-    <div className="grid grid-cols-3 divide-x divide-border border-t bg-muted/20">
+    <div className="flex divide-x divide-border border-t bg-muted/20">
       {stats.map((stat) => {
         const Icon = statIcons[stat.label];
 
@@ -23,7 +23,7 @@ export function ProfileStats({ stats }: { stats: readonly ProfileStat[] }) {
           <Link
             key={stat.label}
             href={stat.href}
-            className="group flex flex-col items-center gap-1 py-4 transition-all duration-200 first:rounded-bl-xl last:rounded-br-xl hover:bg-muted/70"
+            className="group flex min-w-0 flex-1 flex-col items-center gap-1 py-4 transition-all duration-200 first:rounded-bl-xl last:rounded-br-xl hover:bg-muted/70"
           >
             <div className="flex items-center gap-1.5">
               {Icon ? (

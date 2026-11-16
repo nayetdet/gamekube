@@ -32,7 +32,10 @@ export function GameStage({ url, title, ratio, gameId }: GameStageProps) {
   }
 
   return (
-    <div ref={stage} className="flex h-dvh flex-col bg-foreground">
+    <div
+      ref={stage}
+      className="flex h-dvh flex-col bg-background text-foreground"
+    >
       <StageToolbar
         url={url}
         gameId={gameId}

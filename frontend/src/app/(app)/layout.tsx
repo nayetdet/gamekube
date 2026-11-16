@@ -1,24 +1,32 @@
 import type { ReactNode } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
-import { PresenceBadge } from '@/components/presence/presence-badge';
 import { LiveUpdates } from '@/components/realtime/live-updates';
-import { UnreadMessagesLink } from '@/components/message/unread-messages-link';
+import { Notifications } from '@/components/layout/notifications';
 import { getViewer, viewerRole } from '@/server/viewer';
+import { messageService } from '@/services/message.service';
+import { friendshipService } from '@/services/friendship.service';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const viewer = await getViewer();
+  const [viewer, { unreadCount }, requests, conversations] = await Promise.all([
+    getViewer(),
+    messageService.countUnread(),
+    friendshipService.listReceivedRequests(),
+    messageService.summaries(),
+  ]);
 
   return (
     <AppShell
       viewer={viewer.user}
       role={viewerRole(viewer)}
       canSeeAdmin={viewer.isAdmin}
+      unreadCount={unreadCount}
+      requestCount={requests.length}
       toolbar={
         <div className="flex items-center gap-3">
-          <UnreadMessagesLink />
-          <PresenceBadge
-            status={viewer.user.status}
-            currentGame={viewer.user.currentGame}
+          <Notifications
+            requests={requests}
+            conversations={conversations}
+            unreadCount={unreadCount}
           />
         </div>
       }

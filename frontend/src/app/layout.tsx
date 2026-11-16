@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { site } from '@/config/site';
 import './globals.css';
+import { NavigationHistory } from '@/components/layout/navigation-history';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -25,12 +27,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
+      suppressHydrationWarning
       lang="pt-BR"
-      className={`${inter.variable} ${jetBrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetBrainsMono.variable} dark h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          forcedTheme="dark"
+          defaultTheme="dark"
+          enableSystem={false}
+        >
+          <NavigationHistory />
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

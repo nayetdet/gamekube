@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { ChevronRightIcon } from 'lucide-react';
 import { routes } from '@/config/routes';
 import type { User } from '@/entities/user/user.entity';
-import { formatDate, formatRelative } from '@/lib/format';
+import { formatRelative } from '@/lib/format';
+import { LocalTimestamp } from '@/components/common/local-timestamp';
 import { PresenceBadge } from '@/components/presence/presence-badge';
 import { UserIdentity } from '@/components/user/user-identity';
 import { TableCell, TableRow } from '@/components/ui/table';
@@ -20,7 +21,7 @@ export function UserTableRow({ user }: { user: User }) {
         {formatRelative(user.lastSeenAt)}
       </TableCell>
       <TableCell className="text-muted-foreground">
-        {formatDate(user.createdAt)}
+        <LocalTimestamp value={user.createdAt} dateOnly />
       </TableCell>
       <TableCell className="text-right">
         <Link

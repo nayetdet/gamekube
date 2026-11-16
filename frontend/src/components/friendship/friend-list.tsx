@@ -25,14 +25,9 @@ export function FriendList({ friends }: { friends: User[] }) {
     );
   }
 
-  const ordered = [...friends].sort((a, b) => {
-    if (a.status !== b.status) return a.status === 'ONLINE' ? -1 : 1;
-    return a.username.localeCompare(b.username);
-  });
-
   return (
-    <ul className="grid gap-3 xl:grid-cols-2">
-      {ordered.map((friend) => (
+    <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      {friends.map((friend) => (
         <FriendCard key={friend.id} friend={friend} />
       ))}
     </ul>

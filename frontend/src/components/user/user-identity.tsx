@@ -18,7 +18,7 @@ export function UserIdentity({
       <UserAvatar user={user} size={size} />
       <div className="min-w-0">
         <p className="truncate font-semibold">{displayName(user)}</p>
-        <p className="truncate font-mono text-xs text-muted-foreground">
+        <p className="truncate text-sm text-muted-foreground">
           @{user.username}
         </p>
       </div>

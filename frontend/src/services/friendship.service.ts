@@ -2,6 +2,7 @@ import 'server-only';
 import type { Friendship } from '@/entities/friendship/friendship.entity';
 import type { FriendRequestInput } from '@/entities/friendship/friendship.schema';
 import type { User } from '@/entities/user/user.entity';
+import type { Page } from '@/entities/shared/page.entity';
 import { apiJson, apiVoid } from './http/api-client';
 
 const endpoint = {
@@ -17,8 +18,19 @@ const endpoint = {
 };
 
 export const friendshipService = {
-  listFriends(): Promise<User[]> {
-    return apiJson<User[]>(endpoint.friends);
+  listFriendsPage(page = 0, size = 12): Promise<Page<User>> {
+    return apiJson<Page<User>>(endpoint.friends, { query: { page, size } });
+  },
+
+  async listFriends(): Promise<User[]> {
+    const first = await this.listFriendsPage(0, 100);
+    const pages = Math.ceil(first.pageable.total / first.pageable.pageSize);
+    const rest = await Promise.all(
+      Array.from({ length: Math.max(0, pages - 1) }, (_, index) =>
+        this.listFriendsPage(index + 1, 100),
+      ),
+    );
+    return [first, ...rest].flatMap((page) => page.content);
   },
 
   listReceivedRequests(): Promise<Friendship[]> {

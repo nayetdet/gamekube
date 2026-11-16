@@ -23,12 +23,12 @@ export default async function FriendRequestsPage() {
       />
 
       <Tabs defaultValue="received" className="space-y-5">
-        <TabsList>
-          <TabsTrigger value="received">
+        <TabsList className="h-11 rounded-xl p-1">
+          <TabsTrigger value="received" className="rounded-lg px-4">
             Recebidos
             {received.length > 0 ? ` (${received.length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="sent">
+          <TabsTrigger value="sent" className="rounded-lg px-4">
             Enviados
             {sent.length > 0 ? ` (${sent.length})` : ''}
           </TabsTrigger>

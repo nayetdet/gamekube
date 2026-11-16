@@ -16,10 +16,10 @@ export function GameLauncher({ slug }: { slug: string }) {
       <form action={action}>
         <input type="hidden" name="slug" value={slug} />
         <SubmitButton
-          className="w-full font-bold sm:w-auto"
+          className="h-11 w-full justify-center gap-2 border-white/20 bg-[#6424b5] px-4 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_4px_14px_rgba(80,28,150,0.2)] backdrop-blur-sm hover:bg-[#762fce] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_6px_18px_rgba(80,28,150,0.3)]"
           pendingLabel="Provisionando sua sessão…"
         >
-          <PlayIcon aria-hidden />
+          <PlayIcon className="size-4 fill-current" aria-hidden />
           Jogar agora
         </SubmitButton>
       </form>

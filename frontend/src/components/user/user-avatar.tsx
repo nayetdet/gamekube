@@ -8,6 +8,19 @@ import {
 } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
+const demoAvatars: Record<string, number> = {
+  demo_bia: 1,
+  demo_luna: 2,
+  demo_rafa: 3,
+  demo_caio: 4,
+  demo_nina: 5,
+  demo_leo: 6,
+  demo_iris: 7,
+  demo_joao: 8,
+  demo_maya: 9,
+  demo_theo: 10,
+};
+
 type UserAvatarProps = {
   user: Pick<User, 'name' | 'username' | 'status'> &
     Partial<Pick<User, 'hasAvatar' | 'updatedAt'>>;
@@ -28,7 +41,9 @@ export function UserAvatar({
         src={
           user.hasAvatar
             ? `/api/users/${encodeURIComponent(user.username)}/avatar?v=${encodeURIComponent(user.updatedAt ?? '')}`
-            : defaultAvatar
+            : demoAvatars[user.username]
+              ? `/demo-avatars/${demoAvatars[user.username]}.jpg`
+              : defaultAvatar
         }
         alt=""
       />

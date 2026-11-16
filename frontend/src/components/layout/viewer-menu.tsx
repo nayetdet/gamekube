@@ -1,5 +1,10 @@
 import Link from 'next/link';
-import { ChevronsUpDownIcon, LogOutIcon, UserRoundIcon } from 'lucide-react';
+import {
+  ChevronsUpDownIcon,
+  LogOutIcon,
+  Settings2Icon,
+  UserRoundIcon,
+} from 'lucide-react';
 import { routes } from '@/config/routes';
 import type { User } from '@/entities/user/user.entity';
 import { displayName } from '@/entities/user/user.entity';
@@ -16,28 +21,44 @@ import {
 type ViewerMenuProps = {
   viewer: Pick<User, 'name' | 'username' | 'status'>;
   role: string;
+  compact?: boolean;
 };
 
-export function ViewerMenu({ viewer, role }: ViewerMenuProps) {
+export function ViewerMenu({ viewer, role, compact = false }: ViewerMenuProps) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-2.5 text-left transition-colors hover:bg-muted">
+      <DropdownMenuTrigger
+        aria-label={`Menu de ${displayName(viewer)}`}
+        className={
+          compact
+            ? 'rounded-full transition-opacity hover:opacity-80'
+            : 'flex w-full items-center gap-3 rounded-xl border border-border bg-card p-2.5 text-left transition-colors hover:bg-muted'
+        }
+      >
         <UserAvatar user={viewer} />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold">
-            {displayName(viewer)}
-          </span>
-          <span className="block truncate text-xs text-muted-foreground">
-            {role}
-          </span>
-        </span>
-        <ChevronsUpDownIcon
-          className="size-4 shrink-0 text-muted-foreground"
-          aria-hidden
-        />
+        {!compact && (
+          <>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">
+                {displayName(viewer)}
+              </span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {role}
+              </span>
+            </span>
+            <ChevronsUpDownIcon
+              className="size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
+          </>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" side="top" className="w-56">
-        <DropdownMenuLabel className="font-mono text-xs">
+      <DropdownMenuContent
+        align="end"
+        side={compact ? 'bottom' : 'top'}
+        className="w-56"
+      >
+        <DropdownMenuLabel className="text-sm font-normal text-muted-foreground">
           @{viewer.username}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -45,6 +66,12 @@ export function ViewerMenu({ viewer, role }: ViewerMenuProps) {
           <Link href={routes.profile}>
             <UserRoundIcon aria-hidden />
             Perfil
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={routes.settings}>
+            <Settings2Icon aria-hidden />
+            Configurações
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

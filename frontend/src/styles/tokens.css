@@ -1,8 +1,8 @@
-/* Semantic tokens consumed by every component. Light only, by design. */
+/* Semantic tokens consumed by every component. */
 :root {
   color-scheme: light;
 
-  --background: var(--ink-50);
+  --background: var(--ink-100);
   --foreground: var(--ink-900);
   --card: oklch(1 0 0);
   --card-foreground: var(--ink-900);
@@ -13,20 +13,20 @@
   --primary-foreground: oklch(0.99 0.005 300);
   --secondary: var(--brand-50);
   --secondary-foreground: var(--brand-700);
-  --muted: var(--ink-100);
-  --muted-foreground: var(--ink-500);
+  --muted: var(--ink-200);
+  --muted-foreground: var(--ink-600);
   --accent: var(--brand-100);
   --accent-foreground: var(--brand-700);
   --destructive: var(--signal-danger);
   --destructive-foreground: oklch(0.99 0.005 300);
 
-  --border: var(--ink-200);
-  --input: var(--ink-300);
+  --border: var(--ink-300);
+  --input: oklch(0.76 0.02 300);
   --ring: var(--brand-500);
-  --radius: 0.875rem;
+  --radius: 0.5rem;
 
   /* The rail sits a step below the page so it reads as a separate surface. */
-  --sidebar: var(--ink-100);
+  --sidebar: oklch(0.945 0.012 300);
   --sidebar-foreground: var(--ink-900);
   --sidebar-primary: var(--brand-600);
   --sidebar-primary-foreground: oklch(0.99 0.005 300);
@@ -40,4 +40,45 @@
   --chart-3: var(--brand-300);
   --chart-4: var(--brand-800);
   --chart-5: var(--brand-200);
+}
+
+.dark {
+  color-scheme: dark;
+  --brand-50: oklch(0.97 0.015 235);
+  --brand-100: oklch(0.92 0.035 235);
+  --brand-200: oklch(0.86 0.06 235);
+  --brand-300: oklch(0.79 0.1 235);
+  --brand-400: oklch(0.73 0.13 235);
+  --brand-500: oklch(0.65 0.15 235);
+  --brand-600: oklch(0.54 0.15 240);
+  --brand-700: oklch(0.75 0.12 235);
+  --brand-800: oklch(0.42 0.1 240);
+  --brand-900: oklch(0.29 0.06 240);
+  --brand-950: oklch(0.2 0.035 240);
+  --background: oklch(0.17 0.008 240);
+  --foreground: oklch(0.95 0.006 240);
+  --card: oklch(0.22 0.01 240);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.25 0.012 240);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.7 0.14 235);
+  --primary-foreground: oklch(0.17 0.025 240);
+  --secondary: oklch(0.29 0.025 240);
+  --secondary-foreground: oklch(0.93 0.015 240);
+  --muted: oklch(0.28 0.012 240);
+  --muted-foreground: oklch(0.75 0.018 240);
+  --accent: oklch(0.32 0.035 240);
+  --accent-foreground: oklch(0.95 0.01 240);
+  --destructive: oklch(0.68 0.19 22);
+  --border: oklch(0.37 0.012 240);
+  --input: oklch(0.42 0.014 240);
+  --ring: var(--brand-400);
+  --sidebar: oklch(0.2 0.009 240);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: oklch(0.17 0.025 240);
+  --sidebar-accent: oklch(0.3 0.035 240);
+  --sidebar-accent-foreground: oklch(0.96 0.01 240);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--brand-400);
 }

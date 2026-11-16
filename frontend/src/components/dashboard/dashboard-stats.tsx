@@ -1,4 +1,9 @@
-import { Gamepad2, InboxIcon, SendIcon, UsersRound } from 'lucide-react';
+import {
+  GamepadDirectionalIcon,
+  UserRoundCheckIcon,
+  UserRoundPlusIcon,
+  UsersRoundIcon,
+} from 'lucide-react';
 import type { User } from '@/entities/user/user.entity';
 import { StatTile } from '@/components/common/stat-tile';
 
@@ -19,25 +24,29 @@ export function DashboardStats({
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <StatTile
-        icon={UsersRound}
+        icon={UsersRoundIcon}
+        tone="sky"
         label="Amigos"
         value={friends.length}
         hint={`${online.length} online agora`}
       />
       <StatTile
-        icon={Gamepad2}
+        icon={GamepadDirectionalIcon}
+        tone="sky"
         label="Em jogo"
         value={playing.length}
         hint={playing[0]?.currentGame ?? 'Ninguém está jogando ainda'}
       />
       <StatTile
-        icon={InboxIcon}
+        icon={UserRoundPlusIcon}
+        tone="sky"
         label="Recebidos"
         value={receivedCount}
         hint="Pedidos aguardando você"
       />
       <StatTile
-        icon={SendIcon}
+        icon={UserRoundCheckIcon}
+        tone="sky"
         label="Enviados"
         value={sentCount}
         hint="Pedidos aguardando resposta"

@@ -1,14 +1,19 @@
 import type { User } from '@/entities/user/user.entity';
-import { formatDateTime, formatRelative } from '@/lib/format';
+import { formatRelative } from '@/lib/format';
+import type { ReactNode } from 'react';
+import { LocalTimestamp } from '@/components/common/local-timestamp';
 
-type Fact = { label: string; value: string; mono?: boolean };
+type Fact = { label: string; value: ReactNode; mono?: boolean };
 
 export function AccountFacts({ user }: { user: User }) {
   const facts: Fact[] = [
     { label: 'ID do jogador', value: user.id, mono: true },
     { label: 'ID do Keycloak', value: user.keycloakId, mono: true },
-    { label: 'Entrou em', value: formatDateTime(user.createdAt) },
-    { label: 'Última atualização', value: formatDateTime(user.updatedAt) },
+    { label: 'Entrou em', value: <LocalTimestamp value={user.createdAt} /> },
+    {
+      label: 'Última atualização',
+      value: <LocalTimestamp value={user.updatedAt} />,
+    },
     { label: 'Visto por último', value: formatRelative(user.lastSeenAt) },
     { label: 'Jogando', value: user.currentGame ?? '—' },
   ];

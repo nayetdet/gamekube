@@ -17,7 +17,13 @@ export function LiveUpdates({ gameId }: { gameId?: string }) {
         router.refresh();
       }, 300);
     };
-    for (const event of ['connected', 'message', 'read'])
+    for (const event of [
+      'connected',
+      'message',
+      'read',
+      'friendship',
+      'presence',
+    ])
       source.addEventListener(event, refresh);
     document.addEventListener('visibilitychange', refresh);
     const interval = setInterval(refresh, 30_000);

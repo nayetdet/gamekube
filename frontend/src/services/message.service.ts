@@ -6,7 +6,17 @@ import { apiJson, apiVoid } from './http/api-client';
 const conversation = (username: string) =>
   `/v1/messages/${encodeURIComponent(username)}`;
 
+export type ConversationSummary = {
+  username: string;
+  lastMessage: string;
+  lastSenderUsername: string;
+  unreadCount: number;
+};
+
 export const messageService = {
+  summaries(): Promise<ConversationSummary[]> {
+    return apiJson<ConversationSummary[]>('/v1/messages/conversations');
+  },
   conversation(username: string, page = 0): Promise<Page<Message>> {
     return apiJson<Page<Message>>(conversation(username), {
       query: { page, size: 50 },

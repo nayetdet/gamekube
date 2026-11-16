@@ -5,7 +5,7 @@ import {
   MessageCircle,
   Users,
   UserRound,
-  ShieldCheck,
+  Settings2,
   type LucideIcon,
 } from 'lucide-react';
 import { routes } from '@/config/routes';
@@ -69,16 +69,15 @@ export const navigation: readonly NavGroup[] = [
     items: [
       {
         label: 'Perfil',
-        description: 'Seu perfil público e configurações da conta',
+        description: 'Seu perfil público',
         href: routes.profile,
         icon: UserRound,
       },
       {
-        label: 'Diretório',
-        description: 'Veja todos os jogadores cadastrados',
-        href: routes.users,
-        icon: ShieldCheck,
-        adminOnly: true,
+        label: 'Configurações',
+        description: 'Gerencie sua conta',
+        href: routes.settings,
+        icon: Settings2,
       },
     ],
   },

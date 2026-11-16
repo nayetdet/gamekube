@@ -55,6 +55,10 @@ export function createEventStream(
         if (closeStream) controller.close();
       };
       client.onConnect = () => {
+        client.subscribe('/user/queue/presence', () => emit('presence', {}));
+        client.subscribe('/user/queue/friendships', () =>
+          emit('friendship', {}),
+        );
         client.subscribe('/user/queue/messages', (message) => {
           try {
             const parsed = messageNotificationSchema.safeParse(

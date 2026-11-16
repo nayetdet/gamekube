@@ -19,10 +19,7 @@ export function MessageHistory({
       />
     );
   return (
-    <ol
-      aria-label="Histórico da conversa"
-      className="space-y-3 rounded-xl bg-card p-4 ring-1 ring-border sm:p-6"
-    >
+    <ol aria-label="Histórico da conversa" className="space-y-3">
       {[...messages].reverse().map((message) => (
         <MessageBubble
           key={message.id}

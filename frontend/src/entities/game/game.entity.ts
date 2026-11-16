@@ -7,6 +7,8 @@ export type GameDefinition = {
   name: string;
   description: string;
   image: string;
+  videoUrl?: string | null;
+  logoUrl?: string | null;
   hasSave: boolean;
 };
 

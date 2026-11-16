@@ -1,61 +1,47 @@
 import type { Metadata } from 'next';
 import { routes } from '@/config/routes';
 import { friendshipService } from '@/services/friendship.service';
+import { gameService } from '@/services/game.service';
 import { getViewer } from '@/server/viewer';
-import { PageHeader } from '@/components/common/page-header';
-import { AvatarEditor } from '@/components/user/avatar-editor';
-import { DangerCard } from '@/components/user/danger-card';
-import { EmailCard } from '@/components/user/email-card';
-import { ProfileCard } from '@/components/user/profile-card';
 import { ProfileHero } from '@/components/user/profile-hero';
+import { ProfileAbout } from '@/components/user/profile-about';
+import { ProfileStats } from '@/components/user/profile-stats';
+import { RecentGames } from '@/components/user/recent-games';
+import { displayName } from '@/entities/user/user.entity';
 
 export const metadata: Metadata = { title: 'Perfil' };
 
 export default async function ProfilePage() {
-  const [{ user }, friends, received] = await Promise.all([
+  const [{ user }, friends, received, games] = await Promise.all([
     getViewer(),
     friendshipService.listFriends(),
     friendshipService.listReceivedRequests(),
+    gameService.list(),
   ]);
-
+  const history = await gameService.playedBy(user.username);
   const stats = [
     { label: 'Amigos', value: friends.length, href: routes.friends },
-    {
-      label: 'Online',
-      value: friends.filter((friend) => friend.status === 'ONLINE').length,
-      href: routes.friends,
-    },
-    {
-      label: 'Pedidos',
-      value: received.length,
-      href: routes.friendRequests,
-    },
+    { label: 'Pedidos', value: received.length, href: routes.friendRequests },
   ];
-
   return (
-    <>
-      <PageHeader
-        eyebrow="Conta"
-        title="Seu perfil"
-        description="É isto que outros jogadores veem quando encontram você."
-      />
-
-      <ProfileHero user={user} stats={stats} />
-
-      <AvatarEditor username={user.username} />
-
-      <ProfileCard
-        user={user}
-        title="Detalhes públicos"
-        description="Toque no lápis ao lado de um campo para editá-lo. Trocar o nome de usuário também muda como você entra na sua conta."
-      />
-
-      <EmailCard username={user.username} />
-
-      <DangerCard
-        username={user.username}
-        description="Excluir sua conta faz logout e não pode ser desfeito."
-      />
-    </>
+    <div className="space-y-5">
+      <ProfileHero user={user} editable />
+      <div className="grid items-start gap-4 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <ProfileAbout user={user} />
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <ProfileStats stats={stats} />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <RecentGames
+            history={history}
+            games={games}
+            name={displayName(user)}
+            own
+          />
+        </div>
+      </div>
+    </div>
   );
 }

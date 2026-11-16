@@ -11,7 +11,7 @@ import {
 
 const Toaster = ({ ...props }: ToasterProps) => (
   <Sonner
-    theme="light"
+    theme="system"
     className="toaster group"
     position="bottom-right"
     icons={{

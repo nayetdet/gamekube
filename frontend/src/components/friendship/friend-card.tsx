@@ -1,37 +1,59 @@
-import type { User } from '@/entities/user/user.entity';
+import { displayName, type User } from '@/entities/user/user.entity';
 import Link from 'next/link';
 import { MessageCircleIcon } from 'lucide-react';
 import { routes } from '@/config/routes';
 import { Button } from '@/components/ui/button';
 import { formatRelative } from '@/lib/format';
-import { PresenceBadge } from '@/components/presence/presence-badge';
-import { UserIdentity } from '@/components/user/user-identity';
+import { UserAvatar } from '@/components/user/user-avatar';
 import { RemoveFriendButton } from './remove-friend-button';
 
 export function FriendCard({ friend }: { friend: User }) {
   return (
-    <li className="flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border shadow-2xs transition-all duration-200 hover:ring-brand-400/40 hover:shadow-md">
-      <UserIdentity user={friend} className="flex-1" />
-      <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-        <PresenceBadge
-          status={friend.status}
-          currentGame={friend.currentGame}
-        />
-        {friend.status === 'OFFLINE' ? (
-          <span className="text-xs text-muted-foreground">
-            Visto {formatRelative(friend.lastSeenAt)}
-          </span>
-        ) : null}
-      </div>
-      <RemoveFriendButton username={friend.username} />
-      <Button asChild variant="outline" size="icon-sm">
+    <li className="flex min-w-0 flex-col items-center rounded-2xl border border-border bg-card p-5 text-center transition-colors hover:border-brand-400/50 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1">
+      <div className="flex w-full min-w-0 flex-1 flex-col items-center gap-3">
         <Link
-          href={routes.conversation(friend.username)}
-          aria-label={`Conversar com ${friend.username}`}
+          href={routes.player(friend.username)}
+          aria-label={`Ver perfil de ${displayName(friend)}`}
         >
-          <MessageCircleIcon aria-hidden />
+          <UserAvatar
+            user={friend}
+            size="xl"
+            className="size-20 ring-4 ring-background"
+          />
         </Link>
-      </Button>
+        <span className="w-full min-w-0 space-y-1">
+          <Link
+            href={routes.player(friend.username)}
+            className="block truncate text-base font-bold hover:text-primary hover:underline"
+          >
+            {displayName(friend)}
+          </Link>
+          <span className="block truncate text-sm text-muted-foreground">
+            @{friend.username}
+          </span>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {friend.status === 'ONLINE'
+            ? friend.currentGame
+              ? `Jogando ${friend.currentGame}`
+              : 'Online'
+            : friend.lastSeenAt
+              ? `Visto ${formatRelative(friend.lastSeenAt)}`
+              : 'Offline'}
+        </span>
+      </div>
+      <div className="mt-5 flex w-full items-center gap-2 border-t border-border pt-4">
+        <Button asChild variant="secondary" className="flex-1 font-semibold">
+          <Link
+            href={routes.conversation(friend.username)}
+            aria-label={`Conversar com ${friend.username}`}
+          >
+            <MessageCircleIcon aria-hidden />
+            Conversar
+          </Link>
+        </Button>
+        <RemoveFriendButton username={friend.username} />
+      </div>
     </li>
   );
 }

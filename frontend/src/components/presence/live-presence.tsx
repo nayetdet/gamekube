@@ -1,6 +1,7 @@
 import { RadioIcon } from 'lucide-react';
 import type { User } from '@/entities/user/user.entity';
-import { formatDateTime, formatRelative } from '@/lib/format';
+import { formatRelative } from '@/lib/format';
+import { LocalTimestamp } from '@/components/common/local-timestamp';
 import { PresenceBadge } from './presence-badge';
 
 export function LivePresence({ user: presence }: { user: User }) {
@@ -13,7 +14,12 @@ export function LivePresence({ user: presence }: { user: User }) {
       <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
         <RadioIcon className="size-4" aria-hidden />
         Visto por último {formatRelative(presence.lastSeenAt)}
-        {presence.lastSeenAt ? ` · ${formatDateTime(presence.lastSeenAt)}` : ''}
+        {presence.lastSeenAt && (
+          <>
+            {' '}
+            · <LocalTimestamp value={presence.lastSeenAt} />
+          </>
+        )}
       </p>
     </div>
   );

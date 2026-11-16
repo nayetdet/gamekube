@@ -8,11 +8,16 @@ export const routes = {
   conversation: (username: string) =>
     `/messages/${encodeURIComponent(username)}`,
   games: '/games',
+  game: (id: string) => `/games/${encodeURIComponent(id)}`,
   play: (slug: string, session: string) =>
     `/play/${encodeURIComponent(slug)}?session=${encodeURIComponent(session)}`,
   profile: '/profile',
+  settings: '/settings',
+  settingsAccount: '/settings/account',
+  settingsPrivacy: '/settings/privacy',
   users: '/users',
   user: (username: string) => `/users/${encodeURIComponent(username)}`,
+  player: (username: string) => `/players/${encodeURIComponent(username)}`,
   authLogin: '/auth/login',
   authCallback: '/auth/callback',
   authLogout: '/auth/logout',

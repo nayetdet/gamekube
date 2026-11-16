@@ -1,21 +1,25 @@
 import Link from 'next/link';
 import { MessageCircleIcon } from 'lucide-react';
 import { routes } from '@/config/routes';
-import { messageService } from '@/services/message.service';
-import { Badge } from '@/components/ui/badge';
+import { UnreadBadge } from './unread-badge';
 import { Button } from '@/components/ui/button';
 
-export async function UnreadMessagesLink() {
-  const { unreadCount } = await messageService.countUnread();
+export function UnreadMessagesLink({ unreadCount }: { unreadCount: number }) {
   return (
-    <Button asChild variant="ghost" size="sm">
+    <Button asChild variant="ghost" size="sm" className="gap-4">
       <Link
         href={routes.messages}
         aria-label={`Mensagens: ${unreadCount} não lidas`}
       >
-        <MessageCircleIcon aria-hidden />
+        <span className="relative shrink-0">
+          <MessageCircleIcon className="size-4" aria-hidden />
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-3">
+              <UnreadBadge count={unreadCount} />
+            </span>
+          )}
+        </span>
         <span className="hidden sm:inline">Mensagens</span>
-        {unreadCount > 0 ? <Badge>{unreadCount}</Badge> : null}
       </Link>
     </Button>
   );
