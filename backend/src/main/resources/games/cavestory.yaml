@@ -1,6 +1,8 @@
 name: Cave Story
+logoUrl: /game-logos/cavestory.png
 description: An amnesiac boy awakens in a dark cave with no memory of who he is or how he got there. After finding a village of rabbit-like Mimigas threatened by a maniacal scientist, he must uncover the world's secrets, stop the villain, and save the Mimigas.
 image: /images/cavestory.png
+videoUrl: https://www.youtube.com/watch?v=yqc12yNKBZs
 hasSave: true
 resources:
   - apiVersion: v1

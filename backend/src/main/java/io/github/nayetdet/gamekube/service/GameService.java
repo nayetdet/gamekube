@@ -33,12 +33,22 @@ public class GameService {
   private final GameInstanceLifecycleProvider gameInstanceLifecycleProvider;
   private final StorageService storageService;
   private final UserRepository userRepository;
+  private final PresenceNotifier presenceNotifier;
+  private final GameHistoryService gameHistoryService;
 
   @Value("${gamekube.game.storage.save-bucket}")
   private String saveBucket;
 
   public List<GameResponse> search() {
     return gameProvider.findAll().stream().map(gameMapper::toResponse).toList();
+  }
+
+  public GameResponse find(String gameId) {
+    Game game = gameProvider.find(gameId);
+    if (game == null) {
+      throw new GameNotFoundException();
+    }
+    return gameMapper.toResponse(game);
   }
 
   public byte[] image(String gameId) {
@@ -64,9 +74,13 @@ public class GameService {
         throw new GameInstanceAlreadyActiveException();
       }
 
-      return gameMapper.toResponse(
-          gameInstanceProvider.provision(
-              game, () -> gameInstanceLifecycleProvider.renew(instance)));
+      GameInstanceResponse response =
+          gameMapper.toResponse(
+              gameInstanceProvider.provision(
+                  game, () -> gameInstanceLifecycleProvider.renew(instance)));
+      gameHistoryService.record(instance.getUsername(), gameId);
+      presenceNotifier.changed(instance.getUsername());
+      return response;
     } catch (RuntimeException exception) {
       if (claimed) {
         try {
@@ -95,6 +109,7 @@ public class GameService {
       gameInstanceLifecycleProvider.renew(instance);
       gameInstanceProvider.destroy(game, instance);
       gameInstanceLifecycleProvider.destroy(instance);
+      presenceNotifier.changed(instance.getUsername());
     }
   }
 

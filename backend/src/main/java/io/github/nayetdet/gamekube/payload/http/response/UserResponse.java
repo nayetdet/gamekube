@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.payload.http.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.nayetdet.gamekube.enums.UserStatus;
@@ -34,7 +35,10 @@ public class UserResponse {
   @Getter(AccessLevel.NONE)
   private LocalDateTime lastSeenAt;
 
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   private LocalDateTime createdAt;
+
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   private LocalDateTime updatedAt;
 
   @JsonGetter("currentGame")
@@ -45,6 +49,7 @@ public class UserResponse {
 
   @JsonGetter("lastSeenAt")
   @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   public LocalDateTime getLastSeenAtForSerialization() {
     return status == UserStatus.OFFLINE ? lastSeenAt : null;
   }

@@ -1,6 +1,7 @@
 package io.github.nayetdet.gamekube.controller.http;
 
 import io.github.nayetdet.gamekube.controller.http.docs.FriendshipRestControllerDocs;
+import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.http.request.FriendshipRequest;
 import io.github.nayetdet.gamekube.payload.http.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
@@ -11,6 +12,9 @@ import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,8 +37,9 @@ public class FriendshipRestController implements FriendshipRestControllerDocs {
   @Override
   @PreAuthorizeUser
   @GetMapping
-  public ResponseEntity<List<UserResponse>> findAcceptedFriends(Principal principal) {
-    return ResponseEntity.ok(friendshipService.findAcceptedFriends(principal.getName()));
+  public ResponseEntity<ApplicationPage<UserResponse>> findAcceptedFriends(
+      Principal principal, @ParameterObject @PageableDefault(size = 12) Pageable pageable) {
+    return ResponseEntity.ok(friendshipService.findAcceptedFriends(principal.getName(), pageable));
   }
 
   @Override

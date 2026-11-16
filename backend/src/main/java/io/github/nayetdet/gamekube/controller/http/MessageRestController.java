@@ -3,11 +3,13 @@ package io.github.nayetdet.gamekube.controller.http;
 import io.github.nayetdet.gamekube.controller.http.docs.MessageRestControllerDocs;
 import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.http.request.MessageRequest;
+import io.github.nayetdet.gamekube.payload.http.response.ConversationSummaryResponse;
 import io.github.nayetdet.gamekube.payload.http.response.MessageResponse;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
 import io.github.nayetdet.gamekube.service.MessageService;
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -29,6 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageRestController implements MessageRestControllerDocs {
 
   private final MessageService messageService;
+
+  @PreAuthorizeUser
+  @GetMapping("/conversations")
+  public ResponseEntity<List<ConversationSummaryResponse>> conversationSummaries(
+      Principal principal) {
+    return ResponseEntity.ok(messageService.conversationSummaries(principal.getName()));
+  }
 
   @Override
   @PreAuthorizeUser

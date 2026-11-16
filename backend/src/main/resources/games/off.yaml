@@ -1,6 +1,8 @@
 name: OFF
+logoUrl: /game-logos/off.png
 description: "The Batter has been entrusted with a sacred mission: purify an uncanny and hopeless world haunted by specters. Guided through its strange Zones, he confronts the forces that inhabit this world and uncovers its secrets."
 image: /images/off.png
+videoUrl: https://www.youtube.com/watch?v=WGxV1-Lg9Ug
 hasSave: true
 resources:
   - apiVersion: v1

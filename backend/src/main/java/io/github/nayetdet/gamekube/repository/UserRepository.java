@@ -21,10 +21,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       SELECT u FROM User u
       WHERE (:#{#query.username} IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :#{#query.username}, '%')))
         AND (:#{#query.name} IS NULL OR LOWER(COALESCE(u.name, '')) LIKE LOWER(CONCAT('%', :#{#query.name}, '%')))
-        AND (:#{#query.lastSeenAtAfter} IS NULL OR u.lastSeenAt >= :#{#query.lastSeenAtAfter.atStartOfDay()})
-        AND (:#{#query.lastSeenAtBefore} IS NULL OR u.lastSeenAt < :#{#query.lastSeenAtBefore.plusDays(1).atStartOfDay()})
-        AND (:#{#query.createdAfter} IS NULL OR u.createdAt >= :#{#query.createdAfter.atStartOfDay()})
-        AND (:#{#query.createdBefore} IS NULL OR u.createdAt < :#{#query.createdBefore.plusDays(1).atStartOfDay()})
+        AND (:#{#query.lastSeenAtAfter == null} = true OR u.lastSeenAt >= :#{#query.lastSeenAtAfter?.atStartOfDay()})
+        AND (:#{#query.lastSeenAtBefore == null} = true OR u.lastSeenAt < :#{#query.lastSeenAtBefore?.plusDays(1)?.atStartOfDay()})
+        AND (:#{#query.createdAfter == null} = true OR u.createdAt >= :#{#query.createdAfter?.atStartOfDay()})
+        AND (:#{#query.createdBefore == null} = true OR u.createdAt < :#{#query.createdBefore?.plusDays(1)?.atStartOfDay()})
       """)
   Page<User> search(@Param("query") UserQuery query, Pageable pageable);
 

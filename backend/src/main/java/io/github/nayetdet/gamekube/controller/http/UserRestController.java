@@ -8,10 +8,12 @@ import io.github.nayetdet.gamekube.payload.http.request.UserRequest;
 import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeAdmin;
 import io.github.nayetdet.gamekube.security.annotation.PreAuthorizeUser;
+import io.github.nayetdet.gamekube.service.GameHistoryService;
 import io.github.nayetdet.gamekube.service.StorageService;
 import io.github.nayetdet.gamekube.service.UserService;
 import jakarta.validation.Valid;
 import java.time.Duration;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.CacheControl;
@@ -34,6 +36,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserRestController implements UserRestControllerDocs {
 
   private final UserService userService;
+  private final GameHistoryService gameHistoryService;
+
+  @PreAuthorizeUser
+  @GetMapping("/{username}/games")
+  public List<GameHistoryService.PlayedGame> playedGames(@PathVariable String username) {
+    return gameHistoryService.forFriend(username);
+  }
 
   @Override
   @PreAuthorizeAdmin

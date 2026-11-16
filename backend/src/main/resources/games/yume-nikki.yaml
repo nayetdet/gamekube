@@ -1,6 +1,8 @@
 name: Yume Nikki
+logoUrl: /game-logos/yume-nikki.png
 description: Yume Nikki is a surreal, dialogue-free exploration game in which the reclusive Madotsuki sleeps in her room and wanders through a network of strange, interconnected dream worlds, collecting effects and interpreting what she sees.
 image: /images/yume-nikki.png
+videoUrl: https://www.youtube.com/watch?v=OdE2Qn3Qupc
 hasSave: true
 resources:
   - apiVersion: v1

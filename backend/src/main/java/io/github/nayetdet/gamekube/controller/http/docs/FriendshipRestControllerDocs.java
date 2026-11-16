@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.controller.http.docs;
 
+import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.http.request.FriendshipRequest;
 import io.github.nayetdet.gamekube.payload.http.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -97,16 +99,15 @@ public interface FriendshipRestControllerDocs {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content =
-                @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))),
+            content = @Content(schema = @Schema(implementation = ApplicationPage.class))),
         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
         @ApiResponse(
             responseCode = "500",
             description = "Internal Server Error",
             content = @Content)
       })
-  ResponseEntity<List<UserResponse>> findAcceptedFriends(Principal principal);
+  ResponseEntity<ApplicationPage<UserResponse>> findAcceptedFriends(
+      Principal principal, Pageable pageable);
 
   @Operation(
       summary = "List pending friendship requests received by the authenticated user",

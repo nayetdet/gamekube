@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.payload.http.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.github.nayetdet.gamekube.enums.MessageStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
@@ -33,11 +34,13 @@ public class MessageResponse {
   private MessageStatus status;
 
   @Schema(description = "UTC timestamp at which the message was created.", format = "date-time")
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   private LocalDateTime createdAt;
 
   @Schema(
       description = "UTC timestamp at which the recipient read the message; null until read.",
       format = "date-time",
       nullable = true)
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   private LocalDateTime readAt;
 }

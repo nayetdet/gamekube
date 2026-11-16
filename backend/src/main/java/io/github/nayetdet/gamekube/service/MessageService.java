@@ -10,6 +10,7 @@ import io.github.nayetdet.gamekube.model.Message;
 import io.github.nayetdet.gamekube.model.User;
 import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.http.request.MessageRequest;
+import io.github.nayetdet.gamekube.payload.http.response.ConversationSummaryResponse;
 import io.github.nayetdet.gamekube.payload.http.response.MessageResponse;
 import io.github.nayetdet.gamekube.payload.websocket.event.MessageEvent;
 import io.github.nayetdet.gamekube.payload.websocket.event.MessagesReadEvent;
@@ -35,6 +36,20 @@ public class MessageService {
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final SimpMessagingTemplate messagingTemplate;
+
+  @Transactional(readOnly = true)
+  public List<ConversationSummaryResponse> conversationSummaries(String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    return messageRepository.findConversationSummaries(user.getId()).stream()
+        .map(
+            summary ->
+                new ConversationSummaryResponse(
+                    summary.getUsername(),
+                    summary.getLastMessage(),
+                    summary.getLastSenderUsername(),
+                    summary.getUnreadCount()))
+        .toList();
+  }
 
   @Transactional(readOnly = true)
   public ApplicationPage<MessageResponse> findConversation(
@@ -63,7 +78,7 @@ public class MessageService {
             sender.getId(), recipient.getId(), MessageStatus.READ);
 
     if (!unreadMessages.isEmpty()) {
-      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime now = LocalDateTime.now(java.time.ZoneOffset.UTC);
       for (Message msg : unreadMessages) {
         msg.setStatus(MessageStatus.READ);
         msg.setReadAt(now);
@@ -71,14 +86,15 @@ public class MessageService {
 
       messageRepository.saveAll(unreadMessages);
       try {
-        messagingTemplate.convertAndSendToUser(
-            sender.getUsername(),
-            "/queue/messages/read",
+        MessagesReadEvent event =
             MessagesReadEvent.builder()
                 .readerUsername(currentUsername)
-                .readAt(now.toString())
+                .readAt(now.atOffset(java.time.ZoneOffset.UTC).toString())
                 .count(unreadMessages.size())
-                .build());
+                .build();
+        messagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/messages/read", event);
+        messagingTemplate.convertAndSendToUser(
+            recipient.getUsername(), "/queue/messages/read", event);
       } catch (RuntimeException exception) {
         log.warn("Could not dispatch message read event", exception);
       }

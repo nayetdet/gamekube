@@ -1,6 +1,8 @@
 name: Legend of Princess
+logoUrl: /game-logos/loprincess.png
 description: Legend of Princess is a one-level arcade-style action game inspired by The Legend of Zelda, in which the hero battles through a compact dungeon to rescue the princess.
 image: /images/loprincess.png
+videoUrl: https://www.youtube.com/watch?v=g0IL66pagbA
 hasSave: false
 resources:
   - apiVersion: apps/v1

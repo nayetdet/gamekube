@@ -1,5 +1,6 @@
 package io.github.nayetdet.gamekube.payload.websocket.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.github.nayetdet.gamekube.enums.MessageStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
@@ -23,7 +24,11 @@ public class MessageEvent {
   private String recipientUsername;
   private String content;
   private MessageStatus status;
+
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   private LocalDateTime createdAt;
+
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
   private LocalDateTime readAt;
 
   public static MessageEvent from(

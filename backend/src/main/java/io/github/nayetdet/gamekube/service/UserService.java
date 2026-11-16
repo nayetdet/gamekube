@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
@@ -42,6 +43,8 @@ public class UserService {
           ".jpg",
           MediaType.IMAGE_PNG_VALUE,
           ".png",
+          MediaType.IMAGE_GIF_VALUE,
+          ".gif",
           "image/webp",
           ".webp");
 
@@ -51,6 +54,14 @@ public class UserService {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
   private final StringRedisTemplate redisTemplate;
+  private final PresenceNotifier presenceNotifier;
+
+  public UserResponse toPresenceResponse(User user) {
+    return userMapper.toResponse(
+        user,
+        status(user.getUsername()),
+        gameInstanceLifecycleProvider.findCurrentGameId(user.getUsername()).orElse(null));
+  }
 
   @Value("${gamekube.user.presence.heartbeat-timeout}")
   private Duration heartbeatTimeout;
@@ -161,7 +172,7 @@ public class UserService {
     String contentType = file.getContentType();
     String extension = contentType != null ? ALLOWED_AVATAR_TYPES.get(contentType) : null;
     if (extension == null) {
-      throw new UserAvatarInvalidException("Avatar must be a JPEG, PNG, or WebP image");
+      throw new UserAvatarInvalidException("Avatar must be a JPEG, PNG, GIF, or WebP image");
     }
 
     byte[] content;
@@ -172,7 +183,7 @@ public class UserService {
     }
 
     String previousKey = user.getAvatarKey();
-    String newKey = user.getId() + extension;
+    String newKey = user.getId() + "/" + UUID.randomUUID() + extension;
     storageService.putObject(avatarBucket, newKey, content, contentType);
     if (previousKey != null && !previousKey.equals(newKey)) {
       storageService.deleteObject(avatarBucket, previousKey);
@@ -193,10 +204,12 @@ public class UserService {
   }
 
   public void markAsOnline(String username, String sessionId) {
+    boolean wasOffline = status(username) == UserStatus.OFFLINE;
     String cacheKey = UserCacheRegistry.presenceKey(username);
     long expiresAt = System.currentTimeMillis() + heartbeatTimeout.toMillis();
     redisTemplate.opsForZSet().add(cacheKey, sessionId, expiresAt);
     redisTemplate.expire(cacheKey, heartbeatTimeout);
+    if (wasOffline) presenceNotifier.changed(username);
   }
 
   @Transactional
@@ -212,6 +225,7 @@ public class UserService {
           username,
           LocalDateTime.ofInstant(
               java.time.Instant.ofEpochMilli(currentTime), java.time.ZoneOffset.UTC));
+      presenceNotifier.changed(username);
     }
   }
 

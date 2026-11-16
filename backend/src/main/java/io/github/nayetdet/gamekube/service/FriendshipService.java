@@ -8,9 +8,9 @@ import io.github.nayetdet.gamekube.exception.FriendshipSelfReferenceException;
 import io.github.nayetdet.gamekube.exception.UserModificationForbiddenException;
 import io.github.nayetdet.gamekube.exception.UserNotFoundException;
 import io.github.nayetdet.gamekube.mapper.FriendshipMapper;
-import io.github.nayetdet.gamekube.mapper.UserMapper;
 import io.github.nayetdet.gamekube.model.Friendship;
 import io.github.nayetdet.gamekube.model.User;
+import io.github.nayetdet.gamekube.payload.http.query.page.ApplicationPage;
 import io.github.nayetdet.gamekube.payload.http.request.FriendshipRequest;
 import io.github.nayetdet.gamekube.payload.http.response.FriendshipResponse;
 import io.github.nayetdet.gamekube.payload.http.response.UserResponse;
@@ -19,37 +19,63 @@ import io.github.nayetdet.gamekube.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FriendshipService {
 
   private final FriendshipRepository friendshipRepository;
   private final UserRepository userRepository;
   private final FriendshipMapper friendshipMapper;
-  private final UserMapper userMapper;
+  private final SimpMessagingTemplate messagingTemplate;
+  private final UserService userService;
+
+  private void notifyChange(String first, String second) {
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
+            try {
+              messagingTemplate.convertAndSendToUser(first, "/queue/friendships", "changed");
+              messagingTemplate.convertAndSendToUser(second, "/queue/friendships", "changed");
+            } catch (RuntimeException exception) {
+              log.warn("Could not dispatch friendship update", exception);
+            }
+          }
+        });
+  }
 
   @Transactional(readOnly = true)
-  public List<UserResponse> findAcceptedFriends(String currentUsername) {
+  public ApplicationPage<UserResponse> findAcceptedFriends(
+      String currentUsername, Pageable pageable) {
     User currentUser =
         userRepository.findByUsername(currentUsername).orElseThrow(UserNotFoundException::new);
 
-    List<Friendship> friendships =
+    Page<Friendship> friendships =
         friendshipRepository.findAllByUserIdAndStatus(
-            currentUser.getId(), FriendshipStatus.ACCEPTED);
+            currentUser.getId(),
+            FriendshipStatus.ACCEPTED,
+            PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), 100)));
 
-    return friendships.stream()
-        .map(
+    return new ApplicationPage<>(
+        friendships.map(
             f -> {
               User friend =
                   f.getRequester().getId().equals(currentUser.getId())
                       ? f.getAddressee()
                       : f.getRequester();
-              return userMapper.toResponse(friend);
-            })
-        .toList();
+              return userService.toPresenceResponse(friend);
+            }));
   }
 
   @Transactional(readOnly = true)
@@ -102,9 +128,11 @@ public class FriendshipService {
       friendship.setRequester(requester);
       friendship.setAddressee(addressee);
       friendship.setStatus(FriendshipStatus.PENDING);
+      notifyChange(requesterUsername, addressee.getUsername());
       return friendshipMapper.toResponse(friendshipRepository.save(friendship));
     }
 
+    notifyChange(requesterUsername, addressee.getUsername());
     return friendshipMapper.toResponse(
         friendshipRepository.save(
             Friendship.builder()
@@ -136,6 +164,7 @@ public class FriendshipService {
     }
 
     friendship.setStatus(accept ? FriendshipStatus.ACCEPTED : FriendshipStatus.REJECTED);
+    notifyChange(currentUsername, friendUsername);
     return friendshipMapper.toResponse(friendshipRepository.save(friendship));
   }
 
@@ -153,5 +182,6 @@ public class FriendshipService {
             .orElseThrow(FriendshipNotFoundException::new);
 
     friendshipRepository.delete(friendship);
+    notifyChange(currentUsername, username);
   }
 }
