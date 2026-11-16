@@ -1,75 +1,119 @@
-# 🎮 GameKube
+# GameKube
 
-**GameKube** é uma plataforma cloud-native de jogos sob demanda e rede social gamer orquestrada sobre **Kubernetes**. Cada sessão de jogo é provisionada dinamicamente em containers isolados no cluster, com persistência de saves em armazenamento de objetos (**MinIO / S3**), autenticação centralizada via **Keycloak (OIDC + PKCE)** e comunicação social em tempo real (**WebSocket / STOMP**).
+**GameKube is a Kubernetes-native platform for launching isolated game instances on demand and automatically managing their lifecycle.**
 
----
+Players can browse a catalog of games and launch dedicated sessions on demand. GameKube runs each session in an isolated Kubernetes workload, monitors activity, and automatically cleans up idle instances. The platform also includes player profiles, game saves, friendships, live presence, and real-time messaging.
 
-## Principais Funcionalidades
+## 🎮 Explore the catalog
 
-- **Autenticação e Identidade Centralizada (OIDC):** Login seguro via Keycloak com fluxo Authorization Code + PKCE, sessão criptografada em cookies HTTP-only e proteção das instâncias de jogos com `oauth2-proxy`.
-- **Orquestração Dinâmica de Jogos no Kubernetes:** Provisionamento sob demanda de pods dedicados por jogador, verificação de atividade (*heartbeat*) e encerramento automático de instâncias ociosas.
-- **Persistência e Gestão de Saves (`.zip`):** Sincronização automática do progresso no MinIO/S3 ao encerrar a partida, permitindo baixar o backup (`.zip`) ou redefinir o save pela interface web.
-- **Perfil do Jogador e Avatar Customizado:** Edição de dados públicos, upload de foto de perfil armazenada no S3 (`JPEG`, `PNG`, `GIF`, `WebP`), histórico de jogos e configurações de conta/privacidade.
-- **Rede Social e Presença em Tempo Real:** Diretório de jogadores com filtros avançados, gerenciamento de amizades (solicitar, aceitar, recusar, remover), status ao vivo (`Online`, `Offline`, `Jogando...`) e chat direto 1:1 via STOMP/WebSocket + Server-Sent Events (SSE).
+Browse a few games available on GameKube. Select a title to view its configuration.
 
----
+|  |  |  |  |
+|:---:|:---:|:---:|:---:|
+| [<img src="backend/src/main/resources/images/bugdom.png" alt="Bugdom gameplay" width="200">](backend/src/main/resources/games/bugdom.yaml)<br>**Bugdom** | [<img src="backend/src/main/resources/images/cavestory.png" alt="Cave Story gameplay" width="200">](backend/src/main/resources/games/cavestory.yaml)<br>**Cave Story** | [<img src="backend/src/main/resources/images/doom.png" alt="DOOM gameplay" width="200">](backend/src/main/resources/games/doom.yaml)<br>**DOOM** | [<img src="backend/src/main/resources/images/hyperdbz.png" alt="Hyper Dragon Ball Z gameplay" width="200">](backend/src/main/resources/games/hyperdbz.yaml)<br>**Hyper Dragon Ball Z** |
+| [<img src="backend/src/main/resources/images/loprincess.png" alt="Legend of Princess gameplay" width="200">](backend/src/main/resources/games/loprincess.yaml)<br>**Legend of Princess** | [<img src="backend/src/main/resources/images/off.png" alt="OFF gameplay" width="200">](backend/src/main/resources/games/off.yaml)<br>**OFF** | [<img src="backend/src/main/resources/images/sonic-triple-trouble.png" alt="Sonic Triple Trouble gameplay" width="200">](backend/src/main/resources/games/sonic-triple-trouble.yaml)<br>**Sonic Triple Trouble** | [<img src="backend/src/main/resources/images/yume-nikki.png" alt="Yume Nikki gameplay" width="200">](backend/src/main/resources/games/yume-nikki.yaml)<br>**Yume Nikki** |
 
-## Arquitetura do Projeto
+## Features
 
-![Arquitetura Lógica do GameKube](docs/images/arquitetura-logica-gamekub.jpeg)
+- **On-demand game instances** — provision isolated game sessions in Kubernetes and automatically stop idle instances.
+- **Game save management** — store and retrieve save backups using S3-compatible object storage.
+- **Player accounts** — authenticate through Keycloak and manage profiles, avatars, and game history.
+- **Social features** — find players, manage friendships, see online and in-game presence, and chat in real time.
+- **Local Kubernetes environment** — deploy the platform dependencies to a local Kind cluster with Helm.
+
+## Architecture
+
+![GameKube logical architecture](docs/images/logical-architecture.png)
+
+| Component | Technology | Purpose |
+| --- | --- | --- |
+| Frontend | Next.js, React, TypeScript | Web application and player experience |
+| Backend | Java 21, Spring Boot | REST and real-time APIs, game lifecycle management |
+| Orchestration | Kubernetes, Kind, Helm | Isolated game workloads and local infrastructure |
+| Identity | Keycloak, OpenID Connect | Player authentication |
+| Data and storage | PostgreSQL, Redis, MinIO | Application data, presence, and game saves |
+
+The backend communicates with Kubernetes to manage game workloads. PostgreSQL stores application data, Redis supports real-time presence, and MinIO provides S3-compatible object storage for saves and avatars.
+
+## Repository layout
 
 ```text
-gamekube/
-├── infra/               # Cluster Kind, charts Helm (Keycloak, PostgreSQL, Redis, MinIO, Ingress, Cert-Manager)
-├── backend/             # API REST & WebSocket em Java 21 + Spring Boot, Flyway, Fabric8 K8s Client e AWS S3 SDK
-├── frontend/            # Aplicação Web em Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4 e Playwright
-└── docs/requirements/   # Especificação de Requisitos de Software (SRS) em HTML e gerador de PDF
+backend/                 Spring Boot API and game lifecycle management
+frontend/                Next.js web application
+infra/                   Kind configuration and Helm charts
+docs/                    Architecture diagrams and project documentation
 ```
 
----
+## Getting started
 
-## Como Executar Localmente
+### Prerequisites
 
-### Pré-requisitos
-- **Docker**, **Kind** e **Helm** (para o cluster Kubernetes local)
-- **Java 21** (para o backend Spring Boot)
-- **Bun 1.3+** ou **Node.js 22+** (para o frontend Next.js)
+- Docker
+- [Kind](https://kind.sigs.k8s.io/) and [Helm](https://helm.sh/)
+- Java 21
+- [Bun 1.3+](https://bun.sh/) (or Node.js 22+ with npm)
 
-### 1. Subir a Infraestrutura (Cluster Kubernetes)
+### 1. Start the local Kubernetes platform
+
+From the repository root, run:
+
 ```bash
 make -C infra up
 ```
 
-### 2. Iniciar o Backend (`:8000`)
+This creates the `gamekube` Kind cluster and installs the platform and application dependencies with Helm. Check `infra/Makefile` and the Helm values under `infra/` for the deployment details.
+
+### 2. Start the backend
+
+Configure the backend environment, then start Spring Boot:
+
 ```bash
 cp backend/.env.example backend/.env
+```
+
+Set the values in `backend/.env` to match your local cluster configuration, then run:
+
+```bash
 make -C backend up
 ```
 
-### 3. Iniciar o Frontend (`:3000`)
+The API listens on port `8000` by default. The backend startup target imports the local cluster CA into a Java trust store, so it requires `kubectl` and `keytool`.
+
+### 3. Start the frontend
+
+In a separate terminal:
+
+```bash
+cp frontend/.env.example frontend/.env.local
+cd frontend
+bun install
+bun run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Set the frontend environment values to match the backend and Keycloak URLs for your local setup. See [frontend/README.md](frontend/README.md) for the variable reference.
+
+To stop the local Kind cluster, run `make -C infra down`.
+
+## Development
+
+Run repository formatting and static checks with:
+
+```bash
+make format
+make check
+```
+
+Run the frontend browser tests with:
+
 ```bash
 cd frontend
-cp .env.example .env.local
-npm run dev   # ou: bun run dev
+bun run test:e2e
 ```
 
-Acesse a aplicação em **http://localhost:3000**.
+The backend check target runs Spotless validation and unit tests. The frontend check target runs Prettier validation and ESLint.
 
----
+## Documentation
 
-## Qualidade e Testes
-
-```bash
-# Verificar formatação (Prettier / Spotless), linter (ESLint) e testes unitários
-make check
-
-# Executar suíte de testes E2E no navegador (Playwright)
-cd frontend && npm run test:e2e
-```
-
----
-
-## Documentação de Engenharia de Software
-
-- **Especificação de Requisitos de Software (SRS):** [`docs/requirements/Documento_de_Requisitos_GameKube.pdf`](docs/requirements/Documento_de_Requisitos_GameKube.pdf)
-- **Documentação do Cliente Web:** [`frontend/README.md`](frontend/README.md)
+- [Frontend development guide](frontend/README.md)
+- [Software requirements specification (PDF)](docs/requirements/Documento_de_Requisitos_GameKube.pdf)
+- [Architecture diagrams](docs/images/)
