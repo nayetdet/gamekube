@@ -1,7 +1,7 @@
 import type { User } from '@/entities/user/user.entity';
 import { SidebarBrand } from './sidebar-brand';
 import { SidebarNav } from './sidebar-nav';
-import Image from 'next/image';
+import { BrandMark } from './brand-mark';
 import Link from 'next/link';
 
 export type SidebarProps = {
@@ -31,7 +31,7 @@ export function Sidebar({
           aria-label="GameKube"
           className="mx-auto block w-10"
         >
-          <Image src="/gamekube-brand-blue.png" alt="" width={40} height={40} />
+          <BrandMark />
         </Link>
       ) : (
         <SidebarBrand />

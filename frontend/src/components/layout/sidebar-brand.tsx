@@ -10,7 +10,7 @@ export function SidebarBrand() {
       aria-label={site.name}
       className="flex justify-center rounded-xl px-2 py-2 transition-colors hover:bg-sidebar-accent"
     >
-      <BrandLockup className="w-28" />
+      <BrandLockup className="w-56 max-w-full" />
     </Link>
   );
 }
