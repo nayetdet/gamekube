@@ -29,6 +29,8 @@ export function SaveControls({ id }: { id: string }) {
       if (!response.ok) {
         if (response.status === 404)
           toast.info('Nenhum save encontrado para este jogo.');
+        else if (response.status === 409)
+          toast.error('Encerre o jogo antes de baixar o save.');
         else toast.error('Não foi possível baixar o save.');
         return;
       }
@@ -36,7 +38,9 @@ export function SaveControls({ id }: { id: string }) {
       const link = document.createElement('a');
       link.href = objectUrl;
       link.download = `${id}-save.zip`;
+      document.body.appendChild(link);
       link.click();
+      link.remove();
       setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     } catch {
       toast.error('Não foi possível baixar o save.');
@@ -75,6 +79,7 @@ export function SaveControls({ id }: { id: string }) {
         size="sm"
         className="h-9 w-full gap-1.5"
         disabled={busy !== null}
+        aria-busy={busy === 'download'}
         onClick={download}
       >
         {busy === 'download' ? (

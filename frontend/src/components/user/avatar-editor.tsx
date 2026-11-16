@@ -69,10 +69,11 @@ export function AvatarEditor({ username }: { username: string }) {
       <button
         type="button"
         disabled={busy}
+        aria-busy={busy}
         onClick={() => input.current?.click()}
         aria-label="Alterar foto de perfil"
-        title="Alterar foto de perfil"
-        className="absolute right-0 bottom-0 z-10 flex size-9 items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow-md transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60"
+        title="Alterar foto de perfil (JPEG, PNG, GIF ou WebP até 10 MB)"
+        className="absolute right-0 bottom-0 z-10 flex size-9 cursor-pointer items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow-md transition-all duration-150 hover:scale-105 hover:opacity-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy ? (
           <Loader2Icon className="size-4 animate-spin" />
