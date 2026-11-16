@@ -16,6 +16,8 @@
 
 ## Arquitetura do Projeto
 
+![Arquitetura Lógica do GameKube](docs/images/arquitetura-logica-gamekub.jpeg)
+
 ```text
 gamekube/
 ├── infra/               # Cluster Kind, charts Helm (Keycloak, PostgreSQL, Redis, MinIO, Ingress, Cert-Manager)
